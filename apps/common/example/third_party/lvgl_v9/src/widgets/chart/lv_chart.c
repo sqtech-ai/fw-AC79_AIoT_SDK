@@ -415,13 +415,6 @@ lv_chart_series_t *lv_chart_get_series_next(const lv_obj_t *obj, const lv_chart_
  * Cursor
  *====================*/
 
-/**
- * Add a cursor with a given color
- * @param chart     pointer to chart object
- * @param color     color of the cursor
- * @param dir       direction of the cursor. `LV_DIR_RIGHT/LEFT/TOP/DOWN/HOR/VER/ALL`. OR-ed values are possible
- * @return          pointer to the created cursor
- */
 lv_chart_cursor_t   *lv_chart_add_cursor(lv_obj_t *obj, lv_color_t color, lv_dir_t dir)
 {
     LV_ASSERT_OBJ(obj, MY_CLASS);
@@ -442,13 +435,6 @@ lv_chart_cursor_t   *lv_chart_add_cursor(lv_obj_t *obj, lv_color_t color, lv_dir
     return cursor;
 }
 
-/**
- * Set the coordinate of the cursor with respect
- * to the origin of series area of the chart.
- * @param chart pointer to a chart object.
- * @param cursor pointer to the cursor.
- * @param pos the new coordinate of cursor relative to the series area
- */
 void lv_chart_set_cursor_pos(lv_obj_t *chart, lv_chart_cursor_t *cursor, lv_point_t *pos)
 {
     LV_ASSERT_NULL(cursor);
@@ -459,13 +445,6 @@ void lv_chart_set_cursor_pos(lv_obj_t *chart, lv_chart_cursor_t *cursor, lv_poin
     lv_chart_refresh(chart);
 }
 
-/**
- * Set the coordinate of the cursor with respect
- * to the origin of series area of the chart.
- * @param chart pointer to a chart object.
- * @param cursor pointer to the cursor.
- * @param pos the new coordinate of cursor relative to the series area
- */
 void lv_chart_set_cursor_point(lv_obj_t *chart, lv_chart_cursor_t *cursor, lv_chart_series_t *ser, uint32_t point_id)
 {
     LV_ASSERT_NULL(cursor);
@@ -479,13 +458,7 @@ void lv_chart_set_cursor_point(lv_obj_t *chart, lv_chart_cursor_t *cursor, lv_ch
     cursor->ser = ser;
     lv_chart_refresh(chart);
 }
-/**
- * Get the coordinate of the cursor with respect
- * to the origin of series area of the chart.
- * @param chart pointer to a chart object
- * @param cursor pointer to cursor
- * @return coordinate of the cursor as lv_point_t
- */
+
 lv_point_t lv_chart_get_cursor_point(lv_obj_t *chart, lv_chart_cursor_t *cursor)
 {
     LV_ASSERT_NULL(cursor);
@@ -723,7 +696,7 @@ static void lv_chart_event(const lv_obj_class_t *class_p, lv_event_t *e)
     }
 
     lv_event_code_t code = lv_event_get_code(e);
-    lv_obj_t *obj = lv_event_get_target(e);
+    lv_obj_t *obj = lv_event_get_current_target(e);
 
     lv_chart_t *chart  = (lv_chart_t *)obj;
     if (code == LV_EVENT_PRESSED) {

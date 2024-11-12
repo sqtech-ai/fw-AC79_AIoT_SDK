@@ -42,14 +42,15 @@ echo "%OBJDUMP% -section-headers -address-mask=0x1ffffff %ELFFILE%" >> ${PROJ_BU
 echo "%OBJDUMP% -t %ELFFILE% > symbol_tbl.txt" >> ${PROJ_BUILD}
 echo "copy /b text.bin+data.bin+ram0_data.bin+cache_ram_data.bin app.bin" >> ${PROJ_BUILD}
 #if defined CONFIG_UI_ENABLE
-#if defined CONFIG_UI_FILE_SAVE_IN_RESERVED_EXPAND_ZONE || defined CONFIG_UI_FILE_SAVE_IN_RESERVED_ZONE
+#if defined CONFIG_UI_FILE_SAVE_IN_RESERVED_EXPAND_ZONE
 echo "packres\packres.exe -n ui -o packres/UIPACKRES ui_res" >> ${PROJ_BUILD}
 #else
 echo "set UI_RES=ui_res" >> ${PROJ_BUILD}
 #endif
 #endif
+
 #if defined CONFIG_AUDIO_ENABLE && defined CONFIG_VOICE_PROMPT_FILE_PATH
-#if defined CONFIG_VOICE_PROMPT_FILE_SAVE_IN_RESERVED_EXPAND_ZONE || defined CONFIG_VOICE_PROMPT_FILE_SAVE_IN_RESERVED_ZONE
+#if defined CONFIG_VOICE_PROMPT_FILE_SAVE_IN_RESERVED_EXPAND_ZONE
 echo "packres\packres.exe -n tone -o packres/AUPACKRES audlogo" >> ${PROJ_BUILD}
 #else
 echo "set AUDIO_RES=audlogo" >> ${PROJ_BUILD}
@@ -73,13 +74,13 @@ echo -n CONFIG_SDNAND_FAT1_CLUSTER_SIZE >> ${PROJ_BUILD}
 echo " --lfn true --n-root 512 --volume-name FAT1_IMG --output jl_fat1.bin --fat-dir fat1_dir" >> ${PROJ_BUILD}
 echo "isd_download.exe isd_config.ini -gen2 -to-sdcard -dev wl82 -boot 0x1c02000 -div1 -app app.bin cfg_tool.bin -res %AUDIO_RES% %UI_RES% cfg -extend-bin -output-bin jl_hfs.bin %UPDATE_FILES% -no-app-bin-enc" >> ${PROJ_BUILD}
 #elif defined CONFIG_SFC_ENABLE
-echo "isd_download.exe isd_config.ini -tonorflash -dev wl82 -boot 0x1c02000 -div1 -wait 300 -uboot uboot.boot -app app.bin cfg_tool.bin -res %AUDIO_RES% %UI_RES% cfg -reboot 500 %UPDATE_FILES% -extend-bin" >> ${PROJ_BUILD}
+echo "isd_download.exe isd_config.ini -gen2 -tonorflash -dev wl82 -boot 0x1c02000 -div1 -wait 300 -uboot uboot.boot -app app.bin cfg_tool.bin -res %AUDIO_RES% %UI_RES% cfg -reboot 500 %UPDATE_FILES% -extend-bin" >> ${PROJ_BUILD}
 #else
 echo "set run_addr=0x2000" >> ${PROJ_BUILD}
 echo "set load_addr=0x4000" >> ${PROJ_BUILD}
 echo "set mask_addr=0x100000" >> ${PROJ_BUILD}
 echo "uboot_lz4.exe app.bin app.lz4 %run_addr% %load_addr% rom.image %mask_addr%" >> ${PROJ_BUILD}
-echo "isd_download.exe isd_config.ini -tonorflash -dev wl82 -boot 0x1c02000 -div1 -wait 300 -uboot uboot.boot -app app.lz4 cfg_tool.bin -res %AUDIO_RES% %UI_RES% cfg -reboot 500 %UPDATE_FILES% -extend-bin" >> ${PROJ_BUILD}
+echo "isd_download.exe isd_config.ini -gen2 -tonorflash -dev wl82 -boot 0x1c02000 -div1 -wait 300 -uboot uboot.boot -app app.lz4 cfg_tool.bin -res %AUDIO_RES% %UI_RES% cfg -reboot 500 %UPDATE_FILES% -extend-bin" >> ${PROJ_BUILD}
 #endif
 
 #if 0
@@ -134,20 +135,6 @@ rm isd_config.ini
 #else
 
 
-#if defined CONFIG_RELEASE_ENABLE && (defined CONFIG_VOICE_PROMPT_FILE_SAVE_IN_RESERVED_ZONE || defined CONFIG_UI_FILE_SAVE_IN_RESERVED_ZONE \
-	|| defined CONFIG_VOICE_PROMPT_FILE_SAVE_IN_RESERVED_EXPAND_ZONE || defined CONFIG_UI_FILE_SAVE_IN_RESERVED_EXPAND_ZONE)
-
-REM 目前检测到SDK使用了资源文件打包放到预留区的功能，详细请浏览开源文档7.19资源区配置（RES和预留区），此功能可以节省flash空间，但操作比较繁琐
-REM 若flash容量充足不需要此功能，可屏蔽对应的宏定义
-REM 特别注意特别注意！！！如果跨版本升级固件，比如从1.0.3和1.1.x版本升级到1.2.x版本，必现保证生成的isd_config.ini升级前后的配置一样，请阅读tools/note.txt，必要时请向FAE确认
-REM 开发过程中可先设置isd_config_rule.c的配置项CALC_RES_CFG=YES，工具会自动适配填写对应资源文件的起始地址和长度，量产版本严禁打开该配置项，必须关闭！！！
-REM 量产版本必须先设置isd_config_rule.c的配置项CALC_RES_CFG=NO，然后根据资源文件大小填写AUPACKRES_LEN和UIPACKRES_LEN，请预留好后续资源升级的空间余量，该大小一经烧录之后是严禁更改的，升级固件生成时此大小必须保持一样！！！
-REM 量产版本填写AUPACKRES_LEN和UIPACKRES_LEN后点击第一次下载时工具还会出现警告，需要自行把脚本打印出来的flash info的AUPACKRES_ADR和UIPACKRES_ADR同步覆盖到isd_config_rule.c对应的AUPACKRES_ADR和UIPACKRES_ADR，该值一经烧录之后是严禁更改的，升级固件生成时此值必须保持一样！！！
-REM 如知悉后可自行删除下一行exit即可正常下载
-exit /b -1
-
-#endif
-
 @echo off
 
 @echo *********************************************************************
@@ -184,7 +171,7 @@ REM %OBJDUMP% -D -address-mask=0x1ffffff -print-dbg %ELFFILE% > sdk.lst
 copy /b text.bin+data.bin+ram0_data.bin+cache_ram_data.bin app.bin
 
 #if defined CONFIG_UI_ENABLE
-#if (defined CONFIG_UI_FILE_SAVE_IN_RESERVED_EXPAND_ZONE || defined CONFIG_UI_FILE_SAVE_IN_RESERVED_ZONE)
+#if defined CONFIG_UI_FILE_SAVE_IN_RESERVED_EXPAND_ZONE
 packres\packres.exe -n ui -o packres/UIPACKRES ui_res
 #else
 set UI_RES=ui_res
@@ -193,7 +180,7 @@ set UI_RES=ui_res
 
 #if defined CONFIG_AUDIO_ENABLE
 #if defined CONFIG_VOICE_PROMPT_FILE_PATH && \
-(defined CONFIG_VOICE_PROMPT_FILE_SAVE_IN_RESERVED_EXPAND_ZONE || defined CONFIG_VOICE_PROMPT_FILE_SAVE_IN_RESERVED_ZONE)
+defined CONFIG_VOICE_PROMPT_FILE_SAVE_IN_RESERVED_EXPAND_ZONE
 packres\packres.exe -n tone -o packres/AUPACKRES audlogo
 #else
 set AUDIO_RES=audlogo
@@ -230,7 +217,7 @@ fat_image_tool.exe --size CONFIG_SDNAND_HFAT_LEN_TEXT --sectors-per-cluster CONF
 fat_image_tool.exe --size CONFIG_SDNAND_FAT1_LEN_TEXT --sectors-per-cluster CONFIG_SDNAND_FAT1_CLUSTER_SIZE --lfn true --n-root 512 --volume-name FAT1_IMG --output jl_fat1.bin --fat-dir fat1_dir
 isd_download.exe isd_config.ini -gen2 -to-sdcard -dev wl82 -boot 0x1c02000 -div1 -app app.bin cfg_tool.bin -res %AUDIO_RES% %UI_RES% cfg -extend-bin -output-bin jl_hfs.bin %UPDATE_FILES% -no-app-bin-enc
 #elif defined CONFIG_SFC_ENABLE
-isd_download.exe isd_config.ini -tonorflash -dev wl82 -boot 0x1c02000 -div1 -wait 300 -uboot uboot.boot -app app.bin cfg_tool.bin -res %AUDIO_RES% %UI_RES% %CFG_FILE% -reboot 500 %KEY_FILE% %UPDATE_FILES% -extend-bin
+isd_download.exe isd_config.ini -gen2 -tonorflash -dev wl82 -boot 0x1c02000 -div1 -wait 300 -uboot uboot.boot -app app.bin cfg_tool.bin -res %AUDIO_RES% %UI_RES% %CFG_FILE% -reboot 500 %KEY_FILE% %UPDATE_FILES% -extend-bin
 #else
 REM @@@@@@@无效参数
 set run_addr=0x2000
@@ -239,7 +226,7 @@ set mask_addr=0x100000
 uboot_lz4.exe app.bin app.lz4 %run_addr% %load_addr% rom.image %mask_addr%
 REM @@@@@@@@@@@@@@@
 
-isd_download.exe isd_config.ini -tonorflash -dev wl82 -boot 0x1c02000 -div1 -wait 300 -uboot uboot.boot -app app.lz4 cfg_tool.bin -res %AUDIO_RES% %UI_RES% %CFG_FILE% -reboot 500 %KEY_FILE% %UPDATE_FILES% -extend-bin
+isd_download.exe isd_config.ini -gen2 -tonorflash -dev wl82 -boot 0x1c02000 -div1 -wait 300 -uboot uboot.boot -app app.lz4 cfg_tool.bin -res %AUDIO_RES% %UI_RES% %CFG_FILE% -reboot 500 %KEY_FILE% %UPDATE_FILES% -extend-bin
 #endif
 
 

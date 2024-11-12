@@ -64,49 +64,32 @@ lv_obj_t *lv_spinbox_create(lv_obj_t *parent)
  * Setter functions
  *====================*/
 
-/**
- * Set spinbox value
- * @param obj pointer to spinbox
- * @param i value to be set
- */
-void lv_spinbox_set_value(lv_obj_t *obj, int32_t i)
+void lv_spinbox_set_value(lv_obj_t *obj, int32_t v)
 {
     LV_ASSERT_OBJ(obj, MY_CLASS);
     lv_spinbox_t *spinbox = (lv_spinbox_t *)obj;
 
-    if (i > spinbox->range_max) {
-        i = spinbox->range_max;
+    if (v > spinbox->range_max) {
+        v = spinbox->range_max;
     }
-    if (i < spinbox->range_min) {
-        i = spinbox->range_min;
+    if (v < spinbox->range_min) {
+        v = spinbox->range_min;
     }
 
-    spinbox->value = i;
+    spinbox->value = v;
 
     lv_spinbox_updatevalue(obj);
 }
 
-/**
- * Set spinbox rollover function
- * @param spinbox pointer to spinbox
- * @param b true or false to enable or disable (default)
- */
-void lv_spinbox_set_rollover(lv_obj_t *obj, bool b)
+void lv_spinbox_set_rollover(lv_obj_t *obj, bool rollover)
 {
     LV_ASSERT_OBJ(obj, MY_CLASS);
     lv_spinbox_t *spinbox = (lv_spinbox_t *)obj;
 
-    spinbox->rollover = b;
+    spinbox->rollover = rollover;
 }
 
-/**
- * Set spinbox digit format (digit count and decimal format)
- * @param spinbox pointer to spinbox
- * @param digit_count number of digit excluding the decimal separator and the sign
- * @param separator_position number of digit before the decimal point. If 0, decimal point is not
- * shown
- */
-void lv_spinbox_set_digit_format(lv_obj_t *obj, uint32_t digit_count, uint32_t separator_position)
+void lv_spinbox_set_digit_format(lv_obj_t *obj, uint32_t digit_count, uint32_t sep_pos)
 {
     LV_ASSERT_OBJ(obj, MY_CLASS);
     lv_spinbox_t *spinbox = (lv_spinbox_t *)obj;
@@ -115,8 +98,8 @@ void lv_spinbox_set_digit_format(lv_obj_t *obj, uint32_t digit_count, uint32_t s
         digit_count = LV_SPINBOX_MAX_DIGIT_COUNT;
     }
 
-    if (separator_position >= digit_count) {
-        separator_position = 0;
+    if (sep_pos >= digit_count) {
+        sep_pos = 0;
     }
 
     if (digit_count < LV_SPINBOX_MAX_DIGIT_COUNT) {
@@ -130,16 +113,11 @@ void lv_spinbox_set_digit_format(lv_obj_t *obj, uint32_t digit_count, uint32_t s
     }
 
     spinbox->digit_count   = digit_count;
-    spinbox->dec_point_pos = separator_position;
+    spinbox->dec_point_pos = sep_pos;
 
     lv_spinbox_updatevalue(obj);
 }
 
-/**
- * Set spinbox step
- * @param spinbox pointer to spinbox
- * @param step steps on increment/decrement
- */
 void lv_spinbox_set_step(lv_obj_t *obj, uint32_t step)
 {
     LV_ASSERT_OBJ(obj, MY_CLASS);
@@ -149,12 +127,6 @@ void lv_spinbox_set_step(lv_obj_t *obj, uint32_t step)
     lv_spinbox_updatevalue(obj);
 }
 
-/**
- * Set spinbox value range
- * @param spinbox pointer to spinbox
- * @param range_min maximum value, inclusive
- * @param range_max minimum value, inclusive
- */
 void lv_spinbox_set_range(lv_obj_t *obj, int32_t range_min, int32_t range_max)
 {
     LV_ASSERT_OBJ(obj, MY_CLASS);
@@ -173,11 +145,6 @@ void lv_spinbox_set_range(lv_obj_t *obj, int32_t range_min, int32_t range_max)
     lv_spinbox_updatevalue(obj);
 }
 
-/**
- * Set cursor position to a specific digit for edition
- * @param spinbox pointer to spinbox
- * @param pos selected position in spinbox
- */
 void lv_spinbox_set_cursor_pos(lv_obj_t *obj, uint32_t pos)
 {
     LV_ASSERT_OBJ(obj, MY_CLASS);
@@ -195,11 +162,6 @@ void lv_spinbox_set_cursor_pos(lv_obj_t *obj, uint32_t pos)
     lv_spinbox_updatevalue(obj);
 }
 
-/**
- * Set direction of digit step when clicking an encoder button while in editing mode
- * @param spinbox pointer to spinbox
- * @param direction the direction (LV_DIR_RIGHT or LV_DIR_LEFT)
- */
 void lv_spinbox_set_digit_step_direction(lv_obj_t *obj, lv_dir_t direction)
 {
     LV_ASSERT_OBJ(obj, MY_CLASS);
@@ -212,11 +174,6 @@ void lv_spinbox_set_digit_step_direction(lv_obj_t *obj, lv_dir_t direction)
  * Getter functions
  *====================*/
 
-/**
- * Get the spinbox numeral value (user has to convert to float according to its digit format)
- * @param obj pointer to spinbox
- * @return value integer value of the spinbox
- */
 int32_t lv_spinbox_get_value(lv_obj_t *obj)
 {
     LV_ASSERT_OBJ(obj, MY_CLASS);
@@ -224,11 +181,7 @@ int32_t lv_spinbox_get_value(lv_obj_t *obj)
 
     return spinbox->value;
 }
-/**
- * Get the spinbox step value (user has to convert to float according to its digit format)
- * @param obj pointer to spinbox
- * @return value integer step value of the spinbox
- */
+
 int32_t lv_spinbox_get_step(lv_obj_t *obj)
 {
     LV_ASSERT_OBJ(obj, MY_CLASS);
@@ -241,10 +194,6 @@ int32_t lv_spinbox_get_step(lv_obj_t *obj)
  * Other functions
  *====================*/
 
-/**
- * Select next lower digit for edition
- * @param obj pointer to spinbox
- */
 void lv_spinbox_step_next(lv_obj_t *obj)
 {
     LV_ASSERT_OBJ(obj, MY_CLASS);
@@ -256,10 +205,6 @@ void lv_spinbox_step_next(lv_obj_t *obj)
     lv_spinbox_updatevalue(obj);
 }
 
-/**
- * Select next higher digit for edition
- * @param obj pointer to spinbox
- */
 void lv_spinbox_step_prev(lv_obj_t *obj)
 {
     LV_ASSERT_OBJ(obj, MY_CLASS);
@@ -274,10 +219,6 @@ void lv_spinbox_step_prev(lv_obj_t *obj)
     lv_spinbox_updatevalue(obj);
 }
 
-/**
- * Get spinbox rollover function status
- * @param obj pointer to spinbox
- */
 bool lv_spinbox_get_rollover(lv_obj_t *obj)
 {
     LV_ASSERT_OBJ(obj, MY_CLASS);
@@ -286,10 +227,6 @@ bool lv_spinbox_get_rollover(lv_obj_t *obj)
     return spinbox->rollover;
 }
 
-/**
- * Increment spinbox value by one step
- * @param obj pointer to spinbox
- */
 void lv_spinbox_increment(lv_obj_t *obj)
 {
     LV_ASSERT_OBJ(obj, MY_CLASS);
@@ -319,10 +256,6 @@ void lv_spinbox_increment(lv_obj_t *obj)
     }
 }
 
-/**
- * Decrement spinbox value by one step
- * @param obj pointer to spinbox
- */
 void lv_spinbox_decrement(lv_obj_t *obj)
 {
     LV_ASSERT_OBJ(obj, MY_CLASS);
@@ -393,7 +326,7 @@ static void lv_spinbox_event(const lv_obj_class_t *class_p, lv_event_t *e)
     }
 
     const lv_event_code_t code = lv_event_get_code(e);
-    lv_obj_t *obj = lv_event_get_target(e);
+    lv_obj_t *obj = lv_event_get_current_target(e);
     lv_spinbox_t *spinbox = (lv_spinbox_t *)obj;
     if (code == LV_EVENT_RELEASED) {
         /*If released with an ENCODER then move to the next digit*/

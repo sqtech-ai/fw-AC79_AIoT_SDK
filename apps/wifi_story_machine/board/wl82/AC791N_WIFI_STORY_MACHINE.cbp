@@ -495,7 +495,9 @@
 <Unit filename="../../../../apps/common/usb/device/slave_uvc.h" />
 <Unit filename="../../../../apps/common/usb/device/task_pc.c"><Option compilerVer="CC"/></Unit>
 <Unit filename="../../../../apps/common/usb/device/uac.c"><Option compilerVer="CC"/></Unit>
+<Unit filename="../../../../apps/common/usb/device/uac2.c"><Option compilerVer="CC"/></Unit>
 <Unit filename="../../../../apps/common/usb/device/uac_stream.c"><Option compilerVer="CC"/></Unit>
+<Unit filename="../../../../apps/common/usb/device/uac_stream.h" />
 <Unit filename="../../../../apps/common/usb/device/usb_device.c"><Option compilerVer="CC"/></Unit>
 <Unit filename="../../../../apps/common/usb/device/user_setup.c"><Option compilerVer="CC"/></Unit>
 <Unit filename="../../../../apps/common/usb/device/uvc.c"><Option compilerVer="CC"/></Unit>
@@ -504,7 +506,9 @@
 <Unit filename="../../../../apps/common/usb/host/aoa.c"><Option compilerVer="CC"/></Unit>
 <Unit filename="../../../../apps/common/usb/host/aoa.h" />
 <Unit filename="../../../../apps/common/usb/host/audio.c"><Option compilerVer="CC"/></Unit>
+<Unit filename="../../../../apps/common/usb/host/audio.h" />
 <Unit filename="../../../../apps/common/usb/host/hid.c"><Option compilerVer="CC"/></Unit>
+<Unit filename="../../../../apps/common/usb/host/hid.h" />
 <Unit filename="../../../../apps/common/usb/host/usb_bulk_transfer.c"><Option compilerVer="CC"/></Unit>
 <Unit filename="../../../../apps/common/usb/host/usb_bulk_transfer.h" />
 <Unit filename="../../../../apps/common/usb/host/usb_ctrl_transfer.c"><Option compilerVer="CC"/></Unit>
@@ -534,8 +538,6 @@
 <Unit filename="../../../../apps/wifi_story_machine/board/wl82/board_7911B8_cfg.h" />
 <Unit filename="../../../../apps/wifi_story_machine/board/wl82/board_7911BA_cfg.h" />
 <Unit filename="../../../../apps/wifi_story_machine/board/wl82/board_7911BB_cfg.h" />
-<Unit filename="../../../../apps/wifi_story_machine/board/wl82/board_7911B_develop_cfg.h" />
-<Unit filename="../../../../apps/wifi_story_machine/board/wl82/board_7911B_dui_cfg.h" />
 <Unit filename="../../../../apps/wifi_story_machine/board/wl82/board_7911D.c"><Option compilerVer="CC"/></Unit>
 <Unit filename="../../../../apps/wifi_story_machine/board/wl82/board_7911D_cfg.h" />
 <Unit filename="../../../../apps/wifi_story_machine/board/wl82/board_7912AB_cfg.h" />
@@ -549,6 +551,9 @@
 <Unit filename="../../../../apps/wifi_story_machine/board/wl82/board_7916A.c"><Option compilerVer="CC"/></Unit>
 <Unit filename="../../../../apps/wifi_story_machine/board/wl82/board_7916AA_cfg.h" />
 <Unit filename="../../../../apps/wifi_story_machine/board/wl82/board_7916AB_cfg.h" />
+<Unit filename="../../../../apps/wifi_story_machine/board/wl82/board_7916A_demo_cfg.h" />
+<Unit filename="../../../../apps/wifi_story_machine/board/wl82/board_7916A_dev_kit_cfg.h" />
+<Unit filename="../../../../apps/wifi_story_machine/board/wl82/board_7916A_develop_cfg.h" />
 <Unit filename="../../../../apps/wifi_story_machine/board/wl82/board_config.h" />
 <Unit filename="../../../../apps/wifi_story_machine/bt_ble/ble.c"><Option compilerVer="CC"/></Unit>
 <Unit filename="../../../../apps/wifi_story_machine/bt_ble/bt_decode.c"><Option compilerVer="CC"/></Unit>
@@ -714,6 +719,7 @@
 <Unit filename="../../../../include_lib/driver/device/usb/device/hid.h" />
 <Unit filename="../../../../include_lib/driver/device/usb/device/msd.h" />
 <Unit filename="../../../../include_lib/driver/device/usb/device/uac_audio.h" />
+<Unit filename="../../../../include_lib/driver/device/usb/device/uac_audio_v2.h" />
 <Unit filename="../../../../include_lib/driver/device/usb/device/usb_stack.h" />
 <Unit filename="../../../../include_lib/driver/device/usb/host/usb_host.h" />
 <Unit filename="../../../../include_lib/driver/device/usb/otg.h" />
@@ -950,6 +956,7 @@
 <Unit filename="../../../../include_lib/utils/ui/ui/ui_browser.h" />
 <Unit filename="../../../../include_lib/utils/ui/ui/ui_button.h" />
 <Unit filename="../../../../include_lib/utils/ui/ui/ui_camera.h" />
+<Unit filename="../../../../include_lib/utils/ui/ui/ui_circle.h" />
 <Unit filename="../../../../include_lib/utils/ui/ui/ui_core.h" />
 <Unit filename="../../../../include_lib/utils/ui/ui/ui_grid.h" />
 <Unit filename="../../../../include_lib/utils/ui/ui/ui_number.h" />

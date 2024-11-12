@@ -28,6 +28,7 @@ int norflash_wait_busy(void);
 int norflash_eraser_otp(void);
 int norflash_write_otp(u8 *buf, int len);
 int norflash_read_otp(u8 *buf, int len);
+int norflash_read_otp_general(u8 cmd, u32 addr, u8 *buf, u32 len);
 void MEMCPY_FLASH(void *buf, void *read_addr, u32 size);
 
 #endif

@@ -201,7 +201,7 @@ bool lv_obj_refr_size(lv_obj_t *obj)
     /*Invalidate the new area*/
     lv_obj_invalidate(obj);
 
-    lv_obj_readjust_scroll(obj, LV_ANIM_OFF);
+    obj->readjust_scroll_after_layout = 1;
 
     /*If the object was out of the parent invalidate the new scrollbar area too.
      *If it wasn't out of the parent but out now, also invalidate the scrollbars*/
@@ -565,7 +565,6 @@ lv_coord_t lv_obj_get_y_aligned(const lv_obj_t *obj)
     return lv_obj_get_style_y(obj, LV_PART_MAIN);
 }
 
-
 lv_coord_t lv_obj_get_width(const lv_obj_t *obj)
 {
     LV_ASSERT_OBJ(obj, MY_CLASS);
@@ -647,7 +646,6 @@ void lv_obj_refr_pos(lv_obj_t *obj)
     if (lv_obj_is_layout_positioned(obj)) {
         return;
     }
-
 
     lv_obj_t *parent = lv_obj_get_parent(obj);
     lv_coord_t x = lv_obj_get_style_x(obj, LV_PART_MAIN);
@@ -877,7 +875,6 @@ void lv_obj_get_transformed_area(const lv_obj_t *obj, lv_area_t *area, bool recu
     lv_area_increase(area, 5, 5);
 }
 
-
 void lv_obj_invalidate_area(const lv_obj_t *obj, const lv_area_t *area)
 {
     LV_ASSERT_OBJ(obj, MY_CLASS);
@@ -946,7 +943,6 @@ bool lv_obj_area_is_visible(const lv_obj_t *obj, lv_area_t *area)
     }
 
     lv_obj_get_transformed_area(obj, area, true, false);
-
 
     /*Truncate recursively to the parents*/
     lv_obj_t *par = lv_obj_get_parent(obj);
@@ -1054,8 +1050,6 @@ lv_coord_t lv_clamp_height(lv_coord_t height, lv_coord_t min_height, lv_coord_t 
     }
     return LV_CLAMP(min_height, height, max_height);
 }
-
-
 
 /**********************
  *   STATIC FUNCTIONS
@@ -1170,7 +1164,6 @@ static lv_coord_t calc_content_height(lv_obj_t *obj)
             continue;
         }
 
-
         if (!lv_obj_is_layout_positioned(child)) {
             lv_align_t align = lv_obj_get_style_align(child, 0);
             switch (align) {
@@ -1212,21 +1205,23 @@ static void layout_update_core(lv_obj_t *obj)
         layout_update_core(child);
     }
 
-    if (obj->layout_inv == 0) {
-        return;
+    if (obj->layout_inv) {
+        obj->layout_inv = 0;
+        lv_obj_refr_size(obj);
+        lv_obj_refr_pos(obj);
+
+        if (child_cnt > 0) {
+            uint32_t layout_id = lv_obj_get_style_layout(obj, LV_PART_MAIN);
+            if (layout_id > 0 && layout_id <= layout_cnt) {
+                void   *user_data = LV_GC_ROOT(_lv_layout_list)[layout_id - 1].user_data;
+                LV_GC_ROOT(_lv_layout_list)[layout_id - 1].cb(obj, user_data);
+            }
+        }
     }
 
-    obj->layout_inv = 0;
-
-    lv_obj_refr_size(obj);
-    lv_obj_refr_pos(obj);
-
-    if (child_cnt > 0) {
-        uint32_t layout_id = lv_obj_get_style_layout(obj, LV_PART_MAIN);
-        if (layout_id > 0 && layout_id <= layout_cnt) {
-            void   *user_data = LV_GC_ROOT(_lv_layout_list)[layout_id - 1].user_data;
-            LV_GC_ROOT(_lv_layout_list)[layout_id - 1].cb(obj, user_data);
-        }
+    if (obj->readjust_scroll_after_layout) {
+        obj->readjust_scroll_after_layout = 0;
+        lv_obj_readjust_scroll(obj, LV_ANIM_OFF);
     }
 }
 

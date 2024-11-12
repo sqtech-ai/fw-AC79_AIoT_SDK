@@ -6,7 +6,6 @@
 #include "sys_common.h"
 #include "yuv_soft_scalling.h"
 #include "asm/jpeg_codec.h"
-#include "lcd_te_driver.h"
 #include "system/timer.h"
 #include "get_yuv_data.h"
 

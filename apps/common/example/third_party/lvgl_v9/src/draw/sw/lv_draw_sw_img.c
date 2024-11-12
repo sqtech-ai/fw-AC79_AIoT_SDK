@@ -14,16 +14,33 @@
 #include "../../misc/lv_log.h"
 #include "../../core/lv_refr.h"
 #include "../../stdlib/lv_mem.h"
-#include "../../misc/lv_cache.h"
 #include "../../misc/lv_math.h"
 #include "../../misc/lv_color.h"
 #include "../../stdlib/lv_string.h"
 #include "../../core/lv_global.h"
 
+#if LV_USE_DRAW_SW_ASM == LV_DRAW_SW_ASM_HELIUM
+#include "arm2d/lv_draw_sw_helium.h"
+#elif LV_USE_DRAW_SW_ASM == LV_DRAW_SW_ASM_CUSTOM
+#include LV_DRAW_SW_ASM_CUSTOM_INCLUDE
+#endif
+
 /*********************
  *      DEFINES
  *********************/
 #define MAX_BUF_SIZE (uint32_t) (4 * lv_display_get_horizontal_resolution(_lv_refr_get_disp_refreshing()) * lv_color_format_get_size(lv_display_get_color_format(_lv_refr_get_disp_refreshing())))
+
+#ifndef LV_DRAW_SW_IMAGE
+#define LV_DRAW_SW_IMAGE(...)   LV_RESULT_INVALID
+#endif
+
+#ifndef LV_DRAW_SW_RGB565_RECOLOR
+#define LV_DRAW_SW_RGB565_RECOLOR(...)  LV_RESULT_INVALID
+#endif
+
+#ifndef LV_DRAW_SW_RGB888_RECOLOR
+#define LV_DRAW_SW_RGB888_RECOLOR(...)  LV_RESULT_INVALID
+#endif
 
 /**********************
  *      TYPEDEFS
@@ -32,16 +49,6 @@
 /**********************
  *  STATIC PROTOTYPES
  **********************/
-
-static void img_draw_normal(lv_draw_unit_t *draw_unit, const lv_draw_image_dsc_t *draw_dsc,
-                            const lv_area_t *coords);
-
-static void img_draw_tiled(lv_draw_unit_t *draw_unit, const lv_draw_image_dsc_t *draw_dsc,
-                           const lv_area_t *coords);
-
-static void img_decode_and_draw(lv_draw_unit_t *draw_unit, const lv_draw_image_dsc_t *draw_dsc,
-                                lv_image_decoder_dsc_t *decoder_dsc,
-                                const lv_area_t *img_area, const lv_area_t *clipped_img_area);
 
 static void img_draw_core(lv_draw_unit_t *draw_unit, const lv_draw_image_dsc_t *draw_dsc,
                           const lv_image_decoder_dsc_t *decoder_dsc, lv_draw_image_sup_t *sup,
@@ -66,23 +73,13 @@ void lv_draw_sw_layer(lv_draw_unit_t *draw_unit, const lv_draw_image_dsc_t *draw
 
     /*It can happen that nothing was draw on a layer and therefore its buffer is not allocated.
      *In this case just return. */
-    if (layer_to_draw->buf == NULL) {
+    if (layer_to_draw->draw_buf == NULL) {
         return;
     }
 
-    lv_image_dsc_t img_dsc = { 0 };
-    img_dsc.header.w = lv_area_get_width(&layer_to_draw->buf_area);
-    img_dsc.header.h = lv_area_get_height(&layer_to_draw->buf_area);
-    img_dsc.header.cf = layer_to_draw->color_format;
-    img_dsc.header.stride = layer_to_draw->buf_stride;
-    img_dsc.data = layer_to_draw->buf;
-
-    lv_draw_image_dsc_t new_draw_dsc;
-    lv_memcpy(&new_draw_dsc, draw_dsc, sizeof(lv_draw_image_dsc_t));
-    new_draw_dsc.src = &img_dsc;
-
+    lv_draw_image_dsc_t new_draw_dsc = *draw_dsc;
+    new_draw_dsc.src = layer_to_draw->draw_buf;
     lv_draw_sw_image(draw_unit, &new_draw_dsc, coords);
-
 #if LV_USE_LAYER_DEBUG || LV_USE_PARALLEL_DRAW_DEBUG
     lv_area_t area_rot;
     lv_area_copy(&area_rot, coords);
@@ -164,129 +161,19 @@ void lv_draw_sw_layer(lv_draw_unit_t *draw_unit, const lv_draw_image_dsc_t *draw
 #endif
 }
 
-LV_ATTRIBUTE_FAST_MEM void lv_draw_sw_image(lv_draw_unit_t *draw_unit, const lv_draw_image_dsc_t *draw_dsc,
-        const lv_area_t *coords)
+void lv_draw_sw_image(lv_draw_unit_t *draw_unit, const lv_draw_image_dsc_t *draw_dsc,
+                      const lv_area_t *coords)
 {
     if (!draw_dsc->tile) {
-        img_draw_normal(draw_unit, draw_dsc, coords);
+        _lv_draw_image_normal_helper(draw_unit, draw_dsc, coords, img_draw_core);
     } else {
-        img_draw_tiled(draw_unit, draw_dsc, coords);
+        _lv_draw_image_tiled_helper(draw_unit, draw_dsc, coords, img_draw_core);
     }
 }
 
-static void img_draw_normal(lv_draw_unit_t *draw_unit, const lv_draw_image_dsc_t *draw_dsc,
-                            const lv_area_t *coords)
-{
-    lv_area_t draw_area;
-    lv_area_copy(&draw_area, coords);
-    if (draw_dsc->rotation || draw_dsc->scale_x != LV_SCALE_NONE || draw_dsc->scale_y != LV_SCALE_NONE) {
-        int32_t w = lv_area_get_width(coords);
-        int32_t h = lv_area_get_height(coords);
-
-        _lv_image_buf_get_transformed_area(&draw_area, w, h, draw_dsc->rotation, draw_dsc->scale_x, draw_dsc->scale_y,
-                                           &draw_dsc->pivot);
-
-        draw_area.x1 += coords->x1;
-        draw_area.y1 += coords->y1;
-        draw_area.x2 += coords->x1;
-        draw_area.y2 += coords->y1;
-    }
-
-    lv_area_t clipped_img_area;
-    if (!_lv_area_intersect(&clipped_img_area, &draw_area, draw_unit->clip_area)) {
-        return;
-    }
-
-    lv_image_decoder_dsc_t decoder_dsc;
-    lv_result_t res = lv_image_decoder_open(&decoder_dsc, draw_dsc->src, NULL);
-    if (res != LV_RESULT_OK) {
-        LV_LOG_ERROR("Failed to open image");
-        return;
-    }
-
-    img_decode_and_draw(draw_unit, draw_dsc, &decoder_dsc, coords, &clipped_img_area);
-
-    lv_image_decoder_close(&decoder_dsc);
-}
-
-static void img_draw_tiled(lv_draw_unit_t *draw_unit, const lv_draw_image_dsc_t *draw_dsc,
-                           const lv_area_t *coords)
-{
-    lv_image_decoder_dsc_t decoder_dsc;
-    lv_result_t res = lv_image_decoder_open(&decoder_dsc, draw_dsc->src, NULL);
-    if (res != LV_RESULT_OK) {
-        LV_LOG_ERROR("Failed to open image");
-        return;
-    }
-
-    int32_t img_w = lv_area_get_width(coords);
-    int32_t img_h = lv_area_get_height(coords);
-
-    lv_area_t tile_area = *coords;
-    int32_t tile_x_start = tile_area.x1;
-
-    while (tile_area.y1 <= draw_unit->clip_area->y2) {
-        while (tile_area.x1 <= draw_unit->clip_area->x2) {
-
-            lv_area_t clipped_img_area;
-            if (_lv_area_intersect(&clipped_img_area, &tile_area, draw_unit->clip_area)) {
-                img_decode_and_draw(draw_unit, draw_dsc, &decoder_dsc, &tile_area, &clipped_img_area);
-            }
-
-            tile_area.x1 += img_w;
-            tile_area.x2 += img_w;
-        }
-
-        tile_area.y1 += img_h;
-        tile_area.y2 += img_h;
-        tile_area.x1 = tile_x_start;
-        tile_area.x2 = tile_x_start + img_w - 1;
-    }
-
-    lv_image_decoder_close(&decoder_dsc);
-}
-
-static void img_decode_and_draw(lv_draw_unit_t *draw_unit, const lv_draw_image_dsc_t *draw_dsc,
-                                lv_image_decoder_dsc_t *decoder_dsc,
-                                const lv_area_t *img_area, const lv_area_t *clipped_img_area)
-{
-    lv_draw_image_sup_t sup;
-    sup.alpha_color = draw_dsc->recolor;
-    sup.palette = decoder_dsc->palette;
-    sup.palette_size = decoder_dsc->palette_size;
-
-    /*The whole image is available, just draw it*/
-    if (decoder_dsc->img_data) {
-        img_draw_core(draw_unit, draw_dsc, decoder_dsc, &sup, img_area, clipped_img_area);
-    }
-    /*Draw in smaller pieces*/
-    else {
-        lv_area_t relative_full_area_to_decode = *clipped_img_area;
-        lv_area_move(&relative_full_area_to_decode, -img_area->x1, -img_area->y1);
-
-        lv_area_t relative_decoded_area;
-        relative_decoded_area.x1 = LV_COORD_MIN;
-        relative_decoded_area.y1 = LV_COORD_MIN;
-        relative_decoded_area.x2 = LV_COORD_MIN;
-        relative_decoded_area.y2 = LV_COORD_MIN;
-        lv_result_t res = LV_RESULT_OK;
-
-        while (res == LV_RESULT_OK) {
-            res = lv_image_decoder_get_area(decoder_dsc, &relative_full_area_to_decode, &relative_decoded_area);
-
-            lv_area_t absolute_decoded_area = relative_decoded_area;
-            lv_area_move(&absolute_decoded_area, img_area->x1, img_area->y1);
-            if (res == LV_RESULT_OK) {
-                /*Limit draw area to the current decoded area and draw the image*/
-                lv_area_t clipped_img_area_sub;
-                if (_lv_area_intersect(&clipped_img_area_sub, clipped_img_area, &absolute_decoded_area)) {
-                    img_draw_core(draw_unit, draw_dsc, decoder_dsc, &sup,
-                                  &absolute_decoded_area, &clipped_img_area_sub);
-                }
-            }
-        }
-    }
-}
+/**********************
+ *   STATIC FUNCTIONS
+ **********************/
 
 static void img_draw_core(lv_draw_unit_t *draw_unit, const lv_draw_image_dsc_t *draw_dsc,
                           const lv_image_decoder_dsc_t *decoder_dsc, lv_draw_image_sup_t *sup,
@@ -296,12 +183,11 @@ static void img_draw_core(lv_draw_unit_t *draw_unit, const lv_draw_image_dsc_t *
                        draw_dsc->scale_y != LV_SCALE_NONE ? true : false;
 
     lv_draw_sw_blend_dsc_t blend_dsc;
-    const uint8_t *src_buf = decoder_dsc->img_data;
-    const lv_image_header_t *header = &decoder_dsc->header;
-    uint32_t img_stride = header->stride;
-    lv_color_format_t cf = header->cf;
-
-    cf = LV_COLOR_FORMAT_IS_INDEXED(cf) ? LV_COLOR_FORMAT_ARGB8888 : cf,
+    const lv_draw_buf_t *decoded = decoder_dsc->decoded;
+    const uint8_t *src_buf = decoded->data;
+    const lv_image_header_t *header = &decoded->header;
+    uint32_t img_stride = decoded->header.stride;
+    lv_color_format_t cf = decoded->header.cf;
 
     lv_memzero(&blend_dsc, sizeof(lv_draw_sw_blend_dsc_t));
     blend_dsc.opa = draw_dsc->opa;
@@ -350,8 +236,17 @@ static void img_draw_core(lv_draw_unit_t *draw_unit, const lv_draw_image_dsc_t *
         blend_dsc.src_color_format = cf;
         lv_draw_sw_blend(draw_unit, &blend_dsc);
     }
-    /*In the other cases every pixel need to be checked one-by-one*/
-    else {
+    /* check whethr it is possible to accelerate the operation in synchronouse mode */
+    else if (LV_RESULT_INVALID == LV_DRAW_SW_IMAGE(transformed,     /* whether require transform */
+             cf,               /* image format */
+             src_buf,          /* image buffer */
+             img_coords,       /* src_h, src_w, src_x1, src_y1 */
+             img_stride,       /* image stride */
+             clipped_img_area, /* blend area */
+             draw_unit,        /* target buffer, buffer width, buffer height, buffer stride */
+             draw_dsc)) {      /* opa, recolour_opa and colour */
+        /*In the other cases every pixel need to be checked one-by-one*/
+
         lv_area_t blend_area = *clipped_img_area;
         blend_dsc.blend_area = &blend_area;
 
@@ -368,6 +263,7 @@ static void img_draw_core(lv_draw_unit_t *draw_unit, const lv_draw_image_dsc_t *
                 cf_final = LV_COLOR_FORMAT_RGB565A8;
             }
         }
+
         uint8_t *tmp_buf;
         uint32_t px_size = lv_color_format_get_size(cf_final);
         int32_t buf_h;
@@ -386,6 +282,7 @@ static void img_draw_core(lv_draw_unit_t *draw_unit, const lv_draw_image_dsc_t *
             }
             tmp_buf = lv_malloc(buf_stride * buf_h);
         }
+        LV_ASSERT_MALLOC(tmp_buf);
 
         blend_dsc.src_buf = tmp_buf;
         blend_dsc.src_color_format = cf_final;
@@ -457,30 +354,34 @@ static void img_draw_core(lv_draw_unit_t *draw_unit, const lv_draw_image_dsc_t *
                 lv_opa_t mix = draw_dsc->recolor_opa;
                 lv_opa_t mix_inv = 255 - mix;
                 if (cf_final == LV_COLOR_FORMAT_RGB565A8 || cf_final == LV_COLOR_FORMAT_RGB565) {
-                    uint16_t c_mult[3];
-                    c_mult[0] = (color.blue >> 3) * mix;
-                    c_mult[1] = (color.green >> 2) * mix;
-                    c_mult[2] = (color.red >> 3) * mix;
-                    uint16_t *buf16 = (uint16_t *)tmp_buf;
-                    int32_t i;
-                    int32_t size = lv_area_get_size(&blend_area);
-                    for (i = 0; i < size; i++) {
-                        buf16[i] = (((c_mult[2] + ((buf16[i] >> 11) & 0x1F) * mix_inv) << 3) & 0xF800) +
-                                   (((c_mult[1] + ((buf16[i] >> 5) & 0x3F) * mix_inv) >> 3) & 0x07E0) +
-                                   ((c_mult[0] + (buf16[i] & 0x1F) * mix_inv) >> 8);
+                    if (LV_RESULT_INVALID == LV_DRAW_SW_RGB565_RECOLOR(tmp_buf, blend_area, color, mix)) {
+                        uint16_t c_mult[3];
+                        c_mult[0] = (color.blue >> 3) * mix;
+                        c_mult[1] = (color.green >> 2) * mix;
+                        c_mult[2] = (color.red >> 3) * mix;
+                        uint16_t *buf16 = (uint16_t *)tmp_buf;
+                        int32_t i;
+                        int32_t size = lv_area_get_size(&blend_area);
+                        for (i = 0; i < size; i++) {
+                            buf16[i] = (((c_mult[2] + ((buf16[i] >> 11) & 0x1F) * mix_inv) << 3) & 0xF800) +
+                                       (((c_mult[1] + ((buf16[i] >> 5) & 0x3F) * mix_inv) >> 3) & 0x07E0) +
+                                       ((c_mult[0] + (buf16[i] & 0x1F) * mix_inv) >> 8);
+                        }
                     }
                 } else  if (cf_final != LV_COLOR_FORMAT_A8) {
-                    uint32_t size = lv_area_get_size(&blend_area);
-                    uint32_t i;
-                    uint16_t c_mult[3];
-                    c_mult[0] = color.blue * mix;
-                    c_mult[1] = color.green * mix;
-                    c_mult[2] = color.red * mix;
-                    uint8_t *tmp_buf_2 = tmp_buf;
-                    for (i = 0; i < size * px_size; i += px_size) {
-                        tmp_buf_2[i + 0] = (c_mult[0] + (tmp_buf_2[i + 0] * mix_inv)) >> 8;
-                        tmp_buf_2[i + 1] = (c_mult[1] + (tmp_buf_2[i + 1] * mix_inv)) >> 8;
-                        tmp_buf_2[i + 2] = (c_mult[2] + (tmp_buf_2[i + 2] * mix_inv)) >> 8;
+                    if (LV_RESULT_INVALID == LV_DRAW_SW_RGB888_RECOLOR(tmp_buf, blend_area, color, mix, cf_final)) {
+                        uint32_t size = lv_area_get_size(&blend_area);
+                        uint32_t i;
+                        uint16_t c_mult[3];
+                        c_mult[0] = color.blue * mix;
+                        c_mult[1] = color.green * mix;
+                        c_mult[2] = color.red * mix;
+                        uint8_t *tmp_buf_2 = tmp_buf;
+                        for (i = 0; i < size * px_size; i += px_size) {
+                            tmp_buf_2[i + 0] = (c_mult[0] + (tmp_buf_2[i + 0] * mix_inv)) >> 8;
+                            tmp_buf_2[i + 1] = (c_mult[1] + (tmp_buf_2[i + 1] * mix_inv)) >> 8;
+                            tmp_buf_2[i + 2] = (c_mult[2] + (tmp_buf_2[i + 2] * mix_inv)) >> 8;
+                        }
                     }
                 }
             }
@@ -502,9 +403,5 @@ static void img_draw_core(lv_draw_unit_t *draw_unit, const lv_draw_image_dsc_t *
         lv_free(tmp_buf);
     }
 }
-
-/**********************
- *   STATIC FUNCTIONS
- **********************/
 
 #endif /*LV_USE_DRAW_SW*/

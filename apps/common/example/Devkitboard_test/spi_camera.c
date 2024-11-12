@@ -21,6 +21,7 @@
 
 #ifdef USE_DevKitBoard_TEST_DEMO
 
+static u16 recv_cnt = 2;//从第二行开始处理
 static struct spi_video *hdl;
 
 struct lbuf_test_head {
@@ -288,7 +289,7 @@ exit:
 }
 static int spi_camera_close(void)
 {
-
+    recv_cnt = 2;
     extern void GC0310_in_sleep_mode(void);
     GC0310_in_sleep_mode();
 
@@ -314,7 +315,6 @@ static int spi_camera_close(void)
 //PCLK80M xclk40M FPS20fps 两线spi
 static ___interrupt void spi_irq_cb(void) sec(.volatile_ram_code)
 {
-    static u16 recv_cnt = 2;//从第二行开始处理
     u32 recv_len;
     JL_SPI->CON |= BIT(14);//清除中断标记
     u32 id = 0;
@@ -342,6 +342,11 @@ static ___interrupt void spi_irq_cb(void) sec(.volatile_ram_code)
         }
         hdl->next_frame_addr = lbuf_alloc(lbuf_handle, YUV422_PACK_LEN); //lbuf内申请一块空间
     } else if (recv_cnt == 2) { //只有第一行有帧头 取余都是去行头
+
+        if (*(u32 *)hdl->irq_last_recv_buf != CAM_VSTART_VALUE) { //校验数据 (帧头)
+            goto recv_err;
+        }
+
         hdl->cpy_addr = hdl->next_frame_addr;
         hdl->real_data_addr = hdl->irq_last_recv_buf + CAM_FHEAD_SIZE + CAM_LHEAD_SIZE;
     } else {
@@ -461,7 +466,5 @@ static int reinit_spi_video(void)
 
 
 #endif
-
-
 
 

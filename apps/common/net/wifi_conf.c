@@ -53,7 +53,7 @@ const char WIFI_CHANNEL_QUALITY_INDICATION_BAD = 5; //STA模式下的信道通�
 #ifdef CONFIG_RF_TEST_ENABLE
 const char wifi_temperature_drift_trim_on = 0; //WiFi温度漂移校准开关,0为关闭，1为打开
 #else
-const char wifi_temperature_drift_trim_on = 1; //WiFi温度漂移校准开关,0为关闭，1为打开
+const char wifi_temperature_drift_trim_on = 0; //WiFi温度漂移校准开关,0为关闭，1为打开
 #endif
 
 const char wifi_ap_scan_support = 0; //ap扫描开关，0为关闭，1为开启
@@ -107,9 +107,13 @@ u8 wifi_lowpower_mode = 1;
 u8 wifi_lowpower_mode = 0;
 #endif
 
+u8 wifi_psmode_transfer_statistics_enable = 1;	// 会统计低功耗唤醒后到休眠之前的收发包动作，以确认是否处于正常的保活状态
+
 u8 wl_active_wait_interval_count = 0;	// 默认配置不等待
 u16 wl_custom_listen_interval = 10;		// 默认自定义的监听间隔是 10，防止没有 set 这个变量而导致异常
 u16 wl_default_listen_interval = 3;	// 默认监听间隔是 3，防止没有 set 这个变量而导致异常
+
+u8 wl_transmit_keep_awake_time = 12;	// 默认收发包时等待 12 * 100ms 的清醒时间，该期间内系统不会休眠。单位 100ms，最小可设置为 1，即只等待 100ms
 /*--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 
 #ifdef CONFIG_NET_ENABLE
@@ -933,6 +937,32 @@ void wl_enabled_listen_each_tim(void)
 void wl_disenabled_listen_each_tim(void)
 {
     wl_enabled_listen_dtim();
+    return;
+}
+
+/* 收发包统计不统计 ACK 的收发包动作和重传的发包动作，一次发包动作出现多次重传多次只记作一次 */
+extern u32 wifi_rx_statistics_cont;	// 活跃期间的收包统计量
+extern u32 wifi_tx_statistics_cont;	// 活跃期间的发包统计量
+void wifi_transfer_statistics_dump(void)
+{
+    printf("<rx : %u> - <tx : %u>", wifi_rx_statistics_cont, wifi_tx_statistics_cont);
+}
+
+void wifi_transfer_statistics_reset(void)
+{
+    wifi_rx_statistics_cont = 0;
+    wifi_tx_statistics_cont = 0;
+}
+
+u8 wl_get_keep_awake_time(void)
+{
+    return wl_transmit_keep_awake_time;
+}
+
+/* 最小配置为 1，否则系统会一直进入反复进入唤醒和休眠，没法正常收发数据，当不需要休眠时，这个值尽量设置大些，参考默认值 12 */
+void wl_set_transmit_keep_awake_time(u8 time)
+{
+    wl_transmit_keep_awake_time = time;
     return;
 }
 

@@ -935,7 +935,7 @@ u32 sdfile_rec_init(void)
     }
     phone_recfs_scan(&phone_recfs);
 #if (VFS_ENABLE == 1)
-    if (mount(NULL, "mnt/rec_sdfile", "rec_sdfile", 0, NULL, 0)) {
+    if (mount(NULL, "mnt/rec_sdfile", "rec_sdfile", 0, NULL)) {
         r_printf("sdfile_rec mount succ");
     } else {
         r_printf("sdfile_rec mount failed!!!");

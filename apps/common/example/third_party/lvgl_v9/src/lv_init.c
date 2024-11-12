@@ -22,8 +22,6 @@
 #include "libs/lodepng/lv_lodepng.h"
 #include "libs/libpng/lv_libpng.h"
 #include "draw/lv_draw.h"
-#include "misc/lv_cache.h"
-#include "misc/lv_cache_builtin.h"
 #include "misc/lv_async.h"
 #include "misc/lv_fs.h"
 #if LV_USE_DRAW_VGLITE
@@ -32,8 +30,17 @@
 #if LV_USE_DRAW_PXP
 #include "draw/nxp/pxp/lv_draw_pxp.h"
 #endif
+#if LV_USE_DRAW_DAVE2D
+#include "draw/renesas/dave2d/lv_draw_dave2d.h"
+#endif
 #if LV_USE_DRAW_SDL
 #include "draw/sdl/lv_draw_sdl.h"
+#endif
+#if LV_USE_DRAW_VG_LITE
+#include "draw/vg_lite/lv_draw_vg_lite.h"
+#endif
+#if LV_USE_WINDOWS
+#include "drivers/windows/lv_windows_context.h"
 #endif
 
 /*********************
@@ -61,6 +68,10 @@ lv_global_t lv_global;
  *      MACROS
  **********************/
 
+#ifndef LV_GLOBAL_INIT
+#define LV_GLOBAL_INIT(__GLOBAL_PTR)    lv_global_init((lv_global_t *)(__GLOBAL_PTR))
+#endif
+
 /**********************
  *   GLOBAL FUNCTIONS
  **********************/
@@ -84,7 +95,7 @@ static inline void lv_global_init(lv_global_t *global)
     global->style_last_custom_prop_id = (uint32_t)_LV_STYLE_LAST_BUILT_IN_PROP;
     global->area_trans_cache.angle_prev = INT32_MIN;
     global->event_last_register_id = _LV_EVENT_LAST;
-    global->math_rand_seed = 0x1234ABCD;
+    lv_rand_set_seed(0x1234ABCD);
 
 #if defined(LV_DRAW_SW_SHADOW_CACHE_SIZE) && LV_DRAW_SW_SHADOW_CACHE_SIZE > 0
     global->sw_shadow_cache.cache_size = -1;
@@ -132,7 +143,7 @@ void lv_init(void)
     LV_LOG_INFO("begin");
 
     /*Initialize members of static variable lv_global */
-    lv_global_init(LV_GLOBAL_DEFAULT());
+    LV_GLOBAL_INIT(LV_GLOBAL_DEFAULT());
 
     lv_mem_init();
 
@@ -172,8 +183,16 @@ void lv_init(void)
     lv_draw_pxp_init();
 #endif
 
+#if LV_USE_DRAW_DAVE2D
+    lv_draw_dave2d_init();
+#endif
+
 #if LV_USE_DRAW_SDL
     lv_draw_sdl_init();
+#endif
+
+#if LV_USE_WINDOWS
+    lv_windows_platform_init();
 #endif
 
     _lv_obj_style_init();
@@ -188,11 +207,9 @@ void lv_init(void)
     _lv_image_decoder_init();
     lv_bin_decoder_init();  /*LVGL built-in binary image decoder*/
 
-    _lv_cache_init();
-    _lv_cache_builtin_init();
-    lv_cache_lock();
-    lv_cache_set_max_size(LV_CACHE_DEF_SIZE);
-    lv_cache_unlock();
+#if LV_USE_DRAW_VG_LITE
+    lv_draw_vg_lite_init();
+#endif
 
     /*Test if the IDE has UTF-8 encoding*/
     const char *txt = "Á";
@@ -285,6 +302,10 @@ void lv_init(void)
 #  endif
 #endif
 
+#if LV_USE_TINY_TTF
+    lv_tiny_ttf_init();
+#endif
+
     lv_initialized = true;
 
     LV_LOG_TRACE("finished");
@@ -324,21 +345,21 @@ void lv_deinit(void)
     lv_freetype_uninit();
 #endif
 
+#if LV_USE_TINY_TTF
+    lv_tiny_ttf_deinit();
+#endif
+
 #if LV_USE_THEME_DEFAULT
     lv_theme_default_deinit();
 #endif
 
-#if LV_USE_THEME_BASIC
-    lv_theme_basic_deinit();
+#if LV_USE_THEME_SIMPLE
+    lv_theme_simple_deinit();
 #endif
 
 #if LV_USE_THEME_MONO
     lv_theme_mono_deinit();
 #endif
-
-    _lv_cache_builtin_deinit();
-
-    _lv_cache_deinit();
 
     _lv_image_decoder_deinit();
 
@@ -352,6 +373,10 @@ void lv_deinit(void)
 
 #if LV_USE_DRAW_VGLITE
     lv_draw_vglite_deinit();
+#endif
+
+#if LV_USE_DRAW_VG_LITE
+    lv_draw_vg_lite_deinit();
 #endif
 
 #if LV_USE_DRAW_SW

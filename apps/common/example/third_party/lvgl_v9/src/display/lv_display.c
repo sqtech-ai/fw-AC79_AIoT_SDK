@@ -38,7 +38,7 @@ static void scr_load_anim_start(lv_anim_t *a);
 static void opa_scale_anim(void *obj, int32_t v);
 static void set_x_anim(void *obj, int32_t v);
 static void set_y_anim(void *obj, int32_t v);
-static void scr_anim_ready(lv_anim_t *a);
+static void scr_anim_completed(lv_anim_t *a);
 static bool is_out_anim(lv_screen_load_anim_t a);
 static void disp_event_cb(lv_event_t *e);
 
@@ -87,7 +87,6 @@ lv_display_t *lv_display_create(int32_t hor_res, int32_t ver_res)
     disp->layer_head->buf_area.y1 = 0;
     disp->layer_head->buf_area.x2 = hor_res - 1;
     disp->layer_head->buf_area.y2 = ver_res - 1;
-    disp->layer_head->buf_stride = lv_draw_buf_width_to_stride(hor_res, LV_COLOR_FORMAT_NATIVE);
     disp->layer_head->color_format = disp->color_format;
 
     disp->inv_en_cnt = 1;
@@ -111,6 +110,12 @@ lv_display_t *lv_display_create(int32_t hor_res, int32_t ver_res)
                                             LV_THEME_DEFAULT_DARK, LV_FONT_DEFAULT);
     } else {
         disp->theme = lv_theme_default_get();
+    }
+#elif LV_USE_THEME_SIMPLE
+    if (lv_theme_simple_is_inited() == false) {
+        disp->theme = lv_theme_simple_init(disp);
+    } else {
+        disp->theme = lv_theme_simple_get();
     }
 #endif
 
@@ -156,8 +161,8 @@ void lv_display_delete(lv_display_t *disp)
     lv_indev_t *indev;
     indev = lv_indev_get_next(NULL);
     while (indev) {
-        if (lv_indev_get_disp(indev) == disp) {
-            lv_indev_set_disp(indev, NULL);
+        if (lv_indev_get_display(indev) == disp) {
+            lv_indev_set_display(indev, NULL);
         }
         indev = lv_indev_get_next(indev);
     }
@@ -423,8 +428,7 @@ int32_t lv_display_get_dpi(const lv_display_t *disp)
  * BUFFERING
  *--------------------*/
 
-void lv_display_set_draw_buffers(lv_display_t *disp, void *buf1, void *buf2, void *buf3, uint32_t buf_size_in_bytes,
-                                 lv_display_render_mode_t render_mode)
+void lv_display_set_draw_buffers(lv_display_t *disp, lv_draw_buf_t *buf1, lv_draw_buf_t *buf2, lv_draw_buf_t *buf3)
 {
     if (disp == NULL) {
         disp = lv_display_get_default();
@@ -436,8 +440,49 @@ void lv_display_set_draw_buffers(lv_display_t *disp, void *buf1, void *buf2, voi
     disp->buf_1 = buf1;
     disp->buf_2 = buf2;
     disp->buf_3 = buf3;
-    disp->buf_act = buf1;
-    disp->buf_size_in_bytes = buf_size_in_bytes;
+    disp->buf_act = disp->buf_1;
+}
+
+void lv_display_set_buffers(lv_display_t *disp, void *buf1, void *buf2, void *buf3, uint32_t buf_size,
+                            lv_display_render_mode_t render_mode)
+{
+    LV_ASSERT_MSG(buf1 != NULL, "Null buffer");
+    lv_color_format_t cf = lv_display_get_color_format(disp);
+    uint32_t w = lv_display_get_horizontal_resolution(disp);
+    uint32_t h = lv_display_get_vertical_resolution(disp);
+
+    LV_ASSERT_MSG(w != 0 && h != 0, "display resolution is 0");
+
+    /* buf1 or buf2 or buf3 is not aligned according to LV_DRAW_BUF_ALIGN */
+    LV_ASSERT_MSG(buf1 == lv_draw_buf_align(buf1, cf), "buf1 is not aligned: %p", buf1);
+    LV_ASSERT_MSG(buf2 == NULL || buf2 == lv_draw_buf_align(buf2, cf), "buf2 is not aligned: %p", buf2);
+    LV_ASSERT_MSG(buf3 == NULL || buf3 == lv_draw_buf_align(buf3, cf), "buf3 is not aligned: %p", buf3);
+
+    uint32_t stride = lv_draw_buf_width_to_stride(w, cf);
+    if (render_mode == LV_DISPLAY_RENDER_MODE_PARTIAL) {
+        /* for partial mode, we calculate the height based on the buf_size and stride */
+        h = buf_size / stride;
+        LV_ASSERT_MSG(h != 0, "the buffer is too small");
+    } else {
+        LV_ASSERT_MSG(stride * h <= buf_size, "%s mode requires screen sized buffer(s)",
+                      render_mode == LV_DISPLAY_RENDER_MODE_FULL ? "FULL" : "DIRECT");
+    }
+
+    lv_draw_buf_init(&disp->_static_buf1, w, h, cf, stride, buf1, buf_size);
+    lv_draw_buf_init(&disp->_static_buf2, w, h, cf, stride, buf2, buf_size);
+    lv_draw_buf_init(&disp->_static_buf3, w, h, cf, stride, buf3, buf_size);
+    lv_display_set_draw_buffers(disp, &disp->_static_buf1, buf2 ? &disp->_static_buf2 : NULL, buf3 ? &disp->_static_buf3 : NULL);
+    lv_display_set_render_mode(disp, render_mode);
+}
+
+void lv_display_set_render_mode(lv_display_t *disp, lv_display_render_mode_t render_mode)
+{
+    if (disp == NULL) {
+        disp = lv_display_get_default();
+    }
+    if (disp == NULL) {
+        return;
+    }
     disp->render_mode = render_mode;
 }
 
@@ -476,6 +521,8 @@ void lv_display_set_color_format(lv_display_t *disp, lv_color_format_t color_for
 
     disp->color_format = color_format;
     disp->layer_head->color_format = color_format;
+
+    lv_display_send_event(disp, LV_EVENT_COLOR_FORMAT_CHANGED, NULL);
 }
 
 lv_color_format_t lv_display_get_color_format(lv_display_t *disp)
@@ -517,7 +564,6 @@ bool lv_display_get_antialiasing(lv_display_t *disp)
 LV_ATTRIBUTE_FLUSH_READY void lv_display_flush_ready(lv_display_t *disp)
 {
     disp->flushing = 0;
-    disp->flushing_last = 0;
 }
 
 LV_ATTRIBUTE_FLUSH_READY bool lv_display_flush_is_last(lv_display_t *disp)
@@ -560,11 +606,6 @@ lv_obj_t *lv_display_get_screen_prev(lv_display_t *disp)
     return disp->prev_scr;
 }
 
-void lv_display_load_scr(lv_obj_t *scr)
-{
-    lv_screen_load_anim(scr, LV_SCR_LOAD_ANIM_NONE, 0, 0, false);
-}
-
 lv_obj_t *lv_display_get_layer_top(lv_display_t *disp)
 {
     if (!disp) {
@@ -604,10 +645,15 @@ lv_obj_t *lv_display_get_layer_bottom(lv_display_t *disp)
     return disp->bottom_layer;
 }
 
+void lv_screen_load(struct _lv_obj_t *scr)
+{
+    lv_screen_load_anim(scr, LV_SCR_LOAD_ANIM_NONE, 0, 0, false);
+}
+
 void lv_screen_load_anim(lv_obj_t *new_scr, lv_screen_load_anim_t anim_type, uint32_t time, uint32_t delay,
                          bool auto_del)
 {
-    lv_display_t *d = lv_obj_get_disp(new_scr);
+    lv_display_t *d = lv_obj_get_display(new_scr);
     lv_obj_t *act_scr = lv_screen_active();
 
     if (act_scr == new_scr || d->scr_to_load == new_scr) {
@@ -617,7 +663,6 @@ void lv_screen_load_anim(lv_obj_t *new_scr, lv_screen_load_anim_t anim_type, uin
     /*If another screen load animation is in progress
      *make target screen loaded immediately. */
     if (d->scr_to_load && act_scr != d->scr_to_load) {
-        scr_load_internal(d->scr_to_load);
         lv_anim_delete(d->scr_to_load, NULL);
         lv_obj_set_pos(d->scr_to_load, 0, 0);
         lv_obj_remove_local_style_prop(d->scr_to_load, LV_STYLE_OPA, 0);
@@ -625,7 +670,9 @@ void lv_screen_load_anim(lv_obj_t *new_scr, lv_screen_load_anim_t anim_type, uin
         if (d->del_prev) {
             lv_obj_delete(act_scr);
         }
-        act_scr = d->scr_to_load;
+        act_scr = lv_screen_active(); /*Active screen changed.*/
+
+        scr_load_internal(d->scr_to_load);
     }
 
     d->scr_to_load = new_scr;
@@ -640,18 +687,24 @@ void lv_screen_load_anim(lv_obj_t *new_scr, lv_screen_load_anim_t anim_type, uin
 
     /*Be sure there is no other animation on the screens*/
     lv_anim_delete(new_scr, NULL);
-    lv_anim_delete(lv_screen_active(), NULL);
+    if (act_scr) {
+        lv_anim_delete(act_scr, NULL);
+    }
 
     /*Be sure both screens are in a normal position*/
     lv_obj_set_pos(new_scr, 0, 0);
-    lv_obj_set_pos(lv_screen_active(), 0, 0);
+    if (act_scr) {
+        lv_obj_set_pos(act_scr, 0, 0);
+    }
     lv_obj_remove_local_style_prop(new_scr, LV_STYLE_OPA, 0);
-    lv_obj_remove_local_style_prop(lv_screen_active(), LV_STYLE_OPA, 0);
+    if (act_scr) {
+        lv_obj_remove_local_style_prop(act_scr, LV_STYLE_OPA, 0);
+    }
 
     /*Shortcut for immediate load*/
     if (time == 0 && delay == 0) {
         scr_load_internal(new_scr);
-        if (auto_del) {
+        if (auto_del && act_scr) {
             lv_obj_delete(act_scr);
         }
         return;
@@ -661,14 +714,14 @@ void lv_screen_load_anim(lv_obj_t *new_scr, lv_screen_load_anim_t anim_type, uin
     lv_anim_init(&a_new);
     lv_anim_set_var(&a_new, new_scr);
     lv_anim_set_start_cb(&a_new, scr_load_anim_start);
-    lv_anim_set_ready_cb(&a_new, scr_anim_ready);
-    lv_anim_set_time(&a_new, time);
+    lv_anim_set_completed_cb(&a_new, scr_anim_completed);
+    lv_anim_set_duration(&a_new, time);
     lv_anim_set_delay(&a_new, delay);
 
     lv_anim_t a_old;
     lv_anim_init(&a_old);
-    lv_anim_set_var(&a_old, d->act_scr);
-    lv_anim_set_time(&a_old, time);
+    lv_anim_set_var(&a_old, act_scr);
+    lv_anim_set_duration(&a_old, time);
     lv_anim_set_delay(&a_old, delay);
 
     switch (anim_type) {
@@ -747,10 +800,14 @@ void lv_screen_load_anim(lv_obj_t *new_scr, lv_screen_load_anim_t anim_type, uin
         break;
     }
 
-    lv_obj_send_event(act_scr, LV_EVENT_SCREEN_UNLOAD_START, NULL);
+    if (act_scr) {
+        lv_obj_send_event(act_scr, LV_EVENT_SCREEN_UNLOAD_START, NULL);
+    }
 
     lv_anim_start(&a_new);
-    lv_anim_start(&a_old);
+    if (act_scr) {
+        lv_anim_start(&a_old);
+    }
 }
 
 /*---------------------
@@ -782,6 +839,25 @@ bool lv_display_delete_event(lv_display_t *disp, uint32_t index)
     LV_ASSERT_NULL(disp);
 
     return lv_event_remove(&disp->event_list, index);
+}
+
+uint32_t lv_display_remove_event_cb_with_user_data(lv_display_t *disp, lv_event_cb_t event_cb, void *user_data)
+{
+    LV_ASSERT_NULL(disp);
+
+    uint32_t event_cnt = lv_display_get_event_count(disp);
+    uint32_t removed_count = 0;
+    int32_t i;
+
+    for (i = event_cnt - 1; i >= 0; i--) {
+        lv_event_dsc_t *dsc = lv_display_get_event_dsc(disp, i);
+        if (dsc && dsc->cb == event_cb && dsc->user_data == user_data) {
+            lv_display_delete_event(disp, i);
+            removed_count ++;
+        }
+    }
+
+    return removed_count;
 }
 
 lv_result_t lv_display_send_event(lv_display_t *disp, lv_event_code_t code, void *param)
@@ -877,13 +953,13 @@ uint32_t lv_display_get_inactive_time(const lv_display_t *disp)
     return t;
 }
 
-void lv_display_trig_activity(lv_display_t *disp)
+void lv_display_trigger_activity(lv_display_t *disp)
 {
     if (!disp) {
         disp = lv_display_get_default();
     }
     if (!disp) {
-        LV_LOG_WARN("lv_display_trig_activity: no display registered");
+        LV_LOG_WARN("lv_display_trigger_activity: no display registered");
         return;
     }
 
@@ -916,7 +992,7 @@ bool lv_display_is_invalidation_enabled(lv_display_t *disp)
     return (disp->inv_en_cnt > 0);
 }
 
-lv_timer_t *_lv_display_get_refr_timer(lv_display_t *disp)
+lv_timer_t *lv_display_get_refr_timer(lv_display_t *disp)
 {
     if (!disp) {
         disp = lv_display_get_default();
@@ -926,6 +1002,19 @@ lv_timer_t *_lv_display_get_refr_timer(lv_display_t *disp)
     }
 
     return disp->refr_timer;
+}
+
+void lv_display_delete_refr_timer(lv_display_t *disp)
+{
+    if (!disp) {
+        disp = lv_display_get_default();
+    }
+    if (!disp || !disp->refr_timer) {
+        return;
+    }
+
+    lv_timer_delete(disp->refr_timer);
+    disp->refr_timer = NULL;
 }
 
 void lv_display_set_user_data(lv_display_t *disp, void *user_data)
@@ -1023,27 +1112,29 @@ static lv_obj_tree_walk_res_t invalidate_layout_cb(lv_obj_t *obj, void *user_dat
 
 static void scr_load_internal(lv_obj_t *scr)
 {
-    lv_display_t *d = lv_obj_get_disp(scr);
+    /*scr must not be NULL, but d->act_scr might be*/
+    LV_ASSERT_NULL(scr);
+    if (scr == NULL) {
+        return;
+    }
+
+    lv_display_t *d = lv_obj_get_display(scr);
     if (!d) {
         return;    /*Shouldn't happen, just to be sure*/
     }
 
     lv_obj_t *old_scr = d->act_scr;
 
-    if (d->act_scr) {
+    if (old_scr) {
         lv_obj_send_event(old_scr, LV_EVENT_SCREEN_UNLOAD_START, NULL);
     }
-    if (d->act_scr) {
-        lv_obj_send_event(scr, LV_EVENT_SCREEN_LOAD_START, NULL);
-    }
+    lv_obj_send_event(scr, LV_EVENT_SCREEN_LOAD_START, NULL);
 
     d->act_scr = scr;
     d->scr_to_load = NULL;
 
-    if (d->act_scr) {
-        lv_obj_send_event(scr, LV_EVENT_SCREEN_LOADED, NULL);
-    }
-    if (d->act_scr) {
+    lv_obj_send_event(scr, LV_EVENT_SCREEN_LOADED, NULL);
+    if (old_scr) {
         lv_obj_send_event(old_scr, LV_EVENT_SCREEN_UNLOADED, NULL);
     }
 
@@ -1052,7 +1143,7 @@ static void scr_load_internal(lv_obj_t *scr)
 
 static void scr_load_anim_start(lv_anim_t *a)
 {
-    lv_display_t *d = lv_obj_get_disp(a->var);
+    lv_display_t *d = lv_obj_get_display(a->var);
 
     d->prev_scr = lv_screen_active();
     d->act_scr = a->var;
@@ -1075,9 +1166,9 @@ static void set_y_anim(void *obj, int32_t v)
     lv_obj_set_y(obj, v);
 }
 
-static void scr_anim_ready(lv_anim_t *a)
+static void scr_anim_completed(lv_anim_t *a)
 {
-    lv_display_t *d = lv_obj_get_disp(a->var);
+    lv_display_t *d = lv_obj_get_display(a->var);
 
     lv_obj_send_event(d->act_scr, LV_EVENT_SCREEN_LOADED, NULL);
     lv_obj_send_event(d->prev_scr, LV_EVENT_SCREEN_UNLOADED, NULL);

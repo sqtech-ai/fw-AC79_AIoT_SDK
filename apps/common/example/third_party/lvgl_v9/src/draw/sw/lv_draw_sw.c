@@ -22,10 +22,57 @@
 #include "../../libs/thorvg/thorvg_capi.h"
 #endif
 #endif
+
+#if LV_USE_DRAW_SW_ASM == LV_DRAW_SW_ASM_HELIUM
+#include "arm2d/lv_draw_sw_helium.h"
+#elif LV_USE_DRAW_SW_ASM == LV_DRAW_SW_ASM_CUSTOM
+#include LV_DRAW_SW_ASM_CUSTOM_INCLUDE
+#endif
+
 /*********************
  *      DEFINES
  *********************/
 #define DRAW_UNIT_ID_SW     1
+
+#ifndef LV_DRAW_SW_RGB565_SWAP
+#define LV_DRAW_SW_RGB565_SWAP(...) LV_RESULT_INVALID
+#endif
+
+#ifndef LV_DRAW_SW_ROTATE90_ARGB8888
+#define LV_DRAW_SW_ROTATE90_ARGB8888(...) LV_RESULT_INVALID
+#endif
+
+#ifndef LV_DRAW_SW_ROTATE180_ARGB8888
+#define LV_DRAW_SW_ROTATE180_ARGB8888(...) LV_RESULT_INVALID
+#endif
+
+#ifndef LV_DRAW_SW_ROTATE270_ARGB8888
+#define LV_DRAW_SW_ROTATE270_ARGB8888(...) LV_RESULT_INVALID
+#endif
+
+#ifndef LV_DRAW_SW_ROTATE90_RGB888
+#define LV_DRAW_SW_ROTATE90_RGB888(...) LV_RESULT_INVALID
+#endif
+
+#ifndef LV_DRAW_SW_ROTATE180_RGB888
+#define LV_DRAW_SW_ROTATE180_RGB888(...) LV_RESULT_INVALID
+#endif
+
+#ifndef LV_DRAW_SW_ROTATE270_RGB888
+#define LV_DRAW_SW_ROTATE270_RGB888(...) LV_RESULT_INVALID
+#endif
+
+#ifndef LV_DRAW_SW_ROTATE90_RGB565
+#define LV_DRAW_SW_ROTATE90_RGB565(...) LV_RESULT_INVALID
+#endif
+
+#ifndef LV_DRAW_SW_ROTATE180_RGB565
+#define LV_DRAW_SW_ROTATE180_RGB565(...) LV_RESULT_INVALID
+#endif
+
+#ifndef LV_DRAW_SW_ROTATE270_RGB565
+#define LV_DRAW_SW_ROTATE270_RGB565(...) LV_RESULT_INVALID
+#endif
 
 /**********************
  *      TYPEDEFS
@@ -135,35 +182,40 @@ static int32_t lv_draw_sw_delete(lv_draw_unit_t *draw_unit)
 #endif
 }
 
-void lv_draw_sw_rgb565_swap(void *buf, int32_t buf_size_px)
+void lv_draw_sw_rgb565_swap(void *buf, uint32_t buf_size_px)
 {
+    if (LV_DRAW_SW_RGB565_SWAP(buf, buf_size_px) == LV_RESULT_OK) {
+        return;
+    }
+
     uint32_t u32_cnt = buf_size_px / 2;
     uint16_t *buf16 = buf;
     uint32_t *buf32 = buf;
 
     while (u32_cnt >= 8) {
-        buf32[0] = ((uint32_t)(buf32[0] & 0xff00ff00) >> 8) + ((uint32_t)(buf32[0] & 0x00ff00ff) << 8);
-        buf32[1] = ((uint32_t)(buf32[1] & 0xff00ff00) >> 8) + ((uint32_t)(buf32[1] & 0x00ff00ff) << 8);
-        buf32[2] = ((uint32_t)(buf32[2] & 0xff00ff00) >> 8) + ((uint32_t)(buf32[2] & 0x00ff00ff) << 8);
-        buf32[3] = ((uint32_t)(buf32[3] & 0xff00ff00) >> 8) + ((uint32_t)(buf32[3] & 0x00ff00ff) << 8);
-        buf32[4] = ((uint32_t)(buf32[4] & 0xff00ff00) >> 8) + ((uint32_t)(buf32[4] & 0x00ff00ff) << 8);
-        buf32[5] = ((uint32_t)(buf32[5] & 0xff00ff00) >> 8) + ((uint32_t)(buf32[5] & 0x00ff00ff) << 8);
-        buf32[6] = ((uint32_t)(buf32[6] & 0xff00ff00) >> 8) + ((uint32_t)(buf32[6] & 0x00ff00ff) << 8);
-        buf32[7] = ((uint32_t)(buf32[7] & 0xff00ff00) >> 8) + ((uint32_t)(buf32[7] & 0x00ff00ff) << 8);
+        buf32[0] = ((buf32[0] & 0xff00ff00) >> 8) | ((buf32[0] & 0x00ff00ff) << 8);
+        buf32[1] = ((buf32[1] & 0xff00ff00) >> 8) | ((buf32[1] & 0x00ff00ff) << 8);
+        buf32[2] = ((buf32[2] & 0xff00ff00) >> 8) | ((buf32[2] & 0x00ff00ff) << 8);
+        buf32[3] = ((buf32[3] & 0xff00ff00) >> 8) | ((buf32[3] & 0x00ff00ff) << 8);
+        buf32[4] = ((buf32[4] & 0xff00ff00) >> 8) | ((buf32[4] & 0x00ff00ff) << 8);
+        buf32[5] = ((buf32[5] & 0xff00ff00) >> 8) | ((buf32[5] & 0x00ff00ff) << 8);
+        buf32[6] = ((buf32[6] & 0xff00ff00) >> 8) | ((buf32[6] & 0x00ff00ff) << 8);
+        buf32[7] = ((buf32[7] & 0xff00ff00) >> 8) | ((buf32[7] & 0x00ff00ff) << 8);
         buf32 += 8;
         u32_cnt -= 8;
     }
 
     while (u32_cnt) {
-        *buf32 = ((uint32_t)(*buf32 & 0xff00ff00) >> 8) + ((uint32_t)(*buf32 & 0x00ff00ff) << 8);
+        *buf32 = ((*buf32 & 0xff00ff00) >> 8) | ((*buf32 & 0x00ff00ff) << 8);
         buf32++;
         u32_cnt--;
     }
 
     if (buf_size_px & 0x1) {
         uint32_t e = buf_size_px - 1;
-        buf16[e] = ((buf16[e] & 0xff00) >> 8) + ((buf16[e] & 0x00ff) << 8);
+        buf16[e] = ((buf16[e] & 0xff00) >> 8) | ((buf16[e] & 0x00ff) << 8);
     }
+
 }
 
 void lv_draw_sw_rotate(const void *src, void *dest, int32_t src_width, int32_t src_height, int32_t src_sride,
@@ -221,30 +273,50 @@ static int32_t evaluate(lv_draw_unit_t *draw_unit, lv_draw_task_t *task)
 {
     LV_UNUSED(draw_unit);
 
+    switch (task->type) {
+    case LV_DRAW_TASK_TYPE_IMAGE:
+    case LV_DRAW_TASK_TYPE_LAYER: {
+        lv_draw_image_dsc_t *draw_dsc = task->draw_dsc;
+
+        /* not support skew */
+        if (draw_dsc->skew_x != 0 || draw_dsc->skew_y != 0) {
+            return 0;
+        }
+    }
+    break;
+    default:
+        break;
+    }
+
     if (task->preference_score >= 100) {
         task->preference_score = 100;
         task->preferred_draw_unit_id = DRAW_UNIT_ID_SW;
     }
+
     return 0;
 }
 
 static int32_t dispatch(lv_draw_unit_t *draw_unit, lv_layer_t *layer)
 {
+    LV_PROFILER_BEGIN;
     lv_draw_sw_unit_t *draw_sw_unit = (lv_draw_sw_unit_t *) draw_unit;
 
     /*Return immediately if it's busy with draw task*/
     if (draw_sw_unit->task_act) {
+        LV_PROFILER_END;
         return 0;
     }
 
     lv_draw_task_t *t = NULL;
     t = lv_draw_get_next_available_task(layer, NULL, DRAW_UNIT_ID_SW);
     if (t == NULL) {
+        LV_PROFILER_END;
         return -1;
     }
 
     void *buf = lv_draw_layer_alloc_buf(layer);
     if (buf == NULL) {
+        LV_PROFILER_END;
         return -1;
     }
 
@@ -261,6 +333,7 @@ static int32_t dispatch(lv_draw_unit_t *draw_unit, lv_layer_t *layer)
 #else
     execute_drawing_unit(draw_sw_unit);
 #endif
+    LV_PROFILER_END;
     return 1;
 }
 
@@ -296,6 +369,7 @@ static void render_thread_cb(void *ptr)
 
 static void execute_drawing(lv_draw_sw_unit_t *u)
 {
+    LV_PROFILER_BEGIN;
     /*Render the draw task*/
     lv_draw_task_t *t = u->task_act;
     switch (t->type) {
@@ -307,9 +381,6 @@ static void execute_drawing(lv_draw_sw_unit_t *u)
         break;
     case LV_DRAW_TASK_TYPE_BOX_SHADOW:
         lv_draw_sw_box_shadow((lv_draw_unit_t *)u, t->draw_dsc, &t->area);
-        break;
-    case LV_DRAW_TASK_TYPE_BG_IMG:
-        lv_draw_sw_bg_image((lv_draw_unit_t *)u, t->draw_dsc, &t->area);
         break;
     case LV_DRAW_TASK_TYPE_LABEL:
         lv_draw_sw_label((lv_draw_unit_t *)u, t->draw_dsc, &t->area);
@@ -332,7 +403,7 @@ static void execute_drawing(lv_draw_sw_unit_t *u)
     case LV_DRAW_TASK_TYPE_MASK_RECTANGLE:
         lv_draw_sw_mask_rect((lv_draw_unit_t *)u, t->draw_dsc, &t->area);
         break;
-#if LV_USE_VECTOR_GRAPHIC
+#if LV_USE_VECTOR_GRAPHIC && (LV_USE_THORVG_EXTERNAL || LV_USE_THORVG_INTERNAL)
     case LV_DRAW_TASK_TYPE_VECTOR:
         lv_draw_sw_vector((lv_draw_unit_t *)u, t->draw_dsc);
         break;
@@ -386,13 +457,17 @@ static void execute_drawing(lv_draw_sw_unit_t *u)
         lv_draw_sw_label((lv_draw_unit_t *)u, &label_dsc, &txt_area);
     }
 #endif
-
+    LV_PROFILER_END;
 }
 
 static void rotate90_argb8888(const uint32_t *src, uint32_t *dst, int32_t srcWidth, int32_t srcHeight,
                               int32_t srcStride,
                               int32_t dstStride)
 {
+    if (LV_RESULT_OK == LV_DRAW_SW_ROTATE90_ARGB8888(src, dst, srcWidth, srcHeight, srcStride, dstStride)) {
+        return ;
+    }
+
     srcStride /= sizeof(uint32_t);
     dstStride /= sizeof(uint32_t);
 
@@ -409,6 +484,10 @@ static void rotate90_argb8888(const uint32_t *src, uint32_t *dst, int32_t srcWid
 static void rotate180_argb8888(const uint32_t *src, uint32_t *dst, int32_t width, int32_t height, int32_t src_stride,
                                int32_t dest_stride)
 {
+    if (LV_RESULT_OK == LV_DRAW_SW_ROTATE180_ARGB8888(src, dst, srcWidth, srcHeight, srcStride, dstStride)) {
+        return ;
+    }
+
     src_stride /= sizeof(uint32_t);
     dest_stride /= sizeof(uint32_t);
 
@@ -425,6 +504,10 @@ static void rotate270_argb8888(const uint32_t *src, uint32_t *dst, int32_t srcWi
                                int32_t srcStride,
                                int32_t dstStride)
 {
+    if (LV_RESULT_OK == LV_DRAW_SW_ROTATE270_ARGB8888(src, dst, srcWidth, srcHeight, srcStride, dstStride)) {
+        return ;
+    }
+
     srcStride /= sizeof(uint32_t);
     dstStride /= sizeof(uint32_t);
 
@@ -441,6 +524,10 @@ static void rotate270_argb8888(const uint32_t *src, uint32_t *dst, int32_t srcWi
 static void rotate90_rgb888(const uint8_t *src, uint8_t *dst, int32_t srcWidth, int32_t srcHeight, int32_t srcStride,
                             int32_t dstStride)
 {
+    if (LV_RESULT_OK == LV_DRAW_SW_ROTATE90_RGB888(src, dst, srcWidth, srcHeight, srcStride, dstStride)) {
+        return ;
+    }
+
     for (int32_t x = 0; x < srcWidth; ++x) {
         for (int32_t y = 0; y < srcHeight; ++y) {
             int32_t srcIndex = y * srcStride + x * 3;
@@ -455,6 +542,9 @@ static void rotate90_rgb888(const uint8_t *src, uint8_t *dst, int32_t srcWidth, 
 static void rotate180_rgb888(const uint8_t *src, uint8_t *dst, int32_t width, int32_t height, int32_t src_stride,
                              int32_t dest_stride)
 {
+    if (LV_RESULT_OK == LV_DRAW_SW_ROTATE180_RGB888(src, dst, srcWidth, srcHeight, srcStride, dstStride)) {
+        return ;
+    }
 
     for (int32_t y = 0; y < height; ++y) {
         for (int32_t x = 0; x < width; ++x) {
@@ -470,6 +560,10 @@ static void rotate180_rgb888(const uint8_t *src, uint8_t *dst, int32_t width, in
 static void rotate270_rgb888(const uint8_t *src, uint8_t *dst, int32_t width, int32_t height, int32_t srcStride,
                              int32_t dstStride)
 {
+    if (LV_RESULT_OK == LV_DRAW_SW_ROTATE270_RGB888(src, dst, srcWidth, srcHeight, srcStride, dstStride)) {
+        return ;
+    }
+
     for (int32_t x = 0; x < width; ++x) {
         for (int32_t y = 0; y < height; ++y) {
             int32_t srcIndex = y * srcStride + x * 3;
@@ -485,6 +579,10 @@ static void rotate90_rgb565(const uint16_t *src, uint16_t *dst, int32_t srcWidth
                             int32_t srcStride,
                             int32_t dstStride)
 {
+    if (LV_RESULT_OK == LV_DRAW_SW_ROTATE90_RGB565(src, dst, srcWidth, srcHeight, srcStride, dstStride)) {
+        return ;
+    }
+
     srcStride /= sizeof(uint16_t);
     dstStride /= sizeof(uint16_t);
 
@@ -501,6 +599,10 @@ static void rotate90_rgb565(const uint16_t *src, uint16_t *dst, int32_t srcWidth
 static void rotate180_rgb565(const uint16_t *src, uint16_t *dst, int32_t width, int32_t height, int32_t src_stride,
                              int32_t dest_stride)
 {
+    if (LV_RESULT_OK == LV_DRAW_SW_ROTATE180_RGB565(src, dst, srcWidth, srcHeight, srcStride, dstStride)) {
+        return ;
+    }
+
     src_stride /= sizeof(uint16_t);
     dest_stride /= sizeof(uint16_t);
 
@@ -517,6 +619,10 @@ static void rotate270_rgb565(const uint16_t *src, uint16_t *dst, int32_t srcWidt
                              int32_t srcStride,
                              int32_t dstStride)
 {
+    if (LV_RESULT_OK == LV_DRAW_SW_ROTATE270_RGB565(src, dst, srcWidth, srcHeight, srcStride, dstStride)) {
+        return ;
+    }
+
     srcStride /= sizeof(uint16_t);
     dstStride /= sizeof(uint16_t);
 

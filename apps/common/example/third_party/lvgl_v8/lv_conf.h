@@ -1,6 +1,6 @@
 /**
  * @file lv_conf.h
- * Configuration file for v8.3.9
+ * Configuration file for v8.3.11
  */
 
 /*
@@ -240,7 +240,7 @@
  *-----------*/
 
 /*1: Show CPU usage and FPS count*/
-#define LV_USE_PERF_MONITOR 1
+#define LV_USE_PERF_MONITOR 0
 #if LV_USE_PERF_MONITOR
 #define LV_USE_PERF_MONITOR_POS LV_ALIGN_BOTTOM_RIGHT
 #endif
@@ -365,7 +365,7 @@
 /*Enable handling large font and/or fonts with a lot of characters.
  *The limit depends on the font size, font face and bpp.
  *Compiler error will be triggered if a font needs it.*/
-#define LV_FONT_FMT_TXT_LARGE 0
+#define LV_FONT_FMT_TXT_LARGE 1
 
 /*Enables/disables support for compressed fonts.*/
 #define LV_USE_FONT_COMPRESSED 1
@@ -618,7 +618,7 @@
 #define LV_USE_QRCODE 0
 
 /*FreeType library*/
-#define LV_USE_FREETYPE 1
+#define LV_USE_FREETYPE 0
 #if LV_USE_FREETYPE
 /*Memory used by FreeType to cache characters [bytes] (-1: no caching)*/
 #define LV_FREETYPE_CACHE_SIZE (16 * 1024)
@@ -635,7 +635,7 @@
 #endif
 
 /*Rlottie library*/
-#define LV_USE_RLOTTIE 1
+#define LV_USE_RLOTTIE 0
 
 /*FFmpeg library for image decoding and playing videos
  *Supports all major image formats so do not enable other image decoder with it*/
@@ -672,11 +672,11 @@
 #endif
 
 /*1: Enable a published subscriber based messaging system */
-#define LV_USE_MSG 0
+#define LV_USE_MSG 1
 
 /*1: Enable Pinyin input method*/
 /*Requires: lv_keyboard*/
-#define LV_USE_IME_PINYIN 1
+#define LV_USE_IME_PINYIN 0
 #if LV_USE_IME_PINYIN
 /*1: Use default thesaurus*/
 /*If you do not use the default thesaurus, be sure to use `lv_ime_pinyin` after setting the thesauruss*/
@@ -697,7 +697,7 @@
 *==================*/
 
 /*Enable the examples to be built with the library*/
-#define LV_BUILD_EXAMPLES 1
+#define LV_BUILD_EXAMPLES 0
 
 /*===================
  * DEMO USAGE
@@ -710,7 +710,7 @@
 #endif
 
 /*Demonstrate the usage of encoder and keyboard*/
-#define LV_USE_DEMO_KEYPAD_AND_ENCODER 1
+#define LV_USE_DEMO_KEYPAD_AND_ENCODER 0
 
 /*Benchmark your system*/
 #define LV_USE_DEMO_BENCHMARK 1
@@ -720,17 +720,27 @@
 #endif
 
 /*Stress test for LVGL*/
-#define LV_USE_DEMO_STRESS 1
+#define LV_USE_DEMO_STRESS 0
 
 /*Music player demo*/
-#define LV_USE_DEMO_MUSIC 1
+#define LV_USE_DEMO_MUSIC 0
 #if LV_USE_DEMO_MUSIC
-#define LV_DEMO_MUSIC_SQUARE    1
-#define LV_DEMO_MUSIC_LANDSCAPE 1
-#define LV_DEMO_MUSIC_ROUND     1
-#define LV_DEMO_MUSIC_LARGE     1
+#define LV_DEMO_MUSIC_SQUARE    0
+#define LV_DEMO_MUSIC_LANDSCAPE 0
+#define LV_DEMO_MUSIC_ROUND     0
+#define LV_DEMO_MUSIC_LARGE     0
 #define LV_DEMO_MUSIC_AUTO_PLAY 1
 #endif
+
+
+#define LV_USE_TEXTPROGRESS 0
+#define LV_USE_RADIOBTN 1
+#define LV_USE_BARCODE 0
+#define LV_USE_ANIM_EFFECT 1
+#define LV_USE_FILE_EXPLORER 0
+#define LV_USE_ZH_KEYBOARD 0
+#define LV_USE_ANALOGCLOCK 1
+#define LV_USE_CAROUSEL 0
 
 /*--END OF LV_CONF_H--*/
 

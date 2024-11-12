@@ -314,7 +314,6 @@ bool lv_disp_get_antialiasing(lv_disp_t *disp);
  */
 lv_coord_t lv_disp_get_dpi(const lv_disp_t *disp);
 
-
 /**
  * Set the rotation of this display.
  * @param disp pointer to a display (NULL to use the default display)

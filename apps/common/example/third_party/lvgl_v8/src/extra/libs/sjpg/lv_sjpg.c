@@ -85,7 +85,6 @@ typedef struct {
     uint32_t raw_sjpg_data_next_read_pos; //Used for all types.
 } io_source_t;
 
-
 typedef struct {
     uint8_t *sjpeg_data;
     uint32_t sjpeg_data_size;
@@ -444,7 +443,6 @@ static lv_res_t decoder_open(lv_img_decoder_t *decoder, lv_img_decoder_dsc_t *ds
             JRESULT rc = jd_prepare(&jd_tmp, input_func, workb_temp, (size_t)TJPGD_WORKBUFF_SIZE, &io_source_temp);
             lv_mem_free(workb_temp);
 
-
             if (rc == JDR_OK) {
                 sjpeg->sjpeg_x_res = jd_tmp.width;
                 sjpeg->sjpeg_y_res = jd_tmp.height;
@@ -510,13 +508,11 @@ end:
             uint8_t buff[22];
             memset(buff, 0, sizeof(buff));
 
-
             lv_fs_file_t lv_file;
             lv_fs_res_t res = lv_fs_open(&lv_file, fn, LV_FS_MODE_RD);
             if (res != LV_FS_RES_OK) {
                 return 78;
             }
-
 
             uint32_t rn;
             res = lv_fs_read(&lv_file, buff, 22, &rn);
@@ -647,7 +643,6 @@ end:
             JRESULT rc = jd_prepare(&jd_tmp, input_func, workb_temp, (size_t)TJPGD_WORKBUFF_SIZE, &io_source_temp);
 
             lv_mem_free(workb_temp);
-
 
             if (rc == JDR_OK) {
                 sjpeg->sjpeg_x_res = jd_tmp.width;
@@ -792,7 +787,6 @@ static lv_res_t decoder_read_line(lv_img_decoder_t *decoder, lv_img_decoder_dsc_
 #else
 #error Unsupported LV_COLOR_DEPTH
 
-
 #endif // LV_COLOR_DEPTH
         return LV_RES_OK;
     } else if (dsc->src_type == LV_IMG_SRC_FILE) {
@@ -861,7 +855,6 @@ static lv_res_t decoder_read_line(lv_img_decoder_t *decoder, lv_img_decoder_dsc_
 
 #else
 #error Unsupported LV_COLOR_DEPTH
-
 
 #endif // LV_COLOR_DEPTH
 

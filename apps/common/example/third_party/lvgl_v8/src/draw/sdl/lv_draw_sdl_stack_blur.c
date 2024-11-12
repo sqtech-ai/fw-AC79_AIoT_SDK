@@ -134,7 +134,6 @@ static void stack_blur_job(lv_opa_t *src, unsigned int w, unsigned int h, unsign
                 sum_out_r += src_ptr[0];
             }
 
-
             for (i = 1; i <= radius; i++) {
                 if (i <= wm) {
                     src_ptr += 1;
@@ -144,7 +143,6 @@ static void stack_blur_job(lv_opa_t *src, unsigned int w, unsigned int h, unsign
                 sum_r += src_ptr[0] * (radius + 1 - i);
                 sum_in_r += src_ptr[0];
             }
-
 
             sp = radius;
             xp = radius;

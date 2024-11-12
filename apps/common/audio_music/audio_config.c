@@ -3,11 +3,18 @@
 #include "os/os_api.h"
 #include "device/uart.h"
 
-
+#ifdef CONFIG_AEC_USE_PLAY_MUSIC_ENABLE
+const int audio_irq_sr_points      	= 320;   //每次中断需要读取的点数
+const int audio_src_temp_buf_size  	= audio_irq_sr_points * 4 * 3 * 2;
+const int audio_sync_temp_buf_size 	= audio_irq_sr_points * 4 * 3 * 2;
+const int audio_ps_temp_buf_size   	= audio_irq_sr_points * 4 * 10 * 2;
+#else
 const int audio_irq_sr_points      	= 160;   //每次中断需要读取的点数
 const int audio_src_temp_buf_size  	= audio_irq_sr_points * 4 * 3;
 const int audio_sync_temp_buf_size 	= audio_irq_sr_points * 4 * 3;
 const int audio_ps_temp_buf_size   	= audio_irq_sr_points * 4 * 10;
+#endif
+
 const int audio_src_flt_in_sram    	= 1;
 
 enum {

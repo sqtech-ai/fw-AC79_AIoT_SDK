@@ -727,6 +727,42 @@ void aec_mix_data_set_cb(s16 *data, int step)
     }
 
 }
+
+void aec_soft_mix_data_set_cb(s16 *data, int step)
+{
+    if (pfs->fd) {
+        // mic data
+        if (step == 1) {
+            for (u32 i = 0; i < READSIZE; ++i) {
+                pfs->cache[3 * i] = data[i];
+            }
+        }
+
+        //dac data
+        if (step == 2) {
+            for (u32 i = 0; i < READSIZE; ++i) {
+                pfs->cache[3 * i + 1] = data[i];
+            }
+        }
+
+        //aec_data
+        if (step == 3) {
+            for (u32 i = 0; i < READSIZE; ++i) {
+                pfs->cache[3 * i + 2] = data[i];
+            }
+
+            if (0 == cbuf_write(&pfs->save_cbuf, pfs->cache, MIX_DATA_LEN)) {
+                cbuf_clear(&pfs->save_cbuf);
+            }
+
+            memset(pfs->cache, 0, sizeof(pfs->cache));
+            os_sem_set(&pfs->w_sem, 0);
+            os_sem_post(&pfs->w_sem);
+
+        }
+    }
+
+}
 #endif
 
 static int phone_speak_start(int format, int packet_len)

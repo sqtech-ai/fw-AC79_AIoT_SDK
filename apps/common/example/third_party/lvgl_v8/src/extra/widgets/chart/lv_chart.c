@@ -197,7 +197,6 @@ void lv_chart_set_div_line_count(lv_obj_t *obj, uint8_t hdiv, uint8_t vdiv)
     lv_obj_invalidate(obj);
 }
 
-
 void lv_chart_set_zoom_x(lv_obj_t *obj, uint16_t zoom_x)
 {
     LV_ASSERT_OBJ(obj, MY_CLASS);
@@ -413,6 +412,9 @@ void lv_chart_remove_series(lv_obj_t *obj, lv_chart_series_t *series)
     if (!series->y_ext_buf_assigned && series->y_points) {
         lv_mem_free(series->y_points);
     }
+    if (!series->x_ext_buf_assigned && series->x_points) {
+        lv_mem_free(series->x_points);
+    }
 
     _lv_ll_remove(&chart->series_ll, series);
     lv_mem_free(series);
@@ -428,7 +430,6 @@ void lv_chart_hide_series(lv_obj_t *chart, lv_chart_series_t *series, bool hide)
     series->hidden = hide ? 1 : 0;
     lv_chart_refresh(chart);
 }
-
 
 void lv_chart_set_series_color(lv_obj_t *chart, lv_chart_series_t *series, lv_color_t color)
 {
@@ -513,7 +514,6 @@ void lv_chart_set_cursor_pos(lv_obj_t *chart, lv_chart_cursor_t *cursor, lv_poin
     lv_chart_refresh(chart);
 }
 
-
 /**
  * Set the coordinate of the cursor with respect
  * to the origin of series area of the chart.
@@ -552,7 +552,6 @@ lv_point_t lv_chart_get_cursor_point(lv_obj_t *chart, lv_chart_cursor_t *cursor)
 /*=====================
  * Set/Get value(s)
  *====================*/
-
 
 void lv_chart_set_all_value(lv_obj_t *obj, lv_chart_series_t *ser, lv_coord_t value)
 {
@@ -1928,6 +1927,5 @@ lv_chart_tick_dsc_t *get_tick_gsc(lv_obj_t *obj, lv_chart_axis_t axis)
         return NULL;
     }
 }
-
 
 #endif

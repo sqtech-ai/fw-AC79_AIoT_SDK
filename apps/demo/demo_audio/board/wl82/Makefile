@@ -225,6 +225,7 @@ c_SRC_FILES := \
 	../../../../../apps/common/usb/device/ram_disk_update.c \
 	../../../../../apps/common/usb/device/task_pc.c \
 	../../../../../apps/common/usb/device/uac.c \
+	../../../../../apps/common/usb/device/uac2.c \
 	../../../../../apps/common/usb/device/uac_stream.c \
 	../../../../../apps/common/usb/device/usb_device.c \
 	../../../../../apps/common/usb/device/user_setup.c \

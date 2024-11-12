@@ -144,7 +144,7 @@ void websockets_send_data_set_seq_packet(struct websocket_struct *websockets_inf
 int websockets_socket_send(struct websocket_struct *websockets_info, u8 *buf, int len, char type);//通用数据发送，type自定义指定类型
 
 /******************websockets**************************************/
-int  websockets_pong_heart_beat(struct websocket_struct *websockets_info, u8 *buf, char index);
+int websockets_pong_heart_beat(struct websocket_struct *websockets_info, u8 *buf, u64 *len, char index);
 int  websockets_ping_heart_beat(struct websocket_struct *websockets_info, u8 *buf, char index);
 void websockets_client_socket_heart_thread(void *param);
 void websockets_client_socket_recv_thread(void *param);

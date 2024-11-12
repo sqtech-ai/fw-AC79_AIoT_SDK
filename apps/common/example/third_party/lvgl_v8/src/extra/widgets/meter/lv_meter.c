@@ -546,7 +546,6 @@ static void draw_ticks_and_labels(lv_obj_t *obj, lv_draw_ctx_t *draw_ctx, const 
     }
 }
 
-
 static void draw_needles(lv_obj_t *obj, lv_draw_ctx_t *draw_ctx, const lv_area_t *scale_area)
 {
     lv_meter_t *meter = (lv_meter_t *)obj;
@@ -589,9 +588,9 @@ static void draw_needles(lv_obj_t *obj, lv_draw_ctx_t *draw_ctx, const lv_area_t
             part_draw_dsc.type = LV_METER_DRAW_PART_NEEDLE_LINE;
             part_draw_dsc.line_dsc = &line_dsc;
             part_draw_dsc.p2 = &p_end;
-
+            part_draw_dsc.p1 = &scale_center;
             lv_event_send(obj, LV_EVENT_DRAW_PART_BEGIN, &part_draw_dsc);
-            lv_draw_line(draw_ctx, &line_dsc, &scale_center, &p_end);
+            lv_draw_line(draw_ctx, &line_dsc, part_draw_dsc.p1, &p_end);
             lv_event_send(obj, LV_EVENT_DRAW_PART_END, &part_draw_dsc);
         } else if (indic->type == LV_METER_INDICATOR_TYPE_NEEDLE_IMG) {
             if (indic->type_data.needle_img.src == NULL) {
@@ -650,7 +649,6 @@ static void inv_arc(lv_obj_t *obj, lv_meter_indicator_t *indic, int32_t old_valu
                          end_angle), indic->type_data.arc.width, rounded, &a);
     lv_obj_invalidate_area(obj, &a);
 }
-
 
 static void inv_line(lv_obj_t *obj, lv_meter_indicator_t *indic, int32_t value)
 {

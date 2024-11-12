@@ -109,9 +109,9 @@ static const uint16_t rnd_array[30] = {994, 285, 553, 11, 792, 707, 966, 641, 85
  * Callback adapter function to convert parameter types to avoid compile-time
  * warning.
  */
-static void _image_set_zoom_anim_cb(void *obj, int32_t zoom)
+static void _image_set_scale_anim_cb(void *obj, int32_t scale)
 {
-    lv_image_set_zoom((lv_obj_t *)obj, (uint16_t)zoom);
+    lv_image_set_scale((lv_obj_t *)obj, (uint16_t)scale);
 }
 
 /*
@@ -264,7 +264,7 @@ lv_obj_t *_lv_demo_music_main_create(lv_obj_t *parent)
     for (i = 0; i < BAR_CNT; i++) {
         lv_anim_set_values(&a, LV_HOR_RES, 5);
         lv_anim_set_delay(&a, INTRO_TIME - 200 + rnd_array[i] % 200);
-        lv_anim_set_time(&a, 2500 + rnd_array[i] % 500);
+        lv_anim_set_duration(&a, 2500 + rnd_array[i] % 500);
         lv_anim_set_var(&a, &start_anim_values[i]);
         lv_anim_start(&a);
     }
@@ -278,11 +278,11 @@ lv_obj_t *_lv_demo_music_main_create(lv_obj_t *parent)
 
     lv_anim_set_path_cb(&a, lv_anim_path_ease_out);
     lv_anim_set_var(&a, album_image_obj);
-    lv_anim_set_time(&a, 1000);
+    lv_anim_set_duration(&a, 1000);
     lv_anim_set_delay(&a, INTRO_TIME + 1000);
     lv_anim_set_values(&a, 1, LV_SCALE_NONE);
-    lv_anim_set_exec_cb(&a, _image_set_zoom_anim_cb);
-    lv_anim_set_ready_cb(&a, NULL);
+    lv_anim_set_exec_cb(&a, _image_set_scale_anim_cb);
+    lv_anim_set_completed_cb(&a, NULL);
     lv_anim_start(&a);
 
     /* Create an intro from a logo + label */
@@ -302,10 +302,10 @@ lv_obj_t *_lv_demo_music_main_create(lv_obj_t *parent)
 
     lv_anim_set_path_cb(&a, lv_anim_path_ease_in);
     lv_anim_set_var(&a, logo);
-    lv_anim_set_time(&a, 400);
+    lv_anim_set_duration(&a, 400);
     lv_anim_set_delay(&a, INTRO_TIME + 800);
     lv_anim_set_values(&a, LV_SCALE_NONE, 10);
-    lv_anim_set_ready_cb(&a, lv_obj_delete_anim_ready_cb);
+    lv_anim_set_completed_cb(&a, lv_obj_delete_anim_completed_cb);
     lv_anim_start(&a);
 
     lv_obj_update_layout(main_cont);
@@ -352,9 +352,9 @@ void _lv_demo_music_resume(void)
     lv_anim_set_values(&a, spectrum_i, spectrum_len - 1);
     lv_anim_set_exec_cb(&a, spectrum_anim_cb);
     lv_anim_set_var(&a, spectrum_obj);
-    lv_anim_set_time(&a, ((spectrum_len - spectrum_i) * 1000) / 30);
-    lv_anim_set_playback_time(&a, 0);
-    lv_anim_set_ready_cb(&a, spectrum_end_cb);
+    lv_anim_set_duration(&a, ((spectrum_len - spectrum_i) * 1000) / 30);
+    lv_anim_set_playback_duration(&a, 0);
+    lv_anim_set_completed_cb(&a, spectrum_end_cb);
     lv_anim_start(&a);
 
     if (sec_counter_timer) {
@@ -373,7 +373,7 @@ void _lv_demo_music_pause(void)
     spectrum_i = 0;
     lv_anim_delete(spectrum_obj, spectrum_anim_cb);
     lv_obj_invalidate(spectrum_obj);
-    lv_image_set_zoom(album_image_obj, LV_SCALE_NONE);
+    lv_image_set_scale(album_image_obj, LV_SCALE_NONE);
     if (sec_counter_timer) {
         lv_timer_pause(sec_counter_timer);
     }
@@ -590,9 +590,9 @@ static lv_obj_t *create_ctrl_box(lv_obj_t *parent)
     lv_obj_set_grid_cell(icon, LV_GRID_ALIGN_CENTER, 2, 1, LV_GRID_ALIGN_CENTER, 0, 1);
     lv_obj_add_event_cb(icon, prev_click_event_cb, LV_EVENT_CLICKED, NULL);
 
-    play_obj = lv_imgbtn_create(cont);
-    lv_imgbtn_set_src(play_obj, LV_IMGBTN_STATE_RELEASED, NULL, &img_lv_demo_music_btn_play, NULL);
-    lv_imgbtn_set_src(play_obj, LV_IMGBTN_STATE_CHECKED_RELEASED, NULL, &img_lv_demo_music_btn_pause, NULL);
+    play_obj = lv_imagebutton_create(cont);
+    lv_imagebutton_set_src(play_obj, LV_IMAGEBUTTON_STATE_RELEASED, NULL, &img_lv_demo_music_btn_play, NULL);
+    lv_imagebutton_set_src(play_obj, LV_IMAGEBUTTON_STATE_CHECKED_RELEASED, NULL, &img_lv_demo_music_btn_pause, NULL);
     lv_obj_add_flag(play_obj, LV_OBJ_FLAG_CHECKABLE);
     lv_obj_set_grid_cell(play_obj, LV_GRID_ALIGN_CENTER, 3, 1, LV_GRID_ALIGN_CENTER, 0, 1);
 
@@ -608,7 +608,7 @@ static lv_obj_t *create_ctrl_box(lv_obj_t *parent)
 
     LV_IMAGE_DECLARE(img_lv_demo_music_slider_knob);
     slider_obj = lv_slider_create(cont);
-    lv_obj_set_style_anim_time(slider_obj, 100, 0);
+    lv_obj_set_style_anim_duration(slider_obj, 100, 0);
     lv_obj_add_flag(slider_obj, LV_OBJ_FLAG_CLICKABLE); /*No input from the slider*/
 
 #if LV_DEMO_MUSIC_LARGE == 0
@@ -697,12 +697,12 @@ static void track_load(uint32_t id)
     lv_anim_set_var(&a, album_image_obj);
     lv_anim_set_values(&a, lv_obj_get_style_image_opa(album_image_obj, 0), LV_OPA_TRANSP);
     lv_anim_set_exec_cb(&a, album_fade_anim_cb);
-    lv_anim_set_time(&a, 500);
+    lv_anim_set_duration(&a, 500);
     lv_anim_start(&a);
 
     lv_anim_init(&a);
     lv_anim_set_var(&a, album_image_obj);
-    lv_anim_set_time(&a, 500);
+    lv_anim_set_duration(&a, 500);
     lv_anim_set_path_cb(&a, lv_anim_path_ease_out);
 #if LV_DEMO_MUSIC_LANDSCAPE
     if (next) {
@@ -718,33 +718,33 @@ static void track_load(uint32_t id)
     }
 #endif
     lv_anim_set_exec_cb(&a, _obj_set_x_anim_cb);
-    lv_anim_set_ready_cb(&a, lv_obj_delete_anim_ready_cb);
+    lv_anim_set_completed_cb(&a, lv_obj_delete_anim_completed_cb);
     lv_anim_start(&a);
 
     lv_anim_set_path_cb(&a, lv_anim_path_linear);
     lv_anim_set_var(&a, album_image_obj);
-    lv_anim_set_time(&a, 500);
+    lv_anim_set_duration(&a, 500);
     lv_anim_set_values(&a, LV_SCALE_NONE, LV_SCALE_NONE / 2);
-    lv_anim_set_exec_cb(&a, _image_set_zoom_anim_cb);
-    lv_anim_set_ready_cb(&a, NULL);
+    lv_anim_set_exec_cb(&a, _image_set_scale_anim_cb);
+    lv_anim_set_completed_cb(&a, NULL);
     lv_anim_start(&a);
 
     album_image_obj = album_image_create(spectrum_obj);
 
     lv_anim_set_path_cb(&a, lv_anim_path_overshoot);
     lv_anim_set_var(&a, album_image_obj);
-    lv_anim_set_time(&a, 500);
+    lv_anim_set_duration(&a, 500);
     lv_anim_set_delay(&a, 100);
     lv_anim_set_values(&a, LV_SCALE_NONE / 4, LV_SCALE_NONE);
-    lv_anim_set_exec_cb(&a, _image_set_zoom_anim_cb);
-    lv_anim_set_ready_cb(&a, NULL);
+    lv_anim_set_exec_cb(&a, _image_set_scale_anim_cb);
+    lv_anim_set_completed_cb(&a, NULL);
     lv_anim_start(&a);
 
     lv_anim_init(&a);
     lv_anim_set_var(&a, album_image_obj);
     lv_anim_set_values(&a, 0, LV_OPA_COVER);
     lv_anim_set_exec_cb(&a, album_fade_anim_cb);
-    lv_anim_set_time(&a, 500);
+    lv_anim_set_duration(&a, 500);
     lv_anim_set_delay(&a, 100);
     lv_anim_start(&a);
 }
@@ -812,7 +812,7 @@ static void spectrum_draw_event_cb(lv_event_t *e)
 #else
         int32_t r_in = 160;
 #endif
-        r_in = (r_in * lv_image_get_zoom(album_image_obj)) >> 8;
+        r_in = (r_in * lv_image_get_scale(album_image_obj)) >> 8;
         for (i = 0; i < BAR_CNT; i++) {
             r[i] = r_in + min_a + 77;
         }
@@ -941,7 +941,7 @@ static void spectrum_anim_cb(void *a, int32_t v)
         bar_rot += dir;
     }
 
-    lv_image_set_zoom(album_image_obj, LV_SCALE_NONE + spectrum[spectrum_i][0]);
+    lv_image_set_scale(album_image_obj, LV_SCALE_NONE + spectrum[spectrum_i][0]);
 }
 
 static void start_anim_cb(void *a, int32_t v)

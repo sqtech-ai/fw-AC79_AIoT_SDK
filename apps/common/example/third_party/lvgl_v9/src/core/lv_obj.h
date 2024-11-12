@@ -17,12 +17,21 @@ extern "C" {
 
 #include <stddef.h>
 #include <stdbool.h>
-#include "../misc/lv_style.h"
 #include "../misc/lv_types.h"
+#include "../misc/lv_style.h"
 #include "../misc/lv_area.h"
 #include "../misc/lv_color.h"
 #include "../misc/lv_assert.h"
+
+#include "lv_obj_tree.h"
+#include "lv_obj_pos.h"
+#include "lv_obj_scroll.h"
+#include "lv_obj_style.h"
+#include "lv_obj_draw.h"
+#include "lv_obj_class.h"
+#include "lv_obj_event.h"
 #include "lv_obj_property.h"
+#include "lv_group.h"
 
 /*********************
  *      DEFINES
@@ -31,8 +40,6 @@ extern "C" {
 /**********************
  *      TYPEDEFS
  **********************/
-
-struct _lv_obj_t;
 
 /**
  * Possible states of a widget.
@@ -48,7 +55,6 @@ enum _lv_state_t {
     LV_STATE_PRESSED     =  0x0020,
     LV_STATE_SCROLLED    =  0x0040,
     LV_STATE_DISABLED    =  0x0080,
-
     LV_STATE_USER_1      =  0x1000,
     LV_STATE_USER_2      =  0x2000,
     LV_STATE_USER_3      =  0x4000,
@@ -56,12 +62,6 @@ enum _lv_state_t {
 
     LV_STATE_ANY = 0xFFFF,    /**< Special value can be used in some functions to target all states*/
 };
-
-#ifdef DOXYGEN
-typedef _lv_state_t lv_state_t;
-#else
-typedef uint16_t lv_state_t;
-#endif /*DOXYGEN*/
 
 /**
  * The possible parts of widgets.
@@ -83,12 +83,6 @@ enum _lv_part_t {
 
     LV_PART_ANY          = 0x0F0000,    /**< Special value can be used in some functions to target all parts*/
 };
-
-#ifdef DOXYGEN
-typedef _lv_part_t lv_part_t;
-#else
-typedef uint32_t lv_part_t;
-#endif /*DOXYGEN*/
 
 /**
  * On/Off features controlling the object's behavior.
@@ -135,12 +129,6 @@ typedef enum {
     LV_OBJ_FLAG_USER_4          = (1L << 30), /**< Custom flag, free to use by user*/
 } _lv_obj_flag_t;
 
-#ifdef DOXYGEN
-typedef _lv_obj_flag_t lv_obj_flag_t;
-#else
-typedef uint32_t lv_obj_flag_t;
-#endif /*DOXYGEN*/
-
 #if LV_USE_OBJ_PROPERTY
 enum {
     /*OBJ flag properties */
@@ -177,21 +165,29 @@ enum {
     LV_PROPERTY_ID(OBJ, FLAG_USER_4,                LV_PROPERTY_TYPE_INT,       30),
     LV_PROPERTY_ID(OBJ, FLAG_END,                   LV_PROPERTY_TYPE_INT,       30),
 
+    LV_PROPERTY_ID(OBJ, STATE_START,                LV_PROPERTY_TYPE_INT,       31),
+    LV_PROPERTY_ID(OBJ, STATE_CHECKED,              LV_PROPERTY_TYPE_INT,       31),
+    LV_PROPERTY_ID(OBJ, STATE_FOCUSED,              LV_PROPERTY_TYPE_INT,       32),
+    LV_PROPERTY_ID(OBJ, STATE_FOCUS_KEY,            LV_PROPERTY_TYPE_INT,       33),
+    LV_PROPERTY_ID(OBJ, STATE_EDITED,               LV_PROPERTY_TYPE_INT,       34),
+    LV_PROPERTY_ID(OBJ, STATE_HOVERED,              LV_PROPERTY_TYPE_INT,       35),
+    LV_PROPERTY_ID(OBJ, STATE_PRESSED,              LV_PROPERTY_TYPE_INT,       36),
+    LV_PROPERTY_ID(OBJ, STATE_SCROLLED,             LV_PROPERTY_TYPE_INT,       37),
+    LV_PROPERTY_ID(OBJ, STATE_DISABLED,             LV_PROPERTY_TYPE_INT,       38),
+    /*not used bit8-bit11*/
+    LV_PROPERTY_ID(OBJ, STATE_USER_1,               LV_PROPERTY_TYPE_INT,       43),
+    LV_PROPERTY_ID(OBJ, STATE_USER_2,               LV_PROPERTY_TYPE_INT,       44),
+    LV_PROPERTY_ID(OBJ, STATE_USER_3,               LV_PROPERTY_TYPE_INT,       45),
+    LV_PROPERTY_ID(OBJ, STATE_USER_4,               LV_PROPERTY_TYPE_INT,       46),
+    LV_PROPERTY_ID(OBJ, STATE_ANY,                  LV_PROPERTY_TYPE_INT,       47),
+    LV_PROPERTY_ID(OBJ, STATE_END,                  LV_PROPERTY_TYPE_INT,       47),
+
     /*OBJ normal properties*/
     LV_PROPERTY_ID(OBJ, PARENT,                     LV_PROPERTY_TYPE_POINTER,   31),
 
     LV_PROPERTY_OBJ_END,
 };
 #endif
-
-#include "lv_obj_tree.h"
-#include "lv_obj_pos.h"
-#include "lv_obj_scroll.h"
-#include "lv_obj_style.h"
-#include "lv_obj_draw.h"
-#include "lv_obj_class.h"
-#include "lv_obj_event.h"
-#include "lv_group.h"
 
 /**
  * Make the base object's class publicly available.
@@ -203,26 +199,26 @@ LV_ATTRIBUTE_EXTERN_DATA extern const lv_obj_class_t lv_obj_class;
  * They are allocated automatically if any elements is set.
  */
 typedef struct {
-    struct _lv_obj_t **children;        /**< Store the pointer of the children in an array.*/
+    lv_obj_t **children;    /**< Store the pointer of the children in an array.*/
     lv_group_t *group_p;
     lv_event_list_t event_list;
 
-    lv_point_t scroll;                  /**< The current X/Y scroll offset*/
+    lv_point_t scroll;              /**< The current X/Y scroll offset*/
 
-    int32_t ext_click_pad;           /**< Extra click padding in all direction*/
-    int32_t ext_draw_size;           /**< EXTend the size in every direction for drawing.*/
+    int32_t ext_click_pad;          /**< Extra click padding in all direction*/
+    int32_t ext_draw_size;          /**< EXTend the size in every direction for drawing.*/
 
-    uint16_t child_cnt;                 /**< Number of children*/
-    lv_scrollbar_mode_t scrollbar_mode : 2; /**< How to display scrollbars*/
-    lv_scroll_snap_t scroll_snap_x : 2;     /**< Where to align the snappable children horizontally*/
-    lv_scroll_snap_t scroll_snap_y : 2;     /**< Where to align the snappable children vertically*/
-    lv_dir_t scroll_dir : 4;                /**< The allowed scroll direction(s)*/
-    uint8_t layer_type : 2;    /**< Cache the layer type here. Element of @lv_intermediate_layer_type_t */
+    uint16_t child_cnt;             /**< Number of children*/
+    uint16_t scrollbar_mode : 2;    /**< How to display scrollbars, see `lv_scrollbar_mode_t`*/
+    uint16_t scroll_snap_x : 2;     /**< Where to align the snappable children horizontally, see `lv_scroll_snap_t`*/
+    uint16_t scroll_snap_y : 2;     /**< Where to align the snappable children vertically*/
+    uint16_t scroll_dir : 4;        /**< The allowed scroll direction(s), see `lv_dir_t`*/
+    uint16_t layer_type : 2;        /**< Cache the layer type here. Element of @lv_intermediate_layer_type_t */
 } _lv_obj_spec_attr_t;
 
-typedef struct _lv_obj_t {
+struct _lv_obj_t {
     const lv_obj_class_t *class_p;
-    struct _lv_obj_t *parent;
+    lv_obj_t *parent;
     _lv_obj_spec_attr_t *spec_attr;
     _lv_obj_style_t *styles;
 #if LV_OBJ_STYLE_CACHE
@@ -244,7 +240,7 @@ typedef struct _lv_obj_t {
     uint16_t h_layout   : 1;
     uint16_t w_layout   : 1;
     uint16_t is_deleting : 1;
-} lv_obj_t;
+};
 
 /**********************
  * GLOBAL PROTOTYPES

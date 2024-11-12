@@ -84,8 +84,9 @@ uint32_t lv_msg_unsubscribe_obj(uint32_t msg_id, lv_obj_t *obj);
  * Send a message with a given ID and payload
  * @param msg_id        ID of the message to send
  * @param data          pointer to the data to send
+ * @return              return true if successful, false if the message ID is not found.
  */
-void lv_msg_send(uint32_t msg_id, const void *payload);
+bool lv_msg_send(uint32_t msg_id, const void *payload);
 
 /**
  * Get the ID of a message object. Typically used in the subscriber callback.

@@ -51,7 +51,6 @@ static void change_event_cb(lv_event_t *e)
     }
 }
 
-
 /**
  * A very light-weighted list created from table
  */

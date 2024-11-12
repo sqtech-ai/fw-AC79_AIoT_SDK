@@ -65,15 +65,67 @@
 
 #endif
 
+//*********************************************************************************//
+//                          预留区UI和AUDIO资源配置                                //
+//*********************************************************************************//
+//注意：ui和audio资源的起始地址和大小, 根据产品生命周期最大情况定义,根据实际需求进行配置
+//FLASH后面4K用于一些配置存储，所以禁止覆盖
+//具体说明和注意事项请阅读文档
+
+//(1)ui和audio资源 ,如果存在ui资源则位于扩展预留区末尾,
+//还存在audio则位于ui项前面，其他配置项则位于它们之前.
+/*
+#------------------------------|
+#  (其他预留区配置项)          |
+#------------------------------|<----CONFIG_UI_PACKRES_ADR - CONFIG_AUDIO_PACKRES_LEN = CONFIG_AUDIO_PACKRES_ADR
+#  (CONFIG_AUDIO_PACKRES_LEN)  |
+#------------------------------|<----__FLASH_SIZE__ - 0x1000 - CONFIG_UI_PACKRES_LEN = CONFIG_UI_PACKRES_ADR
+#  (CONFIG_UI_PACKRES_LEN)     |
+#------------------------------|<----__FLASH_SIZE__ - 0x1000
+#  (4K Reserved)               |
+#------------------------------+<----__FLASH_SIZE__
+*/
+
+//(2)只有audio资源,则将其位于扩展预留区末尾.
+/*
+#------------------------------|
+#  (其他预留区配置项)          |
+#------------------------------|<----__FLASH_SIZE__ - 0x1000 - CONFIG_AUDIO_PACKRES_LEN = CONFIG_AUDIO_PACKRES_ADR
+#  (CONFIG_AUDIO_PACKRES_LEN)  |
+#------------------------------|<----__FLASH_SIZE__ - 0x1000
+#  (4K Reserved)               |
+#------------------------------+<----__FLASH_SIZE__
+*/
+
 #if defined CONFIG_UI_ENABLE && !defined CONFIG_SDFILE_EXT_ENABLE
-#define CONFIG_UI_FILE_SAVE_IN_RESERVED_ZONE  //UI资源打包后放在预留区，可以通过升级预留区更新此资源，一般用于双备份时UI资源小于代码大小的方案
-// #define CONFIG_UI_FILE_SAVE_IN_RESERVED_EXPAND_ZONE  //UI资源打包后放在扩展预留区，不可以通过升级更新此资源，一般用于UI不需要更新的方案
+#define CONFIG_UI_FILE_SAVE_IN_RESERVED_EXPAND_ZONE //UI资源打包后放在扩展预留区
 #endif
 
 #if defined CONFIG_AUDIO_ENABLE && !defined CONFIG_SDFILE_EXT_ENABLE
-#define CONFIG_VOICE_PROMPT_FILE_SAVE_IN_RESERVED_ZONE  //提示音资源打包后放在预留区，可以通过升级预留区更新此资源，一般用于双备份时提示音资源小于代码大小的方案
-// #define CONFIG_VOICE_PROMPT_FILE_SAVE_IN_RESERVED_EXPAND_ZONE  //提示音资源打包后放在扩展预留区，不可以通过升级更新此资源，一般用于提示音不需要更新的方案
+#define CONFIG_VOICE_PROMPT_FILE_SAVE_IN_RESERVED_EXPAND_ZONE //AUDIO资源打包后放在扩展预留区
 #endif
+
+#if defined CONFIG_UI_FILE_SAVE_IN_RESERVED_EXPAND_ZONE
+#define CONFIG_UI_PACKRES_LEN 0x180000
+#define CONFIG_UI_PACKRES_ADR ((__FLASH_SIZE__) - (CONFIG_UI_PACKRES_LEN) - 0x1000)
+#else
+#define CONFIG_UI_PACKRES_LEN 0
+#define CONFIG_UI_PACKRES_ADR 0
+#endif
+
+#if defined CONFIG_VOICE_PROMPT_FILE_SAVE_IN_RESERVED_EXPAND_ZONE
+#if defined CONFIG_UI_FILE_SAVE_IN_RESERVED_EXPAND_ZONE
+#define CONFIG_AUDIO_PACKRES_LEN 0x180000
+#define CONFIG_AUDIO_PACKRES_ADR ((__FLASH_SIZE__) - (CONFIG_UI_PACKRES_LEN) - 0x1000 - CONFIG_AUDIO_PACKRES_LEN)
+#else
+#define CONFIG_AUDIO_PACKRES_LEN 0x180000
+#define CONFIG_AUDIO_PACKRES_ADR ((__FLASH_SIZE__) - CONFIG_AUDIO_PACKRES_LEN - 0x1000)
+#endif
+#else
+#define CONFIG_AUDIO_PACKRES_LEN 0
+#define CONFIG_AUDIO_PACKRES_ADR 0
+#endif
+
 
 #if !defined CONFIG_VIDEO_ENABLE || defined CONFIG_NO_SDRAM_ENABLE
 #undef  CONFIG_RTOS_AND_MM_LIB_CODE_SECTION_IN_SDRAM
@@ -285,6 +337,7 @@
 #ifdef CONFIG_AEC_ENC_ENABLE
 #define CONFIG_USB_AUDIO_AEC_ENABLE          //usb mic使能回声消除功能
 // #define CONFIG_AEC_LINEIN_CHANNEL_ENABLE     //AEC回采使用硬件通道数据
+// #define CONFIG_AEC_USE_PLAY_MUSIC_ENABLE       //播歌时需要使用AEC
 #endif
 
 #define CONFIG_ALL_ADC_CHANNEL_OPEN_ENABLE   //四路ADC硬件全开
@@ -353,11 +406,8 @@
 #endif
 #endif
 
-#if __FLASH_SIZE__ > (4 * 1024 * 1024)
-#define CONFIG_DOUBLE_BANK_ENABLE           1//双备份方式升级
-#else
-#define CONFIG_DOUBLE_BANK_ENABLE           0//双备份方式升级
-#endif
+#define CONFIG_DOUBLE_BANK_ENABLE           0//1: 双备份方式升级 0:单备份方式升级
+
 #define CONFIG_UPGRADE_FILE_NAME            "update.ufw"
 #define CONFIG_UPGRADE_PATH                 CONFIG_ROOT_PATH\
 											CONFIG_UPGRADE_FILE_NAME	//备份方式升级

@@ -17,7 +17,6 @@
 #include "lcd_drive.h"
 #include "yuv_soft_scalling.h"
 #include "event/key_event.h"
-#include "lcd_te_driver.h"
 #include "app_music.h"
 
 /********************************文件说明************************************
@@ -145,7 +144,7 @@ static void ui_play_power_show(char percent)
 /*==========ui_MP3播放开机画面==========*/
 static void open_animation(char speed)//开机图片以及开机音乐播放
 {
-    set_lcd_show_data_mode(ui);
+    set_lcd_show_data_mode(UI);
     ui_show_main(PAGE_1);
 
     for (u8 i = 0; i < 4; i++) {
@@ -207,7 +206,7 @@ static void ui_demo(void *priv)
 {
     int msg[32];
 
-    set_lcd_show_data_mode(ui);
+    set_lcd_show_data_mode(UI);
     ui_server_init();
     open_animation(10);
     ui_show_main(PAGE_0);

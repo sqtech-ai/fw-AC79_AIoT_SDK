@@ -12,9 +12,7 @@
 		<Project filename="apps/demo/demo_DevKitBoard/board/wl82/AC791N_DEMO_DEMO_DEVKITBOARD.cbp" />
 		<Project filename="apps/demo/demo_audio/board/wl82/AC791N_DEMO_DEMO_AUDIO.cbp" />
 		<Project filename="apps/demo/demo_ble/board/wl82/AC791N_DEMO_DEMO_BLE.cbp" />
-		<Project filename="apps/wifi_camera/board/wl80/AC790N_WIFI_CAMERA.cbp" />
 		<Project filename="apps/wifi_camera/board/wl82/AC791N_WIFI_CAMERA.cbp" />
-		<Project filename="apps/wifi_story_machine/board/wl80/AC790N_WIFI_STORY_MACHINE.cbp" />
 		<Project filename="apps/wifi_story_machine/board/wl82/AC791N_WIFI_STORY_MACHINE.cbp" />
 		<Project filename="apps/wifi_ipc/board/wl82/AC791N_WIFI_IPC.cbp" />
 		<Project filename="apps/scan_box/board/wl82/AC791N_SCAN_BOX.cbp" />

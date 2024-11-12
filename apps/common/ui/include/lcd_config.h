@@ -7,6 +7,7 @@
 
 #define LCD_YUV420_DATA_SIZE    LCD_W*LCD_H*3/2
 #define LCD_RGB565_DATA_SIZE    LCD_W*LCD_H*2
+#define LCD_RGB888_DATA_SIZE    LCD_W*LCD_H*3
 
 #endif
 

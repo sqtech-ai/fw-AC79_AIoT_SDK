@@ -130,20 +130,8 @@ lv_rb_node_t *lv_rb_find(lv_rb_t *tree, const void *key)
     return NULL;
 }
 
-void *lv_rb_remove(lv_rb_t *tree, const void *key)
+void *lv_rb_remove_node(lv_rb_t *tree, lv_rb_node_t *node)
 {
-    LV_ASSERT_NULL(tree);
-    if (tree == NULL) {
-        return NULL;
-    }
-
-    lv_rb_node_t *node = lv_rb_find(tree, key);
-    LV_ASSERT_NULL(node);
-    if (node == NULL) {
-        LV_LOG_WARN("rb delete %d not found", (int)(uintptr_t)key);
-        return NULL;
-    }
-
     lv_rb_node_t *child = NULL;
     lv_rb_node_t *parent = NULL;
     lv_rb_color_t color = LV_RB_COLOR_BLACK;
@@ -218,6 +206,38 @@ void *lv_rb_remove(lv_rb_t *tree, const void *key)
     return data;
 }
 
+void *lv_rb_remove(lv_rb_t *tree, const void *key)
+{
+    LV_ASSERT_NULL(tree);
+    if (tree == NULL) {
+        return NULL;
+    }
+
+    lv_rb_node_t *node = lv_rb_find(tree, key);
+    LV_ASSERT_NULL(node);
+    if (node == NULL) {
+        LV_LOG_WARN("rb delete %d not found", (int)(uintptr_t)key);
+        return NULL;
+    }
+
+    return lv_rb_remove_node(tree, node);
+}
+
+bool lv_rb_drop_node(lv_rb_t *tree, lv_rb_node_t *node)
+{
+    LV_ASSERT_NULL(tree);
+    if (tree == NULL) {
+        return false;
+    }
+
+    void *data = lv_rb_remove_node(tree, node);
+    if (data) {
+        lv_free(data);
+        return true;
+    }
+    return false;
+}
+
 bool lv_rb_drop(lv_rb_t *tree, const void *key)
 {
     LV_ASSERT_NULL(tree);
@@ -263,6 +283,7 @@ void lv_rb_destroy(lv_rb_t *tree)
             node = parent;
         }
     }
+    tree->root = NULL;
 }
 
 lv_rb_node_t *lv_rb_minimum(lv_rb_t *tree)
@@ -307,13 +328,13 @@ lv_rb_node_t *lv_rb_maximum_from(lv_rb_node_t *node)
 
 static lv_rb_node_t *rb_create_node(lv_rb_t *tree)
 {
-    lv_rb_node_t *node = lv_malloc(sizeof(lv_rb_node_t));
+    lv_rb_node_t *node = lv_malloc_zeroed(sizeof(lv_rb_node_t));
     LV_ASSERT_MALLOC(node);
     if (node == NULL) {
         return NULL;
     }
 
-    node->data = lv_malloc(tree->size);
+    node->data = lv_malloc_zeroed(tree->size);
     LV_ASSERT_MALLOC(node->data);
     if (node->data == NULL) {
         lv_free(node);

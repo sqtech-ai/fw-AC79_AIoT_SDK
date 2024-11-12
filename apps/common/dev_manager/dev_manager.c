@@ -77,7 +77,7 @@ int __dev_manager_add(char *logo, u8 need_mount)
 		}
 		os_mutex_pend(&__this->mutex, 0);
 		if(need_mount){
-			if(fdir_exist(CONFIG_STORAGE_PATH))
+			if(fmount_exist(CONFIG_STORAGE_PATH))
 			{
 				dev->fmnt = rcsp_fmt;
 			}else{

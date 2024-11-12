@@ -5,6 +5,7 @@
 #include "yuv_soft_scalling.h"//YUV420p_Soft_Scaling
 #include "get_yuv_data.h"//get_yuv_init
 #include "lcd_drive.h"
+#include "lcd_data_driver.h"
 
 #ifdef USE_CAMERA_DVP_SHOW_TO_LCD_DEMO
 

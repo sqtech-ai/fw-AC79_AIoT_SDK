@@ -16,7 +16,6 @@
 #include "ename.h"
 #include "asm/rtc.h"
 #include "asm/p33.h"
-#include "lcd_te_driver.h"
 #include "lcd_config.h"
 #include "enc_qr_code.h"
 
@@ -71,7 +70,7 @@ static void ui_demo_test(void *priv)
 
     os_time_dly(200);
 
-    set_lcd_show_data_mode(ui_qr);
+    set_lcd_show_data_mode(UI_QR);
     set_compose_mode3(0, 35, QR_LEN, QR_LEN);  //设置图像更新坐标，尺寸
     memset(qr_buf + QR_LEN * QR_LEN, 0x80, QR_LEN * QR_LEN * 1 / 2);//将VU数据全部填充0X80空白数据
 

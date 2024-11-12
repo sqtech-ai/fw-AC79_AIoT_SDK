@@ -27,11 +27,13 @@
  * \name File attributes bits for fset_attr and fget_attr funciton
  * \{
  */
+#define F_ATTR_RW       0x00   /*!< 读写 */
 #define F_ATTR_RO       0x01   /*!< 只读 */
-#define F_ATTR_ARC      0x02   /*!< 文件 */
-#define F_ATTR_DIR      0x04   /*!< 目录 */
+#define F_ATTR_HID      0x02   /*!< 隐藏 */
+#define F_ATTR_SYS      0x04   /*!< 系统 */
 #define F_ATTR_VOL      0x08   /*!< 卷标 */
-#define F_ATTR_HID      0x10   /*!< 隐藏 */
+#define F_ATTR_DIR      0x10   /*!< 目录 */
+#define F_ATTR_ARC      0x20   /*!< 文件 */
 /* \} name */
 
 #ifndef FSELECT_MODE

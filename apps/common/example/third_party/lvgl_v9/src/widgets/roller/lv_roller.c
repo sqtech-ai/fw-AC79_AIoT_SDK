@@ -42,7 +42,7 @@ static lv_result_t release_handler(lv_obj_t *obj);
 static void inf_normalize(lv_obj_t *obj_scrl);
 static lv_obj_t *get_label(const lv_obj_t *obj);
 static int32_t get_selected_label_width(const lv_obj_t *obj);
-static void scroll_anim_ready_cb(lv_anim_t *a);
+static void scroll_anim_completed_cb(lv_anim_t *a);
 static void set_y_anim(void *obj, int32_t v);
 static void transform_vect_recursive(lv_obj_t *roller, lv_point_t *vect);
 
@@ -76,11 +76,6 @@ const lv_obj_class_t lv_roller_label_class  = {
  *   GLOBAL FUNCTIONS
  **********************/
 
-/**
- * Create a roller object
- * @param parent pointer to an object, it will be the parent of the new roller
- * @return pointer to the created roller
- */
 lv_obj_t *lv_roller_create(lv_obj_t *parent)
 {
     LV_LOG_INFO("begin");
@@ -93,12 +88,6 @@ lv_obj_t *lv_roller_create(lv_obj_t *parent)
  * Setter functions
  *====================*/
 
-/**
- * Set the options on a roller
- * @param roller pointer to roller object
- * @param options a string with '\n' separated options. E.g. "One\nTwo\nThree"
- * @param mode `LV_ROLLER_MODE_NORMAL` or `LV_ROLLER_MODE_INFINITE`
- */
 void lv_roller_set_options(lv_obj_t *obj, const char *options, lv_roller_mode_t mode)
 {
     LV_ASSERT_OBJ(obj, MY_CLASS);
@@ -158,12 +147,6 @@ void lv_roller_set_options(lv_obj_t *obj, const char *options, lv_roller_mode_t 
 
 }
 
-/**
- * Set the selected option
- * @param roller pointer to a roller object
- * @param sel_opt id of the selected option (0 ... number of option - 1);
- * @param anim_en LV_ANIM_ON: set with animation; LV_ANOM_OFF set immediately
- */
 void lv_roller_set_selected(lv_obj_t *obj, uint32_t sel_opt, lv_anim_enable_t anim)
 {
     LV_ASSERT_OBJ(obj, MY_CLASS);
@@ -201,11 +184,6 @@ void lv_roller_set_selected(lv_obj_t *obj, uint32_t sel_opt, lv_anim_enable_t an
     refr_position(obj, anim);
 }
 
-/**
- * Set the height to show the given number of rows (options)
- * @param roller pointer to a roller object
- * @param row_cnt number of desired visible rows
- */
 void lv_roller_set_visible_row_count(lv_obj_t *obj, uint32_t row_cnt)
 {
     LV_ASSERT_OBJ(obj, MY_CLASS);
@@ -220,11 +198,6 @@ void lv_roller_set_visible_row_count(lv_obj_t *obj, uint32_t row_cnt)
  * Getter functions
  *====================*/
 
-/**
- * Get the id of the selected option
- * @param roller pointer to a roller object
- * @return id of the selected option (0 ... number of option - 1);
- */
 uint32_t lv_roller_get_selected(const lv_obj_t *obj)
 {
     LV_ASSERT_OBJ(obj, MY_CLASS);
@@ -238,12 +211,6 @@ uint32_t lv_roller_get_selected(const lv_obj_t *obj)
     }
 }
 
-/**
- * Get the current selected option as a string
- * @param ddlist pointer to ddlist object
- * @param buf pointer to an array to store the string
- * @param buf_size size of `buf` in bytes. 0: to ignore it.
- */
 void lv_roller_get_selected_str(const lv_obj_t *obj, char *buf, uint32_t buf_size)
 {
     LV_ASSERT_OBJ(obj, MY_CLASS);
@@ -285,11 +252,6 @@ const char *lv_roller_get_options(const lv_obj_t *obj)
     return lv_label_get_text(get_label(obj));
 }
 
-/**
- * Get the total number of options
- * @param roller pointer to a roller object
- * @return the total number of options
- */
 uint32_t lv_roller_get_option_count(const lv_obj_t *obj)
 {
     LV_ASSERT_OBJ(obj, MY_CLASS);
@@ -402,7 +364,7 @@ static void lv_roller_event(const lv_obj_class_t *class_p, lv_event_t *e)
             refr_position(obj, LV_ANIM_ON);
         }
     } else if (code == LV_EVENT_KEY) {
-        char c = *((char *)lv_event_get_param(e));
+        uint32_t c = lv_event_get_key(e);
         if (c == LV_KEY_RIGHT || c == LV_KEY_DOWN) {
             if (roller->sel_opt_id + 1 < roller->option_cnt) {
                 uint32_t ori_id = roller->sel_opt_id_ori; /*lv_roller_set_selected will overwrite this*/
@@ -440,7 +402,7 @@ static void lv_roller_label_event(const lv_obj_class_t *class_p, lv_event_t *e)
         }
     }
 
-    lv_obj_t *label = lv_event_get_target(e);
+    lv_obj_t *label = lv_event_get_current_target(e);
     if (code == LV_EVENT_REFR_EXT_DRAW_SIZE) {
         /*If the selected text has a larger font it needs some extra space to draw it*/
         int32_t *s = lv_event_get_param(e);
@@ -458,7 +420,7 @@ static void lv_roller_label_event(const lv_obj_class_t *class_p, lv_event_t *e)
 static void draw_main(lv_event_t *e)
 {
     lv_event_code_t code = lv_event_get_code(e);
-    lv_obj_t *obj = lv_event_get_target(e);
+    lv_obj_t *obj = lv_event_get_current_target(e);
     if (code == LV_EVENT_DRAW_MAIN) {
         /*Draw the selected rectangle*/
         lv_layer_t *layer = lv_event_get_layer(e);
@@ -533,7 +495,7 @@ static void draw_label(lv_event_t *e)
 {
     /* Split the drawing of the label into  an upper (above the selected area)
      * and a lower (below the selected area)*/
-    lv_obj_t *label_obj = lv_event_get_target(e);
+    lv_obj_t *label_obj = lv_event_get_current_target(e);
     lv_obj_t *roller = lv_obj_get_parent(label_obj);
     lv_draw_label_dsc_t label_draw_dsc;
     lv_draw_label_dsc_init(&label_draw_dsc);
@@ -636,7 +598,7 @@ static void refr_position(lv_obj_t *obj, lv_anim_enable_t anim_en)
     const int32_t line_space = lv_obj_get_style_text_line_space(obj, LV_PART_MAIN);
     const int32_t font_h = lv_font_get_line_height(font);
     const int32_t h = lv_obj_get_content_height(obj);
-    uint32_t anim_time = lv_obj_get_style_anim_time(obj, LV_PART_MAIN);
+    uint32_t anim_time = lv_obj_get_style_anim_duration(obj, LV_PART_MAIN);
 
     /*Normally the animation's `end_cb` sets correct position of the roller if infinite.
      *But without animations we have to do it manually*/
@@ -660,8 +622,8 @@ static void refr_position(lv_obj_t *obj, lv_anim_enable_t anim_en)
         lv_anim_set_var(&a, label);
         lv_anim_set_exec_cb(&a, set_y_anim);
         lv_anim_set_values(&a, lv_obj_get_y(label), new_y);
-        lv_anim_set_time(&a, anim_time);
-        lv_anim_set_ready_cb(&a, scroll_anim_ready_cb);
+        lv_anim_set_duration(&a, anim_time);
+        lv_anim_set_completed_cb(&a, scroll_anim_completed_cb);
         lv_anim_set_path_cb(&a, lv_anim_path_ease_out);
         lv_anim_start(&a);
     }
@@ -700,7 +662,7 @@ static lv_result_t release_handler(lv_obj_t *obj)
             p.y -= label->coords.y1;
             p.x -= label->coords.x1;
             uint32_t letter_i;
-            letter_i = lv_label_get_letter_on(label, &p);
+            letter_i = lv_label_get_letter_on(label, &p, true);
 
             const char *txt  = lv_label_get_text(label);
             uint32_t i        = 0;
@@ -810,7 +772,7 @@ static int32_t get_selected_label_width(const lv_obj_t *obj)
     return size.x;
 }
 
-static void scroll_anim_ready_cb(lv_anim_t *a)
+static void scroll_anim_completed_cb(lv_anim_t *a)
 {
     lv_obj_t *obj = lv_obj_get_parent(a->var);  /*The label is animated*/
     inf_normalize(obj);

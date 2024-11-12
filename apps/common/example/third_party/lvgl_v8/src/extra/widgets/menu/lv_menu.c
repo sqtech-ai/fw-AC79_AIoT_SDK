@@ -198,7 +198,7 @@ void lv_menu_set_page(lv_obj_t *obj, lv_obj_t *page)
 
     /* Guard against setting the same page again */
     if (menu->main_page == page) {
-        return;
+        //return; 修改菜单上面有个返回按钮
     }
 
     /* Hide previous page */

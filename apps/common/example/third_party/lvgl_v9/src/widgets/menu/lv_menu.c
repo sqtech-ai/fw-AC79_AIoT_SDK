@@ -326,14 +326,14 @@ void lv_menu_set_sidebar_page(lv_obj_t *obj, lv_obj_t *page)
     lv_menu_refr(obj);
 }
 
-void lv_menu_set_mode_header(lv_obj_t *obj, lv_menu_mode_header_t mode_header)
+void lv_menu_set_mode_header(lv_obj_t *obj, lv_menu_mode_header_t mode)
 {
     LV_ASSERT_OBJ(obj, MY_CLASS);
 
     lv_menu_t *menu = (lv_menu_t *)obj;
 
-    if (menu->mode_header != mode_header) {
-        menu->mode_header = mode_header;
+    if (menu->mode_header != mode) {
+        menu->mode_header = mode;
         lv_menu_refr_main_header_mode(obj);
         if (menu->sidebar_generated) {
             lv_menu_refr_sidebar_header_mode(obj);
@@ -341,14 +341,14 @@ void lv_menu_set_mode_header(lv_obj_t *obj, lv_menu_mode_header_t mode_header)
     }
 }
 
-void lv_menu_set_mode_root_back_button(lv_obj_t *obj, lv_menu_mode_root_back_button_t mode_root_back_btn)
+void lv_menu_set_mode_root_back_button(lv_obj_t *obj, lv_menu_mode_root_back_button_t mode)
 {
     LV_ASSERT_OBJ(obj, MY_CLASS);
 
     lv_menu_t *menu = (lv_menu_t *)obj;
 
-    if (menu->mode_root_back_btn != mode_root_back_btn) {
-        menu->mode_root_back_btn = mode_root_back_btn;
+    if (menu->mode_root_back_btn != mode) {
+        menu->mode_root_back_btn = mode;
         lv_menu_refr(obj);
     }
 }
@@ -703,7 +703,7 @@ static void lv_menu_refr_main_header_mode(lv_obj_t *obj)
 
 static void lv_menu_load_page_event_cb(lv_event_t *e)
 {
-    lv_obj_t *obj = lv_event_get_target(e);
+    lv_obj_t *obj = lv_event_get_current_target(e);
     lv_menu_load_page_event_data_t *event_data = lv_event_get_user_data(e);
     lv_menu_t *menu = (lv_menu_t *)(event_data->menu);
     lv_obj_t *page = event_data->page;
@@ -755,7 +755,7 @@ static void lv_menu_back_event_cb(lv_event_t *e)
     lv_event_code_t code = lv_event_get_code(e);
     /* LV_EVENT_CLICKED */
     if (code == LV_EVENT_CLICKED) {
-        lv_obj_t *obj = lv_event_get_target(e);
+        lv_obj_t *obj = lv_event_get_current_target(e);
         lv_menu_t *menu = (lv_menu_t *)lv_event_get_user_data(e);
 
         if (!(obj == menu->main_header_back_btn || obj == menu->sidebar_header_back_btn)) {

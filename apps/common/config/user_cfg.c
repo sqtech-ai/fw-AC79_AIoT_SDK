@@ -253,6 +253,8 @@ void get_cfg_file_aec_config(struct aec_s_attr *aec_param)
     aec_param->EnableBit &= ~BIT(5);
 #endif
 
+    aec_param->dac_ref_sr = 16000; //aec软件回采的dac参考采样率，8k或16k的整数倍
+
     aec_param->AGC_NDT_fade_in_step  = aec_config.ndt_fade_in;
     aec_param->AGC_NDT_fade_out_step = aec_config.ndt_fade_out;
     aec_param->AGC_DT_fade_in_step   = aec_config.dt_fade_in;

@@ -30,7 +30,7 @@ static char ip_addr[32];
 static char gw_addr[32];
 static void *dev = NULL;
 static int lte_app_task_pid;
-
+static u8 port_id;
 
 int lte_lwip_event_cb(void *lwip_ctx, enum LWIP_EVENT event)
 {
@@ -66,7 +66,10 @@ char *get_lte_ip(void)
 
 static void at_cmd_test(void *priv)
 {
-    usbnet_host_at_data_send("AT\r\n", strlen("AT\r\n"));
+    for (;;) {
+        usbnet_host_at_data_send(port_id, "AT\r\n", strlen("AT\r\n"));
+        os_time_dly(100);
+    }
 }
 
 
@@ -87,9 +90,11 @@ static int lte_state_cb(void *priv, int on)
             dev_ioctl(dev, LTE_NETWORK_STOP, NULL);
         }
     } else if (!strncmp((u8 *)priv, "at_port", strlen("at_port"))) {
+        port_id = atoi((((u8 *)priv) + strlen("at_port")));
         if (on) {
             log_i("lte at_port on\r\n");
             usbnet_at_port_rx_handler_register(at_port_rx_handler);
+            //thread_fork("at_cmd_test", 10, 1024, 0, NULL, at_cmd_test, NULL);
         } else {
             log_i("lte at_port off\r\n");
         }

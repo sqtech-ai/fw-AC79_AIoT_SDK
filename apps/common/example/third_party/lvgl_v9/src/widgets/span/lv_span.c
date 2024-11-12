@@ -294,7 +294,7 @@ lv_span_t *lv_spangroup_get_child(const lv_obj_t *obj, int32_t id)
     return NULL;
 }
 
-uint32_t lv_spangroup_get_child_count(const lv_obj_t *obj)
+uint32_t lv_spangroup_get_span_count(const lv_obj_t *obj)
 {
     LV_ASSERT_OBJ(obj, MY_CLASS);
 
@@ -372,7 +372,7 @@ void lv_spangroup_refr_mode(lv_obj_t *obj)
     refresh_self_size(obj);
 }
 
-int32_t lv_spangroup_get_max_line_h(lv_obj_t *obj)
+int32_t lv_spangroup_get_max_line_height(lv_obj_t *obj)
 {
     LV_ASSERT_OBJ(obj, MY_CLASS);
     lv_spangroup_t *spans = (lv_spangroup_t *)obj;
@@ -574,7 +574,7 @@ static void lv_spangroup_event(const lv_obj_class_t *class_p, lv_event_t *e)
     }
 
     lv_event_code_t code = lv_event_get_code(e);
-    lv_obj_t *obj = lv_event_get_target(e);
+    lv_obj_t *obj = lv_event_get_current_target(e);
     lv_spangroup_t *spans = (lv_spangroup_t *)obj;
 
     if (code == LV_EVENT_DRAW_MAIN) {
@@ -591,7 +591,7 @@ static void lv_spangroup_event(const lv_obj_class_t *class_p, lv_event_t *e)
         if (spans->mode == LV_SPAN_MODE_EXPAND) {
             if (spans->refresh) {
                 spans->cache_w = (int32_t)lv_spangroup_get_expand_width(obj, 0);
-                spans->cache_h = lv_spangroup_get_max_line_h(obj);
+                spans->cache_h = lv_spangroup_get_max_line_height(obj);
                 spans->refresh = 0;
             }
             width = spans->cache_w;
@@ -619,7 +619,7 @@ static void lv_spangroup_event(const lv_obj_class_t *class_p, lv_event_t *e)
 
 static void draw_main(lv_event_t *e)
 {
-    lv_obj_t *obj = lv_event_get_target(e);
+    lv_obj_t *obj = lv_event_get_current_target(e);
     lv_layer_t *layer = lv_event_get_layer(e);
 
     lv_draw_span(obj, layer);
@@ -1004,7 +1004,7 @@ static void lv_draw_span(lv_obj_t *obj, lv_layer_t *layer)
 
                 if (ellipsis_valid && pos.x + letter_w + pinfo->letter_space > ellipsis_width) {
                     for (int ell = 0; ell < 3; ell++) {
-                        lv_draw_letter(layer, &label_draw_dsc, &pos, '.');
+                        lv_draw_character(layer, &label_draw_dsc, &pos, '.');
                         pos.x = pos.x + dot_letter_w + pinfo->letter_space;
                     }
                     if (pos.x <= ellipsis_width) {
@@ -1012,7 +1012,7 @@ static void lv_draw_span(lv_obj_t *obj, lv_layer_t *layer)
                     }
                     break;
                 } else {
-                    lv_draw_letter(layer, &label_draw_dsc, &pos, letter);
+                    lv_draw_character(layer, &label_draw_dsc, &pos, letter);
                     if (letter_w > 0) {
                         pos.x = pos.x + letter_w + pinfo->letter_space;
                     }

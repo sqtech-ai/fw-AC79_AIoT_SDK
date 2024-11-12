@@ -21,6 +21,8 @@
 #define LOG_CLI_ENABLE
 #include "debug.h"
 
+#if (USB_AUDIO_VERSION == USB_AUDIO_VERSION_1_0)
+
 static u32 mic_samplingfrequency;
 /*********************************************************/
 /*
@@ -1420,4 +1422,5 @@ void uac_release(const usb_dev usb_id)
         uac_info[usb_id] = NULL;
     }
 }
+#endif
 #endif

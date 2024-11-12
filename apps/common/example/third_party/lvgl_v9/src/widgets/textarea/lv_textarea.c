@@ -50,7 +50,7 @@ static void lv_textarea_event(const lv_obj_class_t *class_p, lv_event_t *e);
 static void label_event_cb(lv_event_t *e);
 static void cursor_blink_anim_cb(void *obj, int32_t show);
 static void pwd_char_hider_anim(void *obj, int32_t x);
-static void pwd_char_hider_anim_ready(lv_anim_t *a);
+static void pwd_char_hider_anim_completed(lv_anim_t *a);
 static void pwd_char_hider(lv_obj_t *obj);
 static bool char_is_accepted(lv_obj_t *obj, uint32_t c);
 static void start_cursor_blink(lv_obj_t *obj);
@@ -823,7 +823,7 @@ void lv_textarea_cursor_down(lv_obj_t *obj)
     /*Do not go below the last line*/
     if (pos.y < lv_obj_get_height(ta->label)) {
         /*Get the letter index on the new cursor position and set it*/
-        uint32_t new_cur_pos = lv_label_get_letter_on(ta->label, &pos);
+        uint32_t new_cur_pos = lv_label_get_letter_on(ta->label, &pos, true);
 
         int32_t cur_valid_x_tmp = ta->cursor.valid_x; /*Cursor position set overwrites the valid position*/
         lv_textarea_set_cursor_pos(obj, new_cur_pos);
@@ -849,7 +849,7 @@ void lv_textarea_cursor_up(lv_obj_t *obj)
     pos.x = ta->cursor.valid_x;
 
     /*Get the letter index on the new cursor position and set it*/
-    uint32_t new_cur_pos       = lv_label_get_letter_on(ta->label, &pos);
+    uint32_t new_cur_pos       = lv_label_get_letter_on(ta->label, &pos, true);
     int32_t cur_valid_x_tmp = ta->cursor.valid_x; /*Cursor position set overwrites the valid position*/
     lv_textarea_set_cursor_pos(obj, new_cur_pos);
     ta->cursor.valid_x = cur_valid_x_tmp;
@@ -929,7 +929,7 @@ static void lv_textarea_event(const lv_obj_class_t *class_p, lv_event_t *e)
     }
 
     lv_event_code_t code = lv_event_get_code(e);
-    lv_obj_t *obj = lv_event_get_target(e);
+    lv_obj_t *obj = lv_event_get_current_target(e);
 
     if (code == LV_EVENT_FOCUSED) {
         start_cursor_blink(obj);
@@ -969,7 +969,7 @@ static void lv_textarea_event(const lv_obj_class_t *class_p, lv_event_t *e)
 static void label_event_cb(lv_event_t *e)
 {
     lv_event_code_t code = lv_event_get_code(e);
-    lv_obj_t *label = lv_event_get_target(e);
+    lv_obj_t *label = lv_event_get_current_target(e);
     lv_obj_t *ta = lv_obj_get_parent(label);
 
     if (code == LV_EVENT_STYLE_CHANGED || code == LV_EVENT_SIZE_CHANGED) {
@@ -1016,7 +1016,7 @@ static void pwd_char_hider_anim(void *obj, int32_t x)
  * Call when an animation is ready to convert all characters to '*'
  * @param a pointer to the animation
  */
-static void pwd_char_hider_anim_ready(lv_anim_t *a)
+static void pwd_char_hider_anim_completed(lv_anim_t *a)
 {
     lv_obj_t *obj = a->var;
     pwd_char_hider(obj);
@@ -1090,7 +1090,7 @@ static bool char_is_accepted(lv_obj_t *obj, uint32_t c)
 static void start_cursor_blink(lv_obj_t *obj)
 {
     lv_textarea_t *ta = (lv_textarea_t *)obj;
-    uint32_t blink_time = lv_obj_get_style_anim_time(obj, LV_PART_CURSOR);
+    uint32_t blink_time = lv_obj_get_style_anim_duration(obj, LV_PART_CURSOR);
     if (blink_time == 0) {
         lv_anim_delete(obj, cursor_blink_anim_cb);
         ta->cursor.show = 1;
@@ -1099,8 +1099,8 @@ static void start_cursor_blink(lv_obj_t *obj)
         lv_anim_init(&a);
         lv_anim_set_var(&a, ta);
         lv_anim_set_exec_cb(&a, cursor_blink_anim_cb);
-        lv_anim_set_time(&a, blink_time);
-        lv_anim_set_playback_time(&a, blink_time);
+        lv_anim_set_duration(&a, blink_time);
+        lv_anim_set_playback_duration(&a, blink_time);
         lv_anim_set_values(&a, 1, 0);
         lv_anim_set_path_cb(&a, lv_anim_path_step);
         lv_anim_set_repeat_count(&a, LV_ANIM_REPEAT_INFINITE);
@@ -1196,7 +1196,7 @@ static void update_cursor_position_on_click(lv_event_t *e)
         return;
     }
 
-    lv_obj_t *obj = lv_event_get_target(e);
+    lv_obj_t *obj = lv_event_get_current_target(e);
     lv_textarea_t *ta = (lv_textarea_t *)obj;
     if (ta->cursor.click_pos == 0) {
         return;
@@ -1239,7 +1239,7 @@ static void update_cursor_position_on_click(lv_event_t *e)
         char_id_at_click = LV_TEXTAREA_CURSOR_LAST;
         click_outside_label = true;
     } else {
-        char_id_at_click = lv_label_get_letter_on(ta->label, &rel_pos);
+        char_id_at_click = lv_label_get_letter_on(ta->label, &rel_pos, true);
         click_outside_label = !lv_label_is_char_under_pos(ta->label, &rel_pos);
     }
 
@@ -1300,7 +1300,7 @@ static void update_cursor_position_on_click(lv_event_t *e)
     else if (rel_pos.x >= label_width) {
         char_id_at_click = LV_TEXTAREA_CURSOR_LAST;
     } else {
-        char_id_at_click = lv_label_get_letter_on(ta->label, &rel_pos);
+        char_id_at_click = lv_label_get_letter_on(ta->label, &rel_pos, true);
     }
 
     if (code == LV_EVENT_PRESSED) {
@@ -1334,7 +1334,7 @@ static lv_result_t insert_handler(lv_obj_t *obj, const char *txt)
 
 static void draw_placeholder(lv_event_t *e)
 {
-    lv_obj_t *obj = lv_event_get_target(e);
+    lv_obj_t *obj = lv_event_get_current_target(e);
     lv_textarea_t *ta = (lv_textarea_t *)obj;
     lv_layer_t *layer = lv_event_get_layer(e);
     const char *txt = lv_label_get_text(ta->label);
@@ -1362,7 +1362,7 @@ static void draw_placeholder(lv_event_t *e)
 
 static void draw_cursor(lv_event_t *e)
 {
-    lv_obj_t *obj = lv_event_get_target(e);
+    lv_obj_t *obj = lv_event_get_current_target(e);
     lv_textarea_t *ta = (lv_textarea_t *)obj;
     lv_layer_t *layer = lv_event_get_layer(e);
     const char *txt = lv_label_get_text(ta->label);
@@ -1420,10 +1420,10 @@ static void auto_hide_characters(lv_obj_t *obj)
         lv_anim_init(&a);
         lv_anim_set_var(&a, ta);
         lv_anim_set_exec_cb(&a, pwd_char_hider_anim);
-        lv_anim_set_time(&a, ta->pwd_show_time);
+        lv_anim_set_duration(&a, ta->pwd_show_time);
         lv_anim_set_values(&a, 0, 1);
         lv_anim_set_path_cb(&a, lv_anim_path_step);
-        lv_anim_set_ready_cb(&a, pwd_char_hider_anim_ready);
+        lv_anim_set_completed_cb(&a, pwd_char_hider_anim_completed);
         lv_anim_start(&a);
     }
 }

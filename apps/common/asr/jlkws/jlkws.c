@@ -16,7 +16,7 @@ extern void aisp_resume(void);
 
 #define ONCE_SR_POINTS	160//256
 
-#define AISP_BUF_SIZE	(ONCE_SR_POINTS * 2)	//跑不过来时适当加大倍数
+#define AISP_BUF_SIZE	(ONCE_SR_POINTS * 2 * 2)	//跑不过来时适当加大倍数
 #define MIC_SR_LEN		(ONCE_SR_POINTS * 2)
 
 #ifdef CONFIG_AEC_ENC_ENABLE
@@ -32,6 +32,15 @@ extern void aisp_resume(void);
 
 #endif
 
+#define AEC_DATA_TO_SD 0 //将唤醒前的mic/dac/aec数据写卡进行查看,3channel(mic,dac,aec)
+
+#if AEC_DATA_TO_SD
+#define READSIZE 128
+#define MIX_DATA_LEN (128*3*2)  //AEC READSIZE = 128, 3:channel, 2:s16
+#define DAC_DATA_LEN (128*2*3)  //dac_sr/aec_sr*aec_points*channel  48000/16000 * 128 * 2
+#endif
+
+
 static struct {
     int pid;
     u16 sample_rate;
@@ -41,6 +50,17 @@ static struct {
     s16 mic_buf[AISP_BUF_SIZE * 2];
     void *mic_enc;
     cbuffer_t mic_cbuf;
+#if AEC_DATA_TO_SD
+    FILE *fd;
+    FILE *fd1;
+    void *dac_orig_buf;
+    void *cache_buf;
+    OS_SEM w_sem;
+    cbuffer_t save_cbuf;
+    cbuffer_t dac_save_cbuf;
+    s16 cache[READSIZE * 3];
+    s16 dac_obuf[READSIZE * 3];
+#endif
 } aisp_server;
 
 #define __this (&aisp_server)
@@ -58,6 +78,108 @@ enum {
     SONG_PREVIOUS_EVENT,
     SONG_NEXT_EVENT,
 };
+
+#if AEC_DATA_TO_SD
+void aec_mix_data_to_sd()
+{
+    u8 data[MIX_DATA_LEN];
+    u8 dac_data[DAC_DATA_LEN];
+    while (1) {
+        if (__this->fd && __this->fd1) {
+            os_sem_pend(&__this->w_sem, 0);
+            cbuf_read(&__this->save_cbuf, data, MIX_DATA_LEN);
+            fwrite(data, MIX_DATA_LEN, 1, __this->fd);
+            cbuf_read(&__this->dac_save_cbuf, dac_data, DAC_DATA_LEN);
+            fwrite(dac_data, DAC_DATA_LEN, 1, __this->fd1);
+        } else {
+            break;
+        }
+    }
+}
+
+void aec_mix_data_set_cb(s16 *data, int step)
+{
+    if (__this->fd) {
+        if (step == 1) { // !ch_data_exchange
+            for (u32 i = 0; i < READSIZE; ++i) {
+                __this->cache[3 * i] = data[2 * i];
+                __this->cache[3 * i + 1] = data[2 * i + 1];
+            }
+        } else if (step == 2) { //ch_data_exchange
+            for (u32 i = 0; i < READSIZE; ++i) {
+                __this->cache[3 * i] = data[2 * i + 1];
+                __this->cache[3 * i + 1] = data[2 * i];
+            }
+        }
+
+
+        if (step == 3) { //aec_data
+            for (u32 i = 0; i < READSIZE; ++i) {
+                __this->cache[3 * i + 2] = data[i];
+            }
+
+            if (0 == cbuf_write(&__this->save_cbuf, __this->cache, MIX_DATA_LEN)) {
+                cbuf_clear(&__this->save_cbuf);
+            }
+
+            memset(__this->cache, 0, sizeof(__this->cache));
+            os_sem_set(&__this->w_sem, 0);
+            os_sem_post(&__this->w_sem);
+        }
+    }
+
+}
+
+void aec_soft_mix_data_set_cb(s16 *data, int step)
+{
+    if (__this->fd) {
+        // mic data
+        if (step == 1) {
+            for (u32 i = 0; i < READSIZE; ++i) {
+                __this->cache[3 * i] = data[i];
+            }
+        }
+
+        //dac data
+        if (step == 2) {
+            for (u32 i = 0; i < READSIZE; ++i) {
+                __this->cache[3 * i + 1] = data[i];
+            }
+        }
+
+        //aec_data
+        if (step == 3) {
+            for (u32 i = 0; i < READSIZE; ++i) {
+                __this->cache[3 * i + 2] = data[i];
+            }
+
+            if (0 == cbuf_write(&__this->save_cbuf, __this->cache, MIX_DATA_LEN)) {
+                printf("error jlkws aec_data cbuf write full!");
+                cbuf_clear(&__this->save_cbuf);
+            }
+
+            memset(__this->cache, 0, sizeof(__this->cache));
+            os_sem_set(&__this->w_sem, 0);
+            os_sem_post(&__this->w_sem);
+
+        }
+    }
+
+    if (__this->fd1) {
+        if (step == 4) {
+            for (u32 i = 0; i < DAC_DATA_LEN / 2; ++i) {
+                __this->dac_obuf[i] = data[i];
+            }
+
+            if (0 == cbuf_write(&__this->dac_save_cbuf, __this->dac_obuf, DAC_DATA_LEN)) {
+                printf("error jlkws dac_data cbuf write full!");
+                cbuf_clear(&__this->dac_save_cbuf);
+            }
+        }
+    }
+
+}
+#endif
 
 static void aisp_task(void *priv)
 {
@@ -86,6 +208,28 @@ static void aisp_task(void *priv)
     if (!kws) {
         goto __exit;
     }
+
+#if AEC_DATA_TO_SD
+    extern int storage_device_ready(void);
+    while (!storage_device_ready()) {//等待sd文件系统挂载完成
+        os_time_dly(1);
+    }
+
+    __this->fd = fopen("storage/sd0/C/aec.pcm", "w+");
+    __this->fd1 = fopen("storage/sd0/C/dac.pcm", "w+");
+    os_sem_create(&__this->w_sem, 0);
+    __this->cache_buf = malloc(1024 * 128);
+    if (__this->cache_buf == NULL) {
+        goto __exit;
+    }
+    __this->dac_orig_buf = malloc(1024 * 128);
+    if (__this->dac_orig_buf == NULL) {
+        goto __exit;
+    }
+    cbuf_init(&__this->save_cbuf, __this->cache_buf, 1024 * 128);
+    cbuf_init(&__this->dac_save_cbuf, __this->dac_orig_buf, 1024 * 128);
+    thread_fork("aec_mix_data_to_sd", 4, 256 * 1024, 0, 0, aec_mix_data_to_sd, NULL);
+#endif
 
     aisp_resume();
 
@@ -117,6 +261,38 @@ static void aisp_task(void *priv)
         ret = jl_far_kws_model_process(kws, model, (u8 *)near_data_buf, sizeof(near_data_buf));
         if (ret > 1) {
             printf("++++++++++++++++++ %d ++++++++++++++++++\n", ret);
+#if AEC_DATA_TO_SD
+            if (__this->mic_enc) {
+                union audio_req req = {0};
+                req.enc.cmd = AUDIO_ENC_STOP;
+                server_request(__this->mic_enc, AUDIO_REQ_ENC, &req);
+                server_close(__this->mic_enc);
+                __this->mic_enc = NULL;
+
+                if (__this->fd) {
+                    fclose(__this->fd);
+                    __this->fd = NULL;
+                }
+
+                if (__this->fd1) {
+                    fclose(__this->fd1);
+                    __this->fd1 = NULL;
+                }
+
+                if (__this->cache_buf) {
+                    free(__this->cache_buf);
+                    __this->cache_buf = NULL;
+                }
+
+                if (__this->dac_orig_buf) {
+                    free(__this->dac_orig_buf);
+                    __this->dac_orig_buf = NULL;
+                }
+
+                os_sem_del(&__this->w_sem, OS_DEL_ALWAYS);
+            }
+#endif
+
             //add your button event according to ret
             struct key_event key = {0};
 
@@ -141,14 +317,14 @@ static void aisp_task(void *priv)
             }
 
             key.type = KEY_EVENT_USER;
-            key_event_notify(KEY_EVENT_FROM_USER, &key);
+            /* key_event_notify(KEY_EVENT_FROM_USER, &key); */
 
             jl_far_kws_model_reset(kws);
         }
 
         time_cnt += timer_get_ms() - time;
         if (++cnt == 100) {
-            printf("aec time :%d \n", time_cnt);
+            /* printf("aec time :%d \n", time_cnt); */
             time_cnt = cnt = 0;
         }
     }
@@ -262,17 +438,60 @@ void aisp_resume(void)
     req.enc.sample_source = "mic";
 #endif
     req.enc.vfs_ops = &aisp_vfs_ops;
-    req.enc.output_buf_len = req.enc.frame_size * 3;
+    req.enc.output_buf_len = req.enc.frame_size * 5;
     req.enc.file = (FILE *)&__this->mic_cbuf;
 #ifdef CONFIG_AEC_ENC_ENABLE
     struct aec_s_attr aec_param = {0};
     aec_param.EnableBit = AEC_MODE_ADVANCE;
-    aec_param.output_way = 0;	 //1:使用硬件回采 0:使用软件回采
     req.enc.aec_attr = &aec_param;
-    req.enc.aec_enable = 0;	//默认不开
+    req.enc.aec_enable = 1;
+
+    extern void get_cfg_file_aec_config(struct aec_s_attr * aec_param);
+    get_cfg_file_aec_config(&aec_param);
+
+    if (aec_param.EnableBit == 0) {
+        req.enc.aec_enable = 0;
+        req.enc.aec_attr = NULL;
+    }
+    if (aec_param.EnableBit != AEC_MODE_ADVANCE) {
+        aec_param.output_way = 0;
+    }
+
+#if defined CONFIG_ALL_ADC_CHANNEL_OPEN_ENABLE && defined CONFIG_AISP_LINEIN_ADC_CHANNEL && defined CONFIG_AEC_LINEIN_CHANNEL_ENABLE
+    if (req.enc.aec_enable) {
+        aec_param.output_way = 1;	 //1:使用硬件回采 0:使用软件回采
+        req.enc.channel_bit_map |= BIT(CONFIG_AISP_LINEIN_ADC_CHANNEL);	 //配置回采硬件通道
+        if (CONFIG_AISP_LINEIN_ADC_CHANNEL < CONFIG_PHONE_CALL_ADC_CHANNEL) {
+            req.enc.ch_data_exchange = 1;	 //如果回采通道使用的硬件channel比MIC通道使用的硬件channel靠前的话处理数据时需要交换一下顺序
+        }
+    }
+#endif
+
+    if (req.enc.sample_rate == 16000) {
+        aec_param.wideband = 1;
+        aec_param.hw_delay_offset = 30;
+    } else {
+        aec_param.wideband = 0;
+        aec_param.hw_delay_offset = 75;
+    }
+
+    if (aec_param.output_way == 0) {
+        aec_param.dac_ref_sr = 48000; //aec软件回采dac参考采样率
+    }
+
 #endif
 
     server_request(__this->mic_enc, AUDIO_REQ_ENC, &req);
+
+#if defined CONFIG_AEC_ENC_ENABLE && !defined CONFIG_FPGA_ENABLE
+    if (aec_param.output_way) {
+#ifdef CONFIG_ALL_ADC_CHANNEL_OPEN_ENABLE
+        extern void adc_multiplex_set_gain(const char *source, u8 channel_bit_map, u8 gain);
+        adc_multiplex_set_gain("mic", BIT(CONFIG_AISP_LINEIN_ADC_CHANNEL), CONFIG_AISP_LINEIN_ADC_GAIN * 2);
+#endif
+    }
+#endif
+
 }
 
 void aisp_close(void)

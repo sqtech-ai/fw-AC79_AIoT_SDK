@@ -61,18 +61,46 @@
 #endif
 
 /////////////Audio Class
+#define USB_AUDIO_VERSION_1_0       0x10
+#define USB_AUDIO_VERSION_2_0       0x20
+#ifndef USB_AUDIO_VERSION
+#define USB_AUDIO_VERSION           USB_AUDIO_VERSION_1_0
+#endif
+#ifndef UAC_ISO_INTERVAL_FS
+#define UAC_ISO_INTERVAL_FS         1
+#endif
+#ifndef UAC_ISO_INTERVAL_HS
+#define UAC_ISO_INTERVAL_HS         4
+#endif
 #ifndef UAC_ISO_INTERVAL
-#define UAC_ISO_INTERVAL            1
+#if defined(FUSB_MODE) && FUSB_MODE
+#define UAC_ISO_INTERVAL            UAC_ISO_INTERVAL_FS
+#elif defined(FUSB_MODE) && FUSB_MODE == 0
+#define UAC_ISO_INTERVAL            UAC_ISO_INTERVAL_HS
+#endif
 #endif
 #ifndef UAC_ISO_INTERVAL_2_0
 #define UAC_ISO_INTERVAL_2_0        4
 #endif
+#ifndef UAC_24BIT_IN_4BYTE
+#define UAC_24BIT_IN_4BYTE          0
+#endif
 //speaker class
-#ifndef SPK_AUDIO_RATE
+#ifndef SPK_AUDIO_RATE_NUM
+#define SPK_AUDIO_RATE_NUM          1
+#endif
+#if SPK_AUDIO_RATE_NUM  == 1
 #define SPK_AUDIO_RATE              48000
+#else
+#define SPK_AUDIO_RATE              96000
+#define SPK_AUDIO_RATE_1            44100
+#define SPK_AUDIO_RATE_2            48000
 #endif
 #ifndef SPK_AUDIO_RES
 #define SPK_AUDIO_RES               16
+#endif
+#ifndef SPK_AUDIO_RES_2
+#define SPK_AUDIO_RES_2             0//24
 #endif
 #ifndef SPK_CHANNEL
 #define SPK_CHANNEL                 2
@@ -121,6 +149,9 @@
 
 #ifndef MIC_AUDIO_RES
 #define MIC_AUDIO_RES               16
+#endif
+#ifndef MIC_AUDIO_RES_2
+#define MIC_AUDIO_RES_2             0//24
 #endif
 #ifndef MIC_CHANNEL
 #define MIC_CHANNEL                 1

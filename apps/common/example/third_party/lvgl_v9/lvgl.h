@@ -16,7 +16,7 @@ extern "C" {
 #define LVGL_VERSION_MAJOR 9
 #define LVGL_VERSION_MINOR 0
 #define LVGL_VERSION_PATCH 0
-#define LVGL_VERSION_INFO "dev"
+#define LVGL_VERSION_INFO  ""
 
 /*********************
  *      INCLUDES
@@ -35,8 +35,6 @@ extern "C" {
 #include "src/misc/lv_anim_timeline.h"
 #include "src/misc/lv_profiler_builtin.h"
 #include "src/misc/lv_rb.h"
-#include "src/misc/lv_lru_rb.h"
-
 
 #include "src/tick/lv_tick.h"
 
@@ -61,7 +59,7 @@ extern "C" {
 #include "src/widgets/checkbox/lv_checkbox.h"
 #include "src/widgets/dropdown/lv_dropdown.h"
 #include "src/widgets/image/lv_image.h"
-#include "src/widgets/imgbtn/lv_imgbtn.h"
+#include "src/widgets/imagebutton/lv_imagebutton.h"
 #include "src/widgets/keyboard/lv_keyboard.h"
 #include "src/widgets/label/lv_label.h"
 #include "src/widgets/led/lv_led.h"
@@ -107,7 +105,6 @@ extern "C" {
 #include "src/libs/rlottie/lv_rlottie.h"
 #include "src/libs/ffmpeg/lv_ffmpeg.h"
 #include "src/libs/tiny_ttf/lv_tiny_ttf.h"
-#include "src/libs/lz4/lz4.h"
 
 #include "src/layouts/lv_layout.h"
 
@@ -116,33 +113,14 @@ extern "C" {
 
 #include "src/themes/lv_theme.h"
 
+#include "src/drivers/lv_drivers.h"
+
 #include "src/lv_api_map.h"
-
-#include "src/dev/sdl/lv_sdl_window.h"
-#include "src/dev/sdl/lv_sdl_mouse.h"
-#include "src/dev/sdl/lv_sdl_mousewheel.h"
-#include "src/dev/sdl/lv_sdl_keyboard.h"
-
-#include "src/dev/x11/lv_x11.h"
-
-#include "src/dev/display/drm/lv_linux_drm.h"
-#include "src/dev/display/fb/lv_linux_fbdev.h"
-
-#include "src/dev/nuttx/lv_nuttx_entry.h"
-#include "src/dev/nuttx/lv_nuttx_fbdev.h"
-#include "src/dev/nuttx/lv_nuttx_touchscreen.h"
-#include "src/dev/nuttx/lv_nuttx_lcd.h"
-#include "src/dev/nuttx/lv_nuttx_libuv.h"
-
-#include "src/dev/evdev/lv_evdev.h"
 
 #include "src/core/lv_global.h"
 /*********************
  *      DEFINES
  *********************/
-#ifndef LV_USE_DEV_VERSION
-#warning "You are using the development version of LVGL which is not stable at this moment. For production use the release/v8.3 branch. To silence this warning add #define LV_USE_DEV_VERSION to lv_conf.h"
-#endif
 
 /**********************
  *      TYPEDEFS

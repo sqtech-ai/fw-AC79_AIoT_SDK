@@ -6,7 +6,7 @@
  */
 
 //7911B
-#define CONFIG_BOARD_7911BA
+//#define CONFIG_BOARD_7911BA
 // #define CONFIG_BOARD_7911BB
 // #define CONFIG_BOARD_7911B0
 // #define CONFIG_BOARD_7911B8
@@ -26,7 +26,7 @@
 
 //7916A
 // #define CONFIG_BOARD_7916AA
-// #define CONFIG_BOARD_7916AB
+#define CONFIG_BOARD_7916AB
 
 
 
@@ -35,8 +35,8 @@
  */
 // #define CONFIG_BOARD_DUI
 // #define CONFIG_BOARD_DEMO
-// #define CONFIG_BOARD_DEV_KIT
-#define CONFIG_BOARD_DEVELOP
+#define CONFIG_BOARD_DEV_KIT
+//#define CONFIG_BOARD_DEVELOP
 
 
 

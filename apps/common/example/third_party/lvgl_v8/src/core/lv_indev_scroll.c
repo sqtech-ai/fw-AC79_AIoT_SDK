@@ -82,8 +82,6 @@ void _lv_indev_scroll_handler(_lv_indev_proc_t *proc)
         lv_point_transform(&proc->types.pointer.vect, angle, zoom, &pivot);
     }
 
-
-
     lv_coord_t diff_x = 0;
     lv_coord_t diff_y = 0;
     if (proc->types.pointer.scroll_dir == LV_DIR_HOR) {
@@ -120,7 +118,6 @@ void _lv_indev_scroll_handler(_lv_indev_proc_t *proc)
     proc->types.pointer.scroll_sum.x += diff_x;
     proc->types.pointer.scroll_sum.y += diff_y;
 }
-
 
 void _lv_indev_scroll_throw_handler(_lv_indev_proc_t *proc)
 {
@@ -637,8 +634,6 @@ static void scroll_limit_diff(_lv_indev_proc_t *proc, lv_coord_t *diff_x, lv_coo
     }
 }
 
-
-
 static lv_coord_t scroll_throw_predict_y(_lv_indev_proc_t *proc)
 {
     lv_coord_t y = proc->types.pointer.scroll_throw_vect.y;
@@ -653,7 +648,6 @@ static lv_coord_t scroll_throw_predict_y(_lv_indev_proc_t *proc)
     }
     return move;
 }
-
 
 static lv_coord_t scroll_throw_predict_x(_lv_indev_proc_t *proc)
 {
@@ -760,5 +754,3 @@ static lv_coord_t elastic_diff(lv_obj_t *scroll_obj, lv_coord_t diff, lv_coord_t
 
     return diff;
 }
-
-

@@ -141,7 +141,6 @@ static lv_res_t decoder_info(struct _lv_img_decoder_t *decoder, const void *src,
     return LV_RES_INV;         /*If didn't succeeded earlier then it's an error*/
 }
 
-
 /**
  * Open a PNG image and return the decided image
  * @param src can be file name or pointer to a C array
@@ -279,5 +278,3 @@ static void convert_color_depth(uint8_t *img, uint32_t px_cnt)
 }
 
 #endif /*LV_USE_PNG*/
-
-

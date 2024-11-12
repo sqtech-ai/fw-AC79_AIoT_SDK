@@ -292,7 +292,7 @@ void lv_obj_mark_layout_as_dirty(lv_obj_t *obj)
     scr->scr_layout_inv = 1;
 
     /*Make the display refreshing*/
-    lv_display_t *disp = lv_obj_get_disp(scr);
+    lv_display_t *disp = lv_obj_get_display(scr);
     lv_display_send_event(disp, LV_EVENT_REFR_REQUEST, NULL);
 }
 
@@ -302,6 +302,7 @@ void lv_obj_update_layout(const lv_obj_t *obj)
         LV_LOG_TRACE("Already running, returning");
         return;
     }
+    LV_PROFILER_BEGIN;
     update_layout_mutex = true;
 
     lv_obj_t *scr = lv_obj_get_screen(obj);
@@ -314,6 +315,7 @@ void lv_obj_update_layout(const lv_obj_t *obj)
     }
 
     update_layout_mutex = false;
+    LV_PROFILER_END;
 }
 
 void lv_obj_set_align(lv_obj_t *obj, lv_align_t align)
@@ -465,6 +467,12 @@ void lv_obj_align_to(lv_obj_t *obj, const lv_obj_t *base, lv_align_t align, int3
         break;
     }
 
+    if (LV_COORD_IS_PCT(x_ofs)) {
+        x_ofs = (lv_obj_get_width(base) * LV_COORD_GET_PCT(x_ofs)) / 100;
+    }
+    if (LV_COORD_IS_PCT(y_ofs)) {
+        y_ofs = (lv_obj_get_height(base) * LV_COORD_GET_PCT(y_ofs)) / 100;
+    }
     if (lv_obj_get_style_base_dir(parent, LV_PART_MAIN) == LV_BASE_DIR_RTL) {
         x += x_ofs + base->coords.x1 - parent->coords.x1 + lv_obj_get_scroll_right(parent) - pleft;
     } else {
@@ -842,7 +850,7 @@ void lv_obj_invalidate_area(const lv_obj_t *obj, const lv_area_t *area)
 {
     LV_ASSERT_OBJ(obj, MY_CLASS);
 
-    lv_display_t *disp   = lv_obj_get_disp(obj);
+    lv_display_t *disp   = lv_obj_get_display(obj);
     if (!lv_display_is_invalidation_enabled(disp)) {
         return;
     }
@@ -853,7 +861,7 @@ void lv_obj_invalidate_area(const lv_obj_t *obj, const lv_area_t *area)
         return;
     }
 
-    _lv_inv_area(lv_obj_get_disp(obj),  &area_tmp);
+    _lv_inv_area(lv_obj_get_display(obj),  &area_tmp);
 }
 
 void lv_obj_invalidate(const lv_obj_t *obj)
@@ -880,7 +888,7 @@ bool lv_obj_area_is_visible(const lv_obj_t *obj, lv_area_t *area)
 
     /*Invalidate the object only if it belongs to the current or previous or one of the layers'*/
     lv_obj_t *obj_scr = lv_obj_get_screen(obj);
-    lv_display_t *disp   = lv_obj_get_disp(obj_scr);
+    lv_display_t *disp   = lv_obj_get_display(obj_scr);
     if (obj_scr != lv_display_get_screen_active(disp) &&
         obj_scr != lv_display_get_screen_prev(disp) &&
         obj_scr != lv_display_get_layer_bottom(disp) &&
@@ -1103,7 +1111,7 @@ static int32_t calc_content_width(lv_obj_t *obj)
     }
 
     if (obj->spec_attr) {
-        obj->spec_attr->scroll.x = scroll_x_tmp;
+        obj->spec_attr->scroll.x = -scroll_x_tmp;
     }
 
     if (child_res == LV_COORD_MIN) {
@@ -1162,7 +1170,7 @@ static int32_t calc_content_height(lv_obj_t *obj)
     }
 
     if (obj->spec_attr) {
-        obj->spec_attr->scroll.y = scroll_y_tmp;
+        obj->spec_attr->scroll.y = -scroll_y_tmp;
     }
 
     if (child_res == LV_COORD_MIN) {

@@ -32,7 +32,11 @@ extern "C" {
 #include "led/lv_led.h"
 #include "imgbtn/lv_imgbtn.h"
 #include "span/lv_span.h"
-
+#include "keyboard/lv_zh_keyboard.h"
+#include "analogclock/lv_analogclock.h"
+#include "carousel/lv_carousel.h"
+#include "radiobtn/lv_radiobtn.h"
+#include "textprogress/lv_textprogress.h"
 /*********************
  *      DEFINES
  *********************/

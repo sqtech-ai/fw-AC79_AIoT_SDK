@@ -18,6 +18,10 @@
 #error "LV_FONT_MONTSERRAT_24 is required for lv_demo_benchmark. Enable it in lv_conf.h."
 #endif
 
+#if LV_USE_DEMO_WIDGETS == 0
+#error "LV_USE_DEMO_WIDGETS needs to be enabled"
+#endif
+
 #include "../../src/display/lv_display_private.h"
 #include "../../src/core/lv_global.h"
 
@@ -29,6 +33,11 @@ typedef struct {
     const char *name;
     void (*create_cb)(void);
     uint32_t scene_time;
+    uint32_t cpu_avg_usage;
+    uint32_t fps_avg;
+    uint32_t render_avg_time;
+    uint32_t flush_avg_time;
+    uint32_t measurement_cnt;
 } scene_dsc_t;
 
 /**********************
@@ -41,6 +50,8 @@ static void next_scene_timer_cb(lv_timer_t *timer);
 #if LV_USE_PERF_MONITOR
 static void sysmon_perf_observer_cb(lv_observer_t *observer, lv_subject_t *subject);
 #endif
+
+static void summary_create(void);
 
 static void rnd_reset(void);
 static int32_t rnd_next(int32_t min, int32_t max);
@@ -66,7 +77,8 @@ static void moving_wallpaper_cb(void)
 
     lv_obj_t *img = lv_img_create(lv_screen_active());
     lv_obj_set_size(img, lv_pct(150), lv_pct(150));
-    lv_img_set_src(img, &img_benchmark_cogwheel_rgb);
+    lv_image_set_src(img, &img_benchmark_cogwheel_rgb);
+    lv_image_set_align(img, LV_IMAGE_ALIGN_TILE);
     shake_anim(img, - lv_display_get_vertical_resolution(NULL) / 3);
 }
 
@@ -473,6 +485,7 @@ static void next_scene_timer_cb(lv_timer_t *timer)
     load_scene(scene_act);
     if (scenes[scene_act].scene_time == 0) {
         lv_timer_delete(timer);
+        summary_create();
     } else {
         lv_timer_set_period(timer, scenes[scene_act].scene_time);
     }
@@ -484,14 +497,162 @@ static void sysmon_perf_observer_cb(lv_observer_t *observer, lv_subject_t *subje
     const lv_sysmon_perf_info_t *info = lv_subject_get_pointer(subject);
     lv_obj_t *label = lv_observer_get_target(observer);
 
+    char scene_name[64];
+    if (scenes[scene_act].name[0] != '\0') {
+        lv_snprintf(scene_name, sizeof(scene_name), "%s: ", scenes[scene_act].name);
+    } else {
+        scene_name[0] = '\0';
+    }
+
     lv_label_set_text_fmt(label,
+                          "%s"
                           "%" LV_PRIu32" FPS, %" LV_PRIu32 "%% CPU\n"
                           "refr. %" LV_PRIu32" ms = %" LV_PRIu32 "ms render + %" LV_PRIu32" ms flush",
+                          scene_name,
                           info->calculated.fps, info->calculated.cpu,
                           info->calculated.render_avg_time + info->calculated.flush_avg_time,
                           info->calculated.render_avg_time, info->calculated.flush_avg_time);
+
+    /*Ignore the first call as it contains data from the previous scene*/
+    if (scenes[scene_act].measurement_cnt != 0) {
+        scenes[scene_act].cpu_avg_usage += info->calculated.cpu;
+        scenes[scene_act].fps_avg += info->calculated.fps;
+        scenes[scene_act].render_avg_time += info->calculated.render_avg_time;
+        scenes[scene_act].flush_avg_time += info->calculated.flush_avg_time;
+    }
+    scenes[scene_act].measurement_cnt++;
+
 }
 #endif
+
+static void table_draw_task_event_cb(lv_event_t *e)
+{
+    lv_draw_task_t *t = lv_event_get_draw_task(e);
+    lv_draw_dsc_base_t *draw_dsc_base = t->draw_dsc;
+    if (draw_dsc_base->part != LV_PART_ITEMS) {
+        return;
+    }
+
+    int32_t row = draw_dsc_base->id1;
+    if (row == 0) {
+        if (t->type == LV_DRAW_TASK_TYPE_FILL) {
+            lv_draw_fill_dsc_t *draw_dsc_fill = t->draw_dsc;
+            draw_dsc_fill->color = lv_palette_darken(LV_PALETTE_BLUE_GREY, 4);
+        } else if (t->type == LV_DRAW_TASK_TYPE_LABEL) {
+            lv_draw_label_dsc_t *draw_dsc_label = t->draw_dsc;
+            draw_dsc_label->color = lv_color_white();
+        }
+    } else if (row == 1) {
+        if (t->type == LV_DRAW_TASK_TYPE_BORDER) {
+            lv_draw_border_dsc_t *draw_dsc_border = t->draw_dsc;
+            draw_dsc_border->color = lv_palette_darken(LV_PALETTE_BLUE_GREY, 4);
+            draw_dsc_border->width = 2;
+            draw_dsc_border->side = LV_BORDER_SIDE_BOTTOM;
+        } else if (t->type == LV_DRAW_TASK_TYPE_LABEL) {
+            lv_draw_label_dsc_t *draw_dsc_label = t->draw_dsc;
+            draw_dsc_label->color = lv_palette_darken(LV_PALETTE_BLUE_GREY, 4);
+        }
+    }
+
+}
+
+static void summary_create(void)
+{
+    lv_obj_clean(lv_screen_active());
+    lv_obj_set_style_pad_hor(lv_screen_active(), 0, 0);
+    lv_obj_t *table = lv_table_create(lv_screen_active());
+    lv_obj_set_width(table, lv_pct(100));
+    lv_obj_set_style_max_height(table, lv_pct(100), 0);
+    lv_obj_add_flag(table, LV_OBJ_FLAG_SEND_DRAW_TASK_EVENTS);
+    lv_obj_set_style_text_color(table, lv_palette_darken(LV_PALETTE_BLUE_GREY, 2), LV_PART_ITEMS);
+    lv_obj_set_style_border_color(table, lv_palette_darken(LV_PALETTE_BLUE_GREY, 2), LV_PART_ITEMS);
+    lv_obj_add_event_cb(table, table_draw_task_event_cb, LV_EVENT_DRAW_TASK_ADDED, NULL);
+
+    lv_table_set_cell_value(table, 0, 0, "Name");
+    lv_table_set_cell_value(table, 0, 1, "Avg. CPU");
+    lv_table_set_cell_value(table, 0, 2, "Avg. FPS");
+    lv_table_set_cell_value(table, 0, 3, "Avg. time (render + flush)");
+
+    /* csv log */
+    LV_LOG("Benchmark Summary (%"LV_PRIu32".%"LV_PRIu32".%"LV_PRIu32" %s)\r\n",
+           LVGL_VERSION_MAJOR,
+           LVGL_VERSION_MINOR,
+           LVGL_VERSION_PATCH,
+           LVGL_VERSION_INFO);
+    LV_LOG("Name, Avg. CPU, Avg. FPS, Avg. time, render time, flush time\r\n");
+
+    lv_obj_update_layout(table);
+    int32_t col_w = lv_obj_get_content_width(table) / 4;
+
+    lv_table_set_column_width(table, 0, col_w);
+    lv_table_set_column_width(table, 1, col_w);
+    lv_table_set_column_width(table, 2, col_w);
+    lv_table_set_column_width(table, 3, col_w);
+
+    uint32_t i;
+    int32_t total_avg_fps = 0;
+    int32_t total_avg_cpu = 0;
+    int32_t total_avg_render_time = 0;
+    int32_t total_avg_flush_time = 0;
+    int32_t valid_scene_cnt = 0;
+    for (i = 0; scenes[i].create_cb; i++) {
+        lv_table_set_cell_value(table, i + 2, 0, scenes[i].name);
+
+        /*the first measurement was ignored as it contains data from the previous scene*/
+        if (scenes[i].measurement_cnt <= 1) {
+            lv_table_set_cell_value(table, i + 2, 1, "N/A");
+            lv_table_set_cell_value(table, i + 2, 2, "N/A");
+            lv_table_set_cell_value(table, i + 2, 3, "N/A");
+        } else {
+            int32_t cnt = scenes[i].measurement_cnt - 1;
+            lv_table_set_cell_value_fmt(table, i + 2, 1, "%"LV_PRIu32" %%", scenes[i].cpu_avg_usage / cnt);
+            lv_table_set_cell_value_fmt(table, i + 2, 2, "%"LV_PRIu32" FPS", scenes[i].fps_avg / cnt);
+
+            uint32_t render_time = scenes[i].render_avg_time / cnt;
+            uint32_t flush_time = scenes[i].flush_avg_time / cnt;
+            lv_table_set_cell_value_fmt(table, i + 2, 3, "%"LV_PRIu32" ms (%"LV_PRIu32" + %"LV_PRIu32")",
+                                        render_time + flush_time, render_time, flush_time);
+
+            /* csv log */
+            LV_LOG("%s, %"LV_PRIu32"%%, %"LV_PRIu32", %"LV_PRIu32", %"LV_PRIu32", %"LV_PRIu32"\r\n",
+                   scenes[i].name,
+                   scenes[i].cpu_avg_usage / cnt,
+                   scenes[i].fps_avg / cnt,
+                   render_time + flush_time,
+                   render_time,
+                   flush_time);
+
+            valid_scene_cnt++;
+            total_avg_cpu += scenes[i].cpu_avg_usage / cnt;
+            total_avg_fps += scenes[i].fps_avg / cnt;
+            total_avg_render_time += scenes[i].render_avg_time / cnt;
+            total_avg_flush_time += scenes[i].flush_avg_time / cnt;
+        }
+    }
+
+    /*Add the average*/
+    lv_table_set_cell_value(table, 1, 0, "All scenes avg.");
+    if (valid_scene_cnt < 1) {
+        lv_table_set_cell_value(table, 1, 1, "N/A");
+        lv_table_set_cell_value(table, 1, 2, "N/A");
+        lv_table_set_cell_value(table, 1, 3, "N/A");
+    } else {
+        lv_table_set_cell_value_fmt(table, 1, 1, "%"LV_PRIu32" %%", total_avg_cpu / valid_scene_cnt);
+        lv_table_set_cell_value_fmt(table, 1, 2, "%"LV_PRIu32" FPS", total_avg_fps / valid_scene_cnt);
+
+        uint32_t render_time = total_avg_render_time / valid_scene_cnt;
+        uint32_t flush_time = total_avg_flush_time / valid_scene_cnt;
+        lv_table_set_cell_value_fmt(table, 1, 3, "%"LV_PRIu32" ms (%"LV_PRIu32" + %"LV_PRIu32")",
+                                    render_time + flush_time, render_time, flush_time);
+        /* csv log */
+        LV_LOG("All scenes avg.,%"LV_PRIu32"%%, %"LV_PRIu32", %"LV_PRIu32", %"LV_PRIu32", %"LV_PRIu32"\r\n",
+               total_avg_cpu / valid_scene_cnt,
+               total_avg_fps / valid_scene_cnt,
+               render_time + flush_time,
+               render_time,
+               flush_time);
+    }
+}
 
 /*----------------
  * SCENE HELPERS
@@ -510,7 +671,7 @@ static void color_anim(lv_obj_t *obj)
     lv_anim_init(&a);
     lv_anim_set_exec_cb(&a, color_anim_cb);
     lv_anim_set_values(&a, 0, 100);
-    lv_anim_set_time(&a, 100);      /*New value in each ms*/
+    lv_anim_set_duration(&a, 100);      /*New value in each ms*/
     lv_anim_set_var(&a, obj);
     lv_anim_set_repeat_count(&a, LV_ANIM_REPEAT_INFINITE);
     lv_anim_start(&a);
@@ -529,8 +690,8 @@ static void arc_anim(lv_obj_t *obj)
     lv_anim_init(&a);
     lv_anim_set_exec_cb(&a, arc_anim_cb);
     lv_anim_set_values(&a, 0, 100);
-    lv_anim_set_time(&a, t1);
-    lv_anim_set_playback_time(&a, t2);
+    lv_anim_set_duration(&a, t1);
+    lv_anim_set_playback_duration(&a, t2);
     lv_anim_set_var(&a, obj);
     lv_anim_set_repeat_count(&a, LV_ANIM_REPEAT_INFINITE);
     lv_anim_start(&a);
@@ -550,8 +711,8 @@ static void scroll_anim(lv_obj_t *obj, int32_t y_max)
     lv_anim_set_var(&a, obj);
     lv_anim_set_exec_cb(&a, scroll_anim_y_cb);
     lv_anim_set_values(&a, 0, y_max);
-    lv_anim_set_time(&a, t);
-    lv_anim_set_playback_time(&a, t);
+    lv_anim_set_duration(&a, t);
+    lv_anim_set_playback_duration(&a, t);
     lv_anim_set_repeat_count(&a, LV_ANIM_REPEAT_INFINITE);
     lv_anim_start(&a);
 
@@ -571,8 +732,8 @@ static void shake_anim(lv_obj_t *obj, int32_t y_max)
     lv_anim_set_var(&a, obj);
     lv_anim_set_exec_cb(&a, shake_anim_y_cb);
     lv_anim_set_values(&a, 0, y_max);
-    lv_anim_set_time(&a, t1);
-    lv_anim_set_playback_time(&a, t2);
+    lv_anim_set_duration(&a, t1);
+    lv_anim_set_playback_duration(&a, t2);
     lv_anim_set_repeat_count(&a, LV_ANIM_REPEAT_INFINITE);
     lv_anim_start(&a);
 }

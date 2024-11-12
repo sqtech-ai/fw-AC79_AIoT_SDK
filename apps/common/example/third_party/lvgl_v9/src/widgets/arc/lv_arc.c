@@ -230,7 +230,7 @@ void lv_arc_set_bg_angles(lv_obj_t *obj, lv_value_precise_t start, lv_value_prec
     lv_arc_set_bg_start_angle(obj, start);
 }
 
-void lv_arc_set_rotation(lv_obj_t *obj, uint32_t rotation)
+void lv_arc_set_rotation(lv_obj_t *obj, int32_t rotation)
 {
     LV_ASSERT_OBJ(obj, MY_CLASS);
     lv_arc_t *arc = (lv_arc_t *)obj;
@@ -494,8 +494,8 @@ static void lv_arc_event(const lv_obj_class_t *class_p, lv_event_t *e)
     }
 
     lv_event_code_t code = lv_event_get_code(e);
-    lv_obj_t *obj = lv_event_get_target(e);
-    lv_arc_t *arc = (lv_arc_t *)lv_event_get_target(e);
+    lv_obj_t *obj = lv_event_get_current_target(e);
+    lv_arc_t *arc = (lv_arc_t *)obj;
     if (code == LV_EVENT_PRESSING) {
         lv_indev_t *indev = lv_indev_active();
         if (indev == NULL) {
@@ -668,7 +668,7 @@ static void lv_arc_event(const lv_obj_class_t *class_p, lv_event_t *e)
         }
 
     } else if (code == LV_EVENT_KEY) {
-        char c = *((char *)lv_event_get_param(e));
+        uint32_t c = lv_event_get_key(e);
 
         int16_t old_value = arc->value;
         if (c == LV_KEY_RIGHT || c == LV_KEY_UP) {
@@ -734,7 +734,7 @@ static void lv_arc_event(const lv_obj_class_t *class_p, lv_event_t *e)
 
 static void lv_arc_draw(lv_event_t *e)
 {
-    lv_obj_t *obj = lv_event_get_target(e);
+    lv_obj_t *obj = lv_event_get_current_target(e);
     lv_arc_t *arc = (lv_arc_t *)obj;
 
     lv_layer_t *layer = lv_event_get_layer(e);
@@ -1040,7 +1040,7 @@ static bool lv_arc_angle_within_bg_bounds(lv_obj_t *obj, const lv_value_precise_
     /* Distance between background start and end angles is less than tolerance,
      * consider the click inside the arc */
     else if (((smaller_angle - tolerance_deg) <= 0) &&
-             (360 - (bigger_angle + (smaller_angle - tolerance_deg)))) {
+             (360 - (bigger_angle + (smaller_angle - tolerance_deg))) != 0) {
 
         arc->min_close = 1;
         arc->in_out = CLICK_INSIDE_BG_ANGLES;

@@ -135,7 +135,7 @@ DEFINES := \
 	-DCONFIG_UPDATA_ENABLE \
 	-DCONFIG_OTA_UPDATA_ENABLE \
 	-DCONFIG_ITEM_FORMAT_VM \
-	-DRLOTTIE_COMMIT_HASH=\"056c0a1bc14bcee6f6b1a821013872a1228b0fa9\" \
+	-DRLOTTIE_COMMIT_HASH=\"492fbb753924ae7cad27072a2b6ddedde88dc4bd\" \
 	-DFREETYPE_COMMIT_HASH=\"45903920b984540bb629bc89f4c010159c23a89a\" \
 	-DFT2_BUILD_LIBRARY \
 	-DAWTK_COMMIT_HASH=\"34f6374b9eea33d64723a2a8607b0956ef8cdc2b\" \
@@ -159,7 +159,7 @@ DEFINES := \
 	-DAWTK_WIDGET_TABLE_VIEW_COMMIT_HASH=\"61bb5f08a55b85a924b6815ac0be4b9599b53c0b\" \
 	-DAWTK_WIDGET_TABLE_VIEW_MVVM_COMMIT_HASH=\"e3268b50377efedffa579bc19ab8a1a15442dee4\" \
 	-DAWTK_WIDGET_RLOTTIE_COMMIT_HASH=\"3f1dbee1ea0e4d724de782ef92f7fa766015ad4d\" \
-	-DLVGL_COMMIT_HASH=\"release/v8.3_fa40b05191a74e6c9dfb1a96988b56af86f683c1\" \
+	-DLVGL_COMMIT_HASH=\"release/v8.3_39687e808fd0b84357f646ad390a0eb26764cb3f\" \
 	-D_XOPEN_SOURCE=700 \
 	-D_GNU_SOURCE \
 	-D__ELF__ \
@@ -1370,6 +1370,8 @@ c_SRC_FILES := \
 	../../../../../apps/common/example/third_party/lvgl_v8/src/draw/swm341_dma2d/lv_gpu_swm341_dma2d.c \
 	../../../../../apps/common/example/third_party/lvgl_v8/src/extra/layouts/flex/lv_flex.c \
 	../../../../../apps/common/example/third_party/lvgl_v8/src/extra/layouts/grid/lv_grid.c \
+	../../../../../apps/common/example/third_party/lvgl_v8/src/extra/libs/barcode/code128.c \
+	../../../../../apps/common/example/third_party/lvgl_v8/src/extra/libs/barcode/lv_barcode.c \
 	../../../../../apps/common/example/third_party/lvgl_v8/src/extra/libs/bmp/lv_bmp.c \
 	../../../../../apps/common/example/third_party/lvgl_v8/src/extra/libs/ffmpeg/lv_ffmpeg.c \
 	../../../../../apps/common/example/third_party/lvgl_v8/src/extra/libs/freetype/lv_freetype.c \
@@ -1388,7 +1390,18 @@ c_SRC_FILES := \
 	../../../../../apps/common/example/third_party/lvgl_v8/src/extra/libs/rlottie/lv_rlottie_example_fingerprint.c \
 	../../../../../apps/common/example/third_party/lvgl_v8/src/extra/libs/sjpg/lv_sjpg.c \
 	../../../../../apps/common/example/third_party/lvgl_v8/src/extra/libs/sjpg/tjpgd.c \
+	../../../../../apps/common/example/third_party/lvgl_v8/src/extra/libs/tiny_ttf/lv_tiny_ttf.c \
 	../../../../../apps/common/example/third_party/lvgl_v8/src/extra/lv_extra.c \
+	../../../../../apps/common/example/third_party/lvgl_v8/src/extra/others/anim_effect/lv_anim_effect_attention.c \
+	../../../../../apps/common/example/third_party/lvgl_v8/src/extra/others/anim_effect/lv_anim_effect_back.c \
+	../../../../../apps/common/example/third_party/lvgl_v8/src/extra/others/anim_effect/lv_anim_effect_bounce.c \
+	../../../../../apps/common/example/third_party/lvgl_v8/src/extra/others/anim_effect/lv_anim_effect_fade.c \
+	../../../../../apps/common/example/third_party/lvgl_v8/src/extra/others/anim_effect/lv_anim_effect_global.c \
+	../../../../../apps/common/example/third_party/lvgl_v8/src/extra/others/anim_effect/lv_anim_effect_rotate.c \
+	../../../../../apps/common/example/third_party/lvgl_v8/src/extra/others/anim_effect/lv_anim_effect_sliding.c \
+	../../../../../apps/common/example/third_party/lvgl_v8/src/extra/others/anim_effect/lv_anim_effect_specials.c \
+	../../../../../apps/common/example/third_party/lvgl_v8/src/extra/others/anim_effect/lv_anim_effect_zooming.c \
+	../../../../../apps/common/example/third_party/lvgl_v8/src/extra/others/file_explorer/lv_file_explorer.c \
 	../../../../../apps/common/example/third_party/lvgl_v8/src/extra/others/fragment/lv_fragment.c \
 	../../../../../apps/common/example/third_party/lvgl_v8/src/extra/others/fragment/lv_fragment_manager.c \
 	../../../../../apps/common/example/third_party/lvgl_v8/src/extra/others/gridnav/lv_gridnav.c \
@@ -1400,23 +1413,28 @@ c_SRC_FILES := \
 	../../../../../apps/common/example/third_party/lvgl_v8/src/extra/themes/basic/lv_theme_basic.c \
 	../../../../../apps/common/example/third_party/lvgl_v8/src/extra/themes/default/lv_theme_default.c \
 	../../../../../apps/common/example/third_party/lvgl_v8/src/extra/themes/mono/lv_theme_mono.c \
+	../../../../../apps/common/example/third_party/lvgl_v8/src/extra/widgets/analogclock/lv_analogclock.c \
 	../../../../../apps/common/example/third_party/lvgl_v8/src/extra/widgets/animimg/lv_animimg.c \
 	../../../../../apps/common/example/third_party/lvgl_v8/src/extra/widgets/calendar/lv_calendar.c \
 	../../../../../apps/common/example/third_party/lvgl_v8/src/extra/widgets/calendar/lv_calendar_header_arrow.c \
 	../../../../../apps/common/example/third_party/lvgl_v8/src/extra/widgets/calendar/lv_calendar_header_dropdown.c \
+	../../../../../apps/common/example/third_party/lvgl_v8/src/extra/widgets/carousel/lv_carousel.c \
 	../../../../../apps/common/example/third_party/lvgl_v8/src/extra/widgets/chart/lv_chart.c \
 	../../../../../apps/common/example/third_party/lvgl_v8/src/extra/widgets/colorwheel/lv_colorwheel.c \
 	../../../../../apps/common/example/third_party/lvgl_v8/src/extra/widgets/imgbtn/lv_imgbtn.c \
 	../../../../../apps/common/example/third_party/lvgl_v8/src/extra/widgets/keyboard/lv_keyboard.c \
+	../../../../../apps/common/example/third_party/lvgl_v8/src/extra/widgets/keyboard/lv_zh_keyboard.c \
 	../../../../../apps/common/example/third_party/lvgl_v8/src/extra/widgets/led/lv_led.c \
 	../../../../../apps/common/example/third_party/lvgl_v8/src/extra/widgets/list/lv_list.c \
 	../../../../../apps/common/example/third_party/lvgl_v8/src/extra/widgets/menu/lv_menu.c \
 	../../../../../apps/common/example/third_party/lvgl_v8/src/extra/widgets/meter/lv_meter.c \
 	../../../../../apps/common/example/third_party/lvgl_v8/src/extra/widgets/msgbox/lv_msgbox.c \
+	../../../../../apps/common/example/third_party/lvgl_v8/src/extra/widgets/radiobtn/lv_radiobtn.c \
 	../../../../../apps/common/example/third_party/lvgl_v8/src/extra/widgets/span/lv_span.c \
 	../../../../../apps/common/example/third_party/lvgl_v8/src/extra/widgets/spinbox/lv_spinbox.c \
 	../../../../../apps/common/example/third_party/lvgl_v8/src/extra/widgets/spinner/lv_spinner.c \
 	../../../../../apps/common/example/third_party/lvgl_v8/src/extra/widgets/tabview/lv_tabview.c \
+	../../../../../apps/common/example/third_party/lvgl_v8/src/extra/widgets/textprogress/lv_textprogress.c \
 	../../../../../apps/common/example/third_party/lvgl_v8/src/extra/widgets/tileview/lv_tileview.c \
 	../../../../../apps/common/example/third_party/lvgl_v8/src/extra/widgets/win/lv_win.c \
 	../../../../../apps/common/example/third_party/lvgl_v8/src/font/lv_font.c \

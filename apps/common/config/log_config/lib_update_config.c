@@ -33,13 +33,13 @@ const int support_ota_tws_same_time_new = 0;
 #endif
 
 //支持预留区域文件双备份升级
-const int support_reaserved_zone_file_dual_bank_update_en = 1;
+const int support_reaserved_zone_file_dual_bank_update_en = 0;
 
 //支持被动升级新文件结构
 const int support_passive_update_new_file_structure = 1;
 
 //开启备份区空间不够时，支持资源强制写入预留区
-const int support_reserved_zone_forced_update = 1;
+const int support_reserved_zone_forced_update = 0;
 
 //检测升级的文件是否与本地相同
 const int update_file_check_same = 1;

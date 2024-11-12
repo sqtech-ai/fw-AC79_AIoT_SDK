@@ -23,14 +23,13 @@
 #include "event/key_event.h"
 #include "net_video_rec.h"
 #include "asm/jpeg_codec.h"
-#include "lcd_te_driver.h"
 
 
 extern void camera_to_lcd_init(void);//带TE处理无切线
 
 static void open_animation(char speed)//开机图片以及开机音乐播放
 {
-    set_lcd_show_data_mode(ui);
+    set_lcd_show_data_mode(UI);
 
     ui_show_main(PAGE_2);
 
@@ -47,7 +46,7 @@ static void ui_demo(void *priv)
     user_ui_lcd_init();//初始化ui服务和lcd
     open_animation(1);//开机动画 20为延时 200ms每帧
 
-    set_lcd_show_data_mode(camera);
+    set_lcd_show_data_mode(CAMERA);
     camera_to_lcd_init();
 }
 

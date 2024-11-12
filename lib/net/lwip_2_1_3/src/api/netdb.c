@@ -113,8 +113,8 @@ lwip_gethostbyname(const char *name)
     s_hostent.h_name = s_hostname;
     s_aliases = NULL;
     s_hostent.h_aliases = &s_aliases;
-    s_hostent.h_addrtype = AF_INET;
-    s_hostent.h_length = sizeof(ip_addr_t);
+    s_hostent.h_addrtype = (IPADDR_TYPE_V4 == IP_GET_TYPE(&addr) ? AF_INET : AF_INET6);
+    s_hostent.h_length = IP_ADDR_RAW_SIZE(addr);
     s_hostent.h_addr_list = (char **)&s_phostent_addr;
 
 #if DNS_DEBUG

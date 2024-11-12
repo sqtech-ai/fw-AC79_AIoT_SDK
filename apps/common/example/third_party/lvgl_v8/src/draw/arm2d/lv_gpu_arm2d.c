@@ -24,35 +24,6 @@
 /*********************
  *      INCLUDES
  *********************/
-#if defined(__clang__)
-#pragma clang diagnostic ignored "-Wunknown-warning-option"
-#pragma clang diagnostic ignored "-Wreserved-identifier"
-#pragma clang diagnostic ignored "-Wincompatible-pointer-types-discards-qualifiers"
-#pragma clang diagnostic ignored "-Wmissing-variable-declarations"
-#pragma clang diagnostic ignored "-Wcast-qual"
-#pragma clang diagnostic ignored "-Wcast-align"
-#pragma clang diagnostic ignored "-Wextra-semi-stmt"
-#pragma clang diagnostic ignored "-Wsign-conversion"
-#pragma clang diagnostic ignored "-Wunused-function"
-#pragma clang diagnostic ignored "-Wimplicit-int-float-conversion"
-#pragma clang diagnostic ignored "-Wdouble-promotion"
-#pragma clang diagnostic ignored "-Wunused-parameter"
-#pragma clang diagnostic ignored "-Wimplicit-float-conversion"
-#pragma clang diagnostic ignored "-Wimplicit-int-conversion"
-#pragma clang diagnostic ignored "-Wtautological-pointer-compare"
-#pragma clang diagnostic ignored "-Wsign-compare"
-#pragma clang diagnostic ignored "-Wfloat-conversion"
-#pragma clang diagnostic ignored "-Wmissing-prototypes"
-#pragma clang diagnostic ignored "-Wpadded"
-#pragma clang diagnostic ignored "-Wundef"
-#pragma clang diagnostic ignored "-Wdeclaration-after-statement"
-#pragma clang diagnostic ignored "-Wdisabled-macro-expansion"
-#pragma clang diagnostic ignored "-Wunused-variable"
-#pragma clang diagnostic ignored "-Wunused-but-set-variable"
-#pragma clang diagnostic ignored "-Wint-conversion"
-#endif
-
-
 #include "lv_gpu_arm2d.h"
 #include "../../core/lv_refr.h"
 
@@ -60,7 +31,6 @@
 #define __ARM_2D_IMPL__
 #include "arm_2d.h"
 #include "__arm_2d_impl.h"
-
 
 #if defined(__IS_COMPILER_ARM_COMPILER_5__)
 #pragma diag_suppress 174,177,188,68,513,144,1296
@@ -521,7 +491,6 @@ static void LV_ATTRIBUTE_FAST_MEM lv_draw_arm2d_blend(lv_draw_ctx_t *draw_ctx,
         mask = dsc->mask_buf;
     }
 
-
     lv_area_t blend_area;
     if (!_lv_area_intersect(&blend_area, dsc->blend_area, draw_ctx->clip_area)) {
         return;
@@ -557,7 +526,6 @@ static void LV_ATTRIBUTE_FAST_MEM lv_draw_arm2d_blend(lv_draw_ctx_t *draw_ctx,
         lv_draw_sw_blend_basic(draw_ctx, dsc);
     }
 }
-
 
 static bool LV_ATTRIBUTE_FAST_MEM lv_draw_arm2d_fill_colour(const arm_2d_tile_t *target_tile,
         const arm_2d_region_t *region,
@@ -681,7 +649,6 @@ static void lv_gpu_arm2d_wait_cb(lv_draw_ctx_t *draw_ctx)
     lv_draw_sw_wait_for_finish(draw_ctx);
 }
 #else
-
 
 static void LV_ATTRIBUTE_FAST_MEM lv_draw_arm2d_blend(lv_draw_ctx_t *draw_ctx,
         const lv_draw_sw_blend_dsc_t *dsc)
@@ -831,7 +798,6 @@ static bool LV_ATTRIBUTE_FAST_MEM arm_2d_fill_normal(lv_color_t *dest_buf,
     return true;
 }
 
-
 static bool LV_ATTRIBUTE_FAST_MEM arm_2d_copy_normal(lv_color_t *dest_buf,
         const lv_area_t *dest_area,
         lv_coord_t dest_stride,
@@ -882,12 +848,11 @@ static bool LV_ATTRIBUTE_FAST_MEM arm_2d_copy_normal(lv_color_t *dest_buf,
         }
         /*Handle opa and mask values too*/
         else {
-            __arm_2d_impl_gray8_alpha_blending((uint8_t *)mask,
-                                               mask_stride,
-                                               (uint8_t *)mask,
-                                               mask_stride,
-                                               &copy_size,
-                                               opa);
+            __arm_2d_impl_gray8_colour_filling_with_opacity((uint8_t *)mask,
+                    mask_stride,
+                    &copy_size,
+                    0x00,
+                    255 - opa);
 
             __arm_2d_impl_src_msk_copy((color_int *)src_buf,
                                        src_stride,
@@ -934,7 +899,6 @@ static void LV_ATTRIBUTE_FAST_MEM lv_draw_arm2d_img_decoded(struct _lv_draw_ctx_
     } else {
         cf = LV_IMG_CF_TRUE_COLOR;
     }
-
 
     /*The simplest case just copy the pixels into the draw_buf*/
     if (!mask_any && !transform && cf == LV_IMG_CF_TRUE_COLOR && draw_dsc->recolor_opa == LV_OPA_TRANSP) {
@@ -1457,9 +1421,7 @@ static void lv_gpu_arm2d_wait_cb(lv_draw_ctx_t * draw_ctx)
     lv_draw_sw_wait_for_finish(draw_ctx);
 }
 
-
 #endif
-
 
 /**********************
  *   STATIC FUNCTIONS

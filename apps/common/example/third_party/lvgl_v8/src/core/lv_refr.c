@@ -198,7 +198,6 @@ void lv_obj_redraw(lv_draw_ctx_t *draw_ctx, lv_obj_t *obj)
     draw_ctx->clip_area = clip_area_ori;
 }
 
-
 /**
  * Invalidate an area on display to redraw it
  * @param area_p pointer to area which should be invalidated (NULL: delete the invalidated areas)
@@ -483,7 +482,6 @@ uint32_t lv_refr_get_fps_avg(void)
 }
 #endif
 
-
 /**********************
  *   STATIC FUNCTIONS
  **********************/
@@ -561,7 +559,7 @@ static void refr_sync_areas(void)
     lv_area_t res[4] = {0};
     int8_t res_c, j;
     uint32_t i;
-    lv_area_t *sync_area, *new_area, *next_area;
+    lv_area_t *sync_area, * new_area, * next_area;
     for (i = 0; i < disp_refr->inv_p; i++) {
         /*Skip joined areas*/
         if (disp_refr->inv_area_joined[i]) {
@@ -942,7 +940,6 @@ static void refr_obj_and_children(lv_draw_ctx_t *draw_ctx, lv_obj_t *top_obj)
     }
 }
 
-
 static lv_res_t layer_get_area(lv_draw_ctx_t *draw_ctx, lv_obj_t *obj, lv_layer_type_t layer_type,
                                lv_area_t *layer_area_out)
 {
@@ -1016,7 +1013,6 @@ static void layer_alpha_test(lv_obj_t *obj, lv_draw_ctx_t *draw_ctx, lv_draw_lay
     }
     lv_draw_layer_adjust(draw_ctx, layer_ctx, has_alpha ? LV_DRAW_LAYER_FLAG_HAS_ALPHA : LV_DRAW_LAYER_FLAG_NONE);
 }
-
 
 void refr_obj(lv_draw_ctx_t *draw_ctx, lv_obj_t *obj)
 {
@@ -1118,7 +1114,6 @@ void refr_obj(lv_draw_ctx_t *draw_ctx, lv_obj_t *obj)
         lv_draw_layer_destroy(draw_ctx, layer_ctx);
     }
 }
-
 
 static uint32_t get_max_row(lv_disp_t *disp, lv_coord_t area_w, lv_coord_t area_h)
 {
@@ -1430,4 +1425,3 @@ static void mem_monitor_init(mem_monitor_t *_mem_monitor)
     _mem_monitor->mem_label = NULL;
 }
 #endif
-

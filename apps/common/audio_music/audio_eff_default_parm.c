@@ -265,7 +265,7 @@ struct audio_drc *music_drc_last_open(u32 sample_rate, u8 out_32bit_enable)
     drc_param.drc_name 	= AEID_LAST_WHOLE_DRC;
     drc_param.cb 		= drc_get_filter_info;
     u8 tar = nor_label;
-    drc_param.wdrc		= &last_whole_drc_parm[tar].parm;
+    drc_param.wdrc		= &last_whole_drc_parm[tar];
     drc_param.out_32bit = out_32bit_enable;
 
     struct audio_drc *drc = audio_dec_drc_open(&drc_param);

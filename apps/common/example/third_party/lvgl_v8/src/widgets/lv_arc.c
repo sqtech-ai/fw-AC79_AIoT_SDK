@@ -376,7 +376,6 @@ lv_arc_mode_t lv_arc_get_mode(const lv_obj_t *obj)
  * Other functions
  *====================*/
 
-
 void lv_arc_align_obj_to_angle(const lv_obj_t *obj, lv_obj_t *obj_to_align, lv_coord_t r_offset)
 {
     LV_ASSERT_OBJ(obj, MY_CLASS);
@@ -425,7 +424,6 @@ void lv_arc_rotate_obj_to_angle(const lv_obj_t *obj, lv_obj_t *obj_to_rotate, lv
     lv_obj_set_style_transform_angle(obj_to_rotate, angle * 10 + 900, 0);
 }
 
-
 /**********************
  *   STATIC FUNCTIONS
  **********************/
@@ -457,7 +455,6 @@ static void lv_arc_constructor(const lv_obj_class_t *class_p, lv_obj_t *obj)
     lv_obj_add_flag(obj, LV_OBJ_FLAG_CLICKABLE);
     lv_obj_clear_flag(obj, LV_OBJ_FLAG_SCROLL_CHAIN | LV_OBJ_FLAG_SCROLLABLE);
     lv_obj_set_ext_click_area(obj, LV_DPI_DEF / 10);
-
 
     LV_TRACE_OBJ_CREATE("finished");
 }
@@ -901,7 +898,6 @@ static lv_coord_t get_angle(const lv_obj_t *obj)
     return angle;
 }
 
-
 static void get_knob_area(lv_obj_t *obj, const lv_point_t *center, lv_coord_t r, lv_area_t *knob_area)
 {
     lv_coord_t indic_width = lv_obj_get_style_arc_width(obj, LV_PART_INDICATOR);
@@ -1024,8 +1020,8 @@ static bool lv_arc_angle_within_bg_bounds(lv_obj_t *obj, const uint32_t angle, c
         bigger_angle = arc->bg_angle_end;
         smaller_angle = arc->bg_angle_start;
     } else {
-        bigger_angle = 360U - arc->bg_angle_end;
-        smaller_angle = arc->bg_angle_start;
+        bigger_angle = (360 - arc->bg_angle_start) + arc->bg_angle_end;
+        smaller_angle = 0;
     }
 
     /* Angle is between both background angles */

@@ -88,7 +88,7 @@ void renderer::Layer::buildLayerNode()
         mCApiData = std::make_unique<renderer::CApiData>();
         clayer().keypath = name();
     }
-    if (complexContent()) {
+    if (!complexContent()) {
         clayer().mAlpha = uint8_t(combinedAlpha() * 255.f);
     }
     clayer().mVisible = visible();

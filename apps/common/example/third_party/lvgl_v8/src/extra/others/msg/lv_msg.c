@@ -31,7 +31,7 @@ typedef struct {
  *  STATIC PROTOTYPES
  **********************/
 
-static void notify(lv_msg_t *m);
+static bool notify(lv_msg_t *m);
 static void obj_notify_cb(void *s, lv_msg_t *m);
 static void obj_delete_event_cb(lv_event_t *e);
 
@@ -117,13 +117,13 @@ uint32_t lv_msg_unsubscribe_obj(uint32_t msg_id, lv_obj_t *obj)
     return cnt;
 }
 
-void lv_msg_send(uint32_t msg_id, const void *payload)
+bool lv_msg_send(uint32_t msg_id, const void *payload)
 {
     lv_msg_t m;
     lv_memset_00(&m, sizeof(m));
     m.id = msg_id;
     m.payload = payload;
-    notify(&m);
+    return notify(&m);
 }
 
 uint32_t lv_msg_get_id(lv_msg_t *m)
@@ -155,16 +155,19 @@ lv_msg_t *lv_event_get_msg(lv_event_t *e)
  *   STATIC FUNCTIONS
  **********************/
 
-static void notify(lv_msg_t *m)
+static bool notify(lv_msg_t *m)
 {
     sub_dsc_t *s;
+    bool found = false;
     _LV_LL_READ(&subs_ll, s) {
         if (s->msg_id == m->id && s->callback) {
             m->user_data = s->user_data;
             m->_priv_data = s->_priv_data;
             s->callback(s, m);
+            found = true;
         }
     }
+    return found;
 }
 
 static void obj_notify_cb(void *s, lv_msg_t *m)

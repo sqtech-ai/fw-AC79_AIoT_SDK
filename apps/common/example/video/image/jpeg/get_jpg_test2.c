@@ -7,7 +7,6 @@
 #include "sys_common.h"
 #include "yuv_soft_scalling.h"
 #include "asm/jpeg_codec.h"
-#include "lcd_te_driver.h"
 #include "get_yuv_data.h"
 #include "lcd_config.h"
 
@@ -80,12 +79,11 @@ static void get_JPG_save_to_SD(char *yuv_img_buf)
 /******最优数据流程 yuv回调出数据后转为对应屏幕大小YUV交给下一个线程处理***********/
 /******这样显示和yuv资源占用差不多才能同步均匀*************************************/
 /******同一先线程处理所有事情速度响应跟不上无法达到理想帧数************************/
-static void get_yuv(u8 *yuv_buf, u32 len, yuv_in_w, yuv_in_h)//YUV数据回调线程
+static void get_yuv(u8 *yuv_buf, u32 len, u16 yuv_in_w, u16 yuv_in_h)//YUV数据回调线程
 {
     /*save_YUV_date_ontime(yuv_buf,len);//将YUV数据保存在SD卡*/
     /*******将YUV输出数据转成屏幕大小的YUV*********************/
-    YUV420p_Soft_Scaling(yuv_buf, NULL, yuv_in_w, yuv_in_h, LCD_W, LCD_H);
-    lcd_show_frame(yuv_buf, LCD_YUV420_DATA_SIZE); //这里输出的是对应屏幕大小的YUV数据 发送到TE线程处理数据
+    lcd_show_frame(yuv_buf, len, yuv_in_w, yuv_in_h); //这里输出的是对应屏幕大小的YUV数据 发送到TE线程处理数据
 
     get_JPG_save_to_SD(yuv_buf);//将YUV数据保存在SD卡*/
 }

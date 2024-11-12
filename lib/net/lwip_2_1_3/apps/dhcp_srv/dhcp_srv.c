@@ -234,8 +234,10 @@ static void send_offer(struct pbuf *p)
 
     DHCP_DBG_SEND(p->payload, p->len);
 
-    udp_sendto(pcb_dhcps, p, &broadcast_dhcps, DHCP_CLIENT_PORT);
-    /* udp_sendto(pcb_dhcps, p, &broadcast_dhcps, DHCP_CLIENT_PORT);//减缓wifi信号不好导致DHCP分配不到的情况 */
+    ip_addr_t dst_ip = IPADDR4_INIT(0x0);
+    ip4_addr_set(ip_2_ip4(&dst_ip), &broadcast_dhcps);
+    udp_sendto(pcb_dhcps, p, &dst_ip, DHCP_CLIENT_PORT);
+    /* udp_sendto(pcb_dhcps, p, &dst_ip, DHCP_CLIENT_PORT);//减缓wifi信号不好导致DHCP分配不到的情况 */
 }
 
 static void send_nak(struct pbuf *p)
@@ -252,7 +254,9 @@ static void send_nak(struct pbuf *p)
 
     DHCP_DBG_SEND(p->payload, p->len);
 
-    udp_sendto(pcb_dhcps, p, &broadcast_dhcps, DHCP_CLIENT_PORT);
+    ip_addr_t dst_ip = IPADDR4_INIT(0x0);
+    ip4_addr_set(ip_2_ip4(&dst_ip), &broadcast_dhcps);
+    udp_sendto(pcb_dhcps, p, &dst_ip, DHCP_CLIENT_PORT);
 }
 
 static void send_ack(struct pbuf *p)
@@ -270,7 +274,9 @@ static void send_ack(struct pbuf *p)
 
     DHCP_DBG_SEND(p->payload, p->len);
 
-    udp_sendto(pcb_dhcps, p, &broadcast_dhcps, DHCP_CLIENT_PORT);
+    ip_addr_t dst_ip = IPADDR4_INIT(0x0);
+    ip4_addr_set(ip_2_ip4(&dst_ip), &broadcast_dhcps);
+    udp_sendto(pcb_dhcps, p, &dst_ip, DHCP_CLIENT_PORT);
 }
 
 static u8_t parse_options(struct dhcp_msg *m, s16_t len)
@@ -594,4 +600,5 @@ int dhcps_get_ipaddr(u8 hwaddr[6], struct ip4_addr *ipaddr)
     os_mutex_post(&dhcps_mtx);
     return ret;
 }
+
 

@@ -42,14 +42,7 @@ LV_ATTRIBUTE_FAST_MEM static void draw_line_ver(lv_draw_unit_t *draw_unit, const
  *   GLOBAL FUNCTIONS
  **********************/
 
-/**
- * Draw a line
- * @param point1 first point of the line
- * @param point2 second point of the line
- * @param clip the line will be drawn only in this area
- * @param dsc pointer to an initialized `lv_draw_line_dsc_t` variable
- */
-LV_ATTRIBUTE_FAST_MEM void lv_draw_sw_line(lv_draw_unit_t *draw_unit, const lv_draw_line_dsc_t *dsc)
+void lv_draw_sw_line(lv_draw_unit_t *draw_unit, const lv_draw_line_dsc_t *dsc)
 {
     if (dsc->width == 0) {
         return;
@@ -74,6 +67,7 @@ LV_ATTRIBUTE_FAST_MEM void lv_draw_sw_line(lv_draw_unit_t *draw_unit, const lv_d
         return;
     }
 
+    LV_PROFILER_BEGIN;
     if (dsc->p1.y == dsc->p2.y) {
         draw_line_hor(draw_unit, dsc);
     } else if (dsc->p1.x == dsc->p2.x) {
@@ -109,6 +103,7 @@ LV_ATTRIBUTE_FAST_MEM void lv_draw_sw_line(lv_draw_unit_t *draw_unit, const lv_d
             lv_draw_sw_fill(draw_unit, &cir_dsc, &cir_area);
         }
     }
+    LV_PROFILER_END;
 }
 
 /**********************
@@ -263,7 +258,6 @@ LV_ATTRIBUTE_FAST_MEM static void draw_line_ver(lv_draw_unit_t *draw_unit, const
 
 LV_ATTRIBUTE_FAST_MEM static void draw_line_skew(lv_draw_unit_t *draw_unit, const lv_draw_line_dsc_t *dsc)
 {
-
 #if LV_DRAW_SW_COMPLEX
     /*Keep the great y in p1*/
     lv_point_t p1;

@@ -2,6 +2,8 @@
 
 typedef unsigned long size_t ;
 extern "C" {
+    int fseek(void *file, int offset, int orig);
+    int ftell(void *file);
     void *malloc(size_t);
     void free(void *);
     extern int vsnprintf(char *, unsigned long, const char *, __builtin_va_list);
@@ -185,14 +187,12 @@ operator delete[](void *ptr)
 extern "C" {
     int fseeko(void *stream, int offset, int fromwhere)
     {
-        printf("[%s, %d]is not supported yet\n", __FUNCTION__, __LINE__);
-        return -1;
+        return fseek(stream, offset, fromwhere);
     }
 
     int ftello(void *stream)
     {
-        printf("[%s, %d]is not supported yet\n", __FUNCTION__, __LINE__);
-        return -1;
+        return ftell(stream);
     }
 
     int strerror_r(int errnum, char *buf, unsigned int n)

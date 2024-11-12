@@ -313,7 +313,9 @@
 <Unit filename="../../../../../apps/common/usb/device/slave_uvc.h" />
 <Unit filename="../../../../../apps/common/usb/device/task_pc.c"><Option compilerVer="CC"/></Unit>
 <Unit filename="../../../../../apps/common/usb/device/uac.c"><Option compilerVer="CC"/></Unit>
+<Unit filename="../../../../../apps/common/usb/device/uac2.c"><Option compilerVer="CC"/></Unit>
 <Unit filename="../../../../../apps/common/usb/device/uac_stream.c"><Option compilerVer="CC"/></Unit>
+<Unit filename="../../../../../apps/common/usb/device/uac_stream.h" />
 <Unit filename="../../../../../apps/common/usb/device/usb_device.c"><Option compilerVer="CC"/></Unit>
 <Unit filename="../../../../../apps/common/usb/device/user_setup.c"><Option compilerVer="CC"/></Unit>
 <Unit filename="../../../../../apps/common/usb/device/uvc.c"><Option compilerVer="CC"/></Unit>
@@ -491,6 +493,7 @@
 <Unit filename="../../../../../include_lib/driver/device/usb/device/hid.h" />
 <Unit filename="../../../../../include_lib/driver/device/usb/device/msd.h" />
 <Unit filename="../../../../../include_lib/driver/device/usb/device/uac_audio.h" />
+<Unit filename="../../../../../include_lib/driver/device/usb/device/uac_audio_v2.h" />
 <Unit filename="../../../../../include_lib/driver/device/usb/device/usb_stack.h" />
 <Unit filename="../../../../../include_lib/driver/device/usb/host/usb_host.h" />
 <Unit filename="../../../../../include_lib/driver/device/usb/otg.h" />

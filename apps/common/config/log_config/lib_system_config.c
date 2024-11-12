@@ -59,6 +59,8 @@ const int FATFS_RW_MAX_CACHE = 32 * 1024; //设置读写申请的最大cache大�
 const int FILE_AUTO_RENAME_NUM = 1;  //自动重命名文件数量限制最大FILE_AUTO_RENAME_NUM * 8192个如果文件数量超最大以最大命名
 const int FATFS_SUPPORT_WRITE_SAVE_MEANTIME = 0; //每次写同步目录项使能，会降低连续写速度。未fclose文件掉电场景使用
 const int FATFS_SUPPORT_WRITE_CUTOFF = 1; //支持fseek截断文件，打开后fseek后指针位置决定文件大小
+const int FATFS_GET_SPACE_USE_RAM = 0; //获取剩余容量使用大Buf缓存, 必须512倍数
+
 
 //================================================//
 //                  dev使用异步读使能             //

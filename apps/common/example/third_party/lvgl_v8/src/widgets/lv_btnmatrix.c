@@ -545,7 +545,6 @@ static void lv_btnmatrix_event(const lv_obj_class_t *class_p, lv_event_t *e)
                 }
             }
 
-
             if ((button_is_click_trig(btnm->ctrl_bits[btnm->btn_id_sel]) == true ||
                  button_is_popover(btnm->ctrl_bits[btnm->btn_id_sel]) == true) &&
                 button_is_inactive(btnm->ctrl_bits[btnm->btn_id_sel]) == false &&
@@ -854,7 +853,6 @@ static void draw_main(lv_event_t *e)
         } else {
             draw_label_dsc_act.flag &= ~LV_TEXT_FLAG_RECOLOR;
         }
-
 
         part_draw_dsc.draw_area = &btn_area;
         part_draw_dsc.id = btn_i;

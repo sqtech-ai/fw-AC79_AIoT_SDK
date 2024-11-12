@@ -32,8 +32,7 @@ typedef struct {
  *  STATIC PROTOTYPES
  **********************/
 static lv_result_t decoder_info(lv_image_decoder_t *decoder, const void *src, lv_image_header_t *header);
-static lv_result_t decoder_open(lv_image_decoder_t *decoder, lv_image_decoder_dsc_t *dsc,
-                                const lv_image_decoder_args_t *args);
+static lv_result_t decoder_open(lv_image_decoder_t *decoder, lv_image_decoder_dsc_t *dsc);
 
 static lv_result_t decoder_get_area(lv_image_decoder_t *decoder, lv_image_decoder_dsc_t *dsc,
                                     const lv_area_t *full_area, lv_area_t *decoded_area);
@@ -76,7 +75,7 @@ void lv_bmp_deinit(void)
  **********************/
 
 /**
- * Get info about a PNG image
+ * Get info about a BMP image
  * @param src can be file name or pointer to a C array
  * @param header store the info here
  * @return LV_RESULT_OK: no error; LV_RESULT_INVALID: can't get the info
@@ -137,18 +136,16 @@ static lv_result_t decoder_info(lv_image_decoder_t *decoder, const void *src, lv
 }
 
 /**
- * Open a PNG image and return the decided image
- * @param src can be file name or pointer to a C array
- * @param style style of the image object (unused now but certain formats might use it)
- * @return pointer to the decoded image or `LV_IMAGE_DECODER_OPEN_FAIL` if failed
+ * Open a BMP image and return the decided image
+ * @param decoder pointer to the decoder
+ * @param dsc     pointer to the decoder descriptor
+ * @return LV_RESULT_OK: no error; LV_RESULT_INVALID: can't open the image
  */
-static lv_result_t decoder_open(lv_image_decoder_t *decoder, lv_image_decoder_dsc_t *dsc,
-                                const lv_image_decoder_args_t *args)
+static lv_result_t decoder_open(lv_image_decoder_t *decoder, lv_image_decoder_dsc_t *dsc)
 {
     LV_UNUSED(decoder);
-    LV_UNUSED(args);
 
-    /*If it's a PNG file...*/
+    /*If it's a BMP file...*/
     if (dsc->src_type == LV_IMAGE_SRC_FILE) {
         const char *fn = dsc->src;
 
@@ -184,7 +181,6 @@ static lv_result_t decoder_open(lv_image_decoder_t *decoder, lv_image_decoder_ds
             return LV_RESULT_INVALID;
         }
         lv_memcpy(dsc->user_data, &b, sizeof(b));
-        dsc->img_data = NULL;
         return LV_RESULT_OK;
     }
     /* BMP file as data not supported for simplicity.
@@ -201,12 +197,15 @@ static lv_result_t decoder_get_area(lv_image_decoder_t *decoder, lv_image_decode
 {
     LV_UNUSED(decoder);
     bmp_dsc_t *b = dsc->user_data;
-    uint32_t line_width_byte = lv_area_get_width(full_area) * (b->bpp / 8);
+    lv_draw_buf_t *decoded = (void *)dsc->decoded;
 
     if (decoded_area->y1 == LV_COORD_MIN) {
         *decoded_area = *full_area;
         decoded_area->y2 = decoded_area->y1;
-        dsc->img_data = lv_malloc(line_width_byte);
+        if (decoded == NULL) {
+            decoded = lv_draw_buf_create(lv_area_get_width(full_area), 1, dsc->header.cf, LV_STRIDE_AUTO);
+        }
+        dsc->decoded = decoded;
     } else {
         decoded_area->y1++;
         decoded_area->y2++;
@@ -219,7 +218,8 @@ static lv_result_t decoder_get_area(lv_image_decoder_t *decoder, lv_image_decode
         uint32_t p = b->px_offset + b->row_size_bytes * y;
         p += (decoded_area->x1) * (b->bpp / 8);
         lv_fs_seek(&b->f, p, LV_FS_SEEK_SET);
-        lv_fs_read(&b->f, (void *)dsc->img_data, line_width_byte, NULL);
+        uint32_t line_width_byte = lv_area_get_width(full_area) * (b->bpp / 8);
+        lv_fs_read(&b->f, decoded->data, line_width_byte, NULL);
 
         return LV_RESULT_OK;
     }
@@ -234,8 +234,8 @@ static void decoder_close(lv_image_decoder_t *decoder, lv_image_decoder_dsc_t *d
     bmp_dsc_t *b = dsc->user_data;
     lv_fs_close(&b->f);
     lv_free(dsc->user_data);
-    if (dsc->img_data) {
-        lv_free((void *)dsc->img_data);
+    if (dsc->decoded) {
+        lv_draw_buf_destroy((void *)dsc->decoded);
     }
 
 }

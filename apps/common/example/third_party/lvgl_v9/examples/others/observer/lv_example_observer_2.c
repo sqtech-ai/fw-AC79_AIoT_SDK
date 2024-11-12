@@ -30,8 +30,9 @@ static void engine_state_observer_cb(lv_observer_t *observer, lv_subject_t *subj
     LV_UNUSED(observer);
 
     int32_t v = lv_subject_get_int(subject);
+    LV_UNUSED(v);
     /*In a real application set/clear a pin here*/
-    LV_LOG_USER("Engine state: %d", v);
+    LV_LOG_USER("Engine state: %" LV_PRId32, v);
 }
 
 static void app_init(void)

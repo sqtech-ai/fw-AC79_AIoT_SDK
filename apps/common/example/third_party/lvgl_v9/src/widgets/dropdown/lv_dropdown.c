@@ -710,7 +710,7 @@ static void lv_dropdown_event(const lv_obj_class_t *class_p, lv_event_t *e)
     }
 
     lv_event_code_t code = lv_event_get_code(e);
-    lv_obj_t *obj = lv_event_get_target(e);
+    lv_obj_t *obj = lv_event_get_current_target(e);
     lv_dropdown_t *dropdown = (lv_dropdown_t *)obj;
 
     if (code == LV_EVENT_FOCUSED) {
@@ -746,7 +746,7 @@ static void lv_dropdown_event(const lv_obj_class_t *class_p, lv_event_t *e)
         const lv_font_t *font = lv_obj_get_style_text_font(obj, LV_PART_MAIN);
         p->y = lv_font_get_line_height(font);
     } else if (code == LV_EVENT_KEY) {
-        char c = *((char *)lv_event_get_param(e));
+        uint32_t c = lv_event_get_key(e);
         if (c == LV_KEY_RIGHT || c == LV_KEY_DOWN) {
             if (!lv_dropdown_is_open(obj)) {
                 lv_dropdown_open(obj);
@@ -795,7 +795,7 @@ static void lv_dropdown_list_event(const lv_obj_class_t *class_p, lv_event_t *e)
             return;
         }
     }
-    lv_obj_t *list = lv_event_get_target(e);
+    lv_obj_t *list = lv_event_get_current_target(e);
     lv_obj_t *dropdown_obj = ((lv_dropdown_list_t *)list)->dropdown;
     lv_dropdown_t *dropdown = (lv_dropdown_t *)dropdown_obj;
 
@@ -819,7 +819,7 @@ static void lv_dropdown_list_event(const lv_obj_class_t *class_p, lv_event_t *e)
 
 static void draw_main(lv_event_t *e)
 {
-    lv_obj_t *obj = lv_event_get_target(e);
+    lv_obj_t *obj = lv_event_get_current_target(e);
     lv_dropdown_t *dropdown = (lv_dropdown_t *)obj;
     lv_layer_t *layer = lv_event_get_layer(e);
 
@@ -935,7 +935,7 @@ static void draw_main(lv_event_t *e)
 
 static void draw_list(lv_event_t *e)
 {
-    lv_obj_t *list_obj = lv_event_get_target(e);
+    lv_obj_t *list_obj = lv_event_get_current_target(e);
     lv_dropdown_list_t *list = (lv_dropdown_list_t *)list_obj;
     lv_obj_t *dropdown_obj = list->dropdown;
     lv_dropdown_t *dropdown = (lv_dropdown_t *)dropdown_obj;

@@ -20,7 +20,6 @@
 #define SHADOW_ENHANCE          1
 #define SPLIT_LIMIT             50
 
-
 /**********************
  *      TYPEDEFS
  **********************/
@@ -47,7 +46,6 @@ void draw_border_generic(lv_draw_ctx_t *draw_ctx, const lv_area_t *outer_area, c
 
 static void draw_border_simple(lv_draw_ctx_t *draw_ctx, const lv_area_t *outer_area, const lv_area_t *inner_area,
                                lv_color_t color, lv_opa_t opa);
-
 
 /**********************
  *  STATIC VARIABLES
@@ -91,7 +89,6 @@ void lv_draw_sw_bg(lv_draw_ctx_t *draw_ctx, const lv_draw_rect_dsc_t *dsc, const
     draw_bg(draw_ctx, dsc, coords);
     draw_bg_img(draw_ctx, dsc, coords);
 }
-
 
 /**********************
  *   STATIC FUNCTIONS
@@ -172,7 +169,6 @@ static void draw_bg(lv_draw_ctx_t *draw_ctx, const lv_draw_rect_dsc_t *dsc, cons
     blend_dsc.mask_area = &blend_area;
     blend_dsc.opa = LV_OPA_COVER;
 
-
     /*Get gradient if appropriate*/
     lv_grad_t *grad = lv_gradient_get(&dsc->bg_grad, coords_bg_w, coords_bg_h);
     if (grad && grad_dir == LV_GRAD_DIR_HOR) {
@@ -249,7 +245,6 @@ static void draw_bg(lv_draw_ctx_t *draw_ctx, const lv_draw_rect_dsc_t *dsc, cons
         }
         goto bg_clean_up;
     }
-
 
     /* Draw the top of the rectangle line by line and mirror it to the bottom. */
     for (h = 0; h < rout; h++) {
@@ -340,7 +335,6 @@ static void draw_bg(lv_draw_ctx_t *draw_ctx, const lv_draw_rect_dsc_t *dsc, cons
             lv_draw_sw_blend(draw_ctx, &blend_dsc);
         }
     }
-
 
 bg_clean_up:
     if (mask_buf) {
@@ -533,7 +527,6 @@ static void LV_ATTRIBUTE_FAST_MEM draw_shadow(lv_draw_ctx_t *draw_ctx, const lv_
     if (r_sh > short_side >> 1) {
         r_sh = short_side >> 1;
     }
-
 
     /*Get how many pixels are affected by the blur on the corners*/
     int32_t corner_size = dsc->shadow_width  + r_sh;
@@ -747,7 +740,6 @@ static void LV_ATTRIBUTE_FAST_MEM draw_shadow(lv_draw_ctx_t *draw_ctx, const lv_
     blend_area.y1 = shadow_area.y2 - corner_size + 1;
     blend_area.y2 = shadow_area.y2;
     blend_area.y1 = LV_MAX(blend_area.y1, h_half + 1);
-
 
     if (_lv_area_intersect(&clip_area_sub, &blend_area, draw_ctx->clip_area) &&
         !_lv_area_is_in(&clip_area_sub, &bg_area, r_bg)) {
@@ -1262,7 +1254,6 @@ static void draw_outline(lv_draw_ctx_t *draw_ctx, const lv_draw_rect_dsc_t *dsc,
     area_outer.y1 -= dsc->outline_width;
     area_outer.y2 += dsc->outline_width;
 
-
     int32_t inner_w = lv_area_get_width(&area_inner);
     int32_t inner_h = lv_area_get_height(&area_inner);
     int32_t rin = dsc->radius;
@@ -1302,7 +1293,6 @@ void draw_border_generic(lv_draw_ctx_t *draw_ctx, const lv_area_t *outer_area, c
     lv_draw_sw_blend_dsc_t blend_dsc;
     lv_memset_00(&blend_dsc, sizeof(blend_dsc));
     blend_dsc.mask_buf = lv_mem_buf_get(draw_area_w);;
-
 
     /*Create mask for the outer area*/
     int16_t mask_rout_id = LV_MASK_ID_INV;
@@ -1532,7 +1522,6 @@ static void draw_border_simple(lv_draw_ctx_t *draw_ctx, const lv_area_t *outer_a
     bool left_side = outer_area->x1 <= inner_area->x1 ? true : false;
     bool right_side = outer_area->x2 >= inner_area->x2 ? true : false;
 
-
     /*Top*/
     a.x1 = outer_area->x1;
     a.x2 = outer_area->x2;
@@ -1565,4 +1554,3 @@ static void draw_border_simple(lv_draw_ctx_t *draw_ctx, const lv_area_t *outer_a
         lv_draw_sw_blend(draw_ctx, &blend_dsc);
     }
 }
-

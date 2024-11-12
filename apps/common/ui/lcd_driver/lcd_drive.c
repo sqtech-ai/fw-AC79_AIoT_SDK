@@ -239,6 +239,9 @@ static int lcd_interface_init(void)
         dev_ioctl(lcd_hdl, IOCTL_SPI_NON_BLOCK, 1);//设置为非阻塞发送数据包
     } else if (lcd_pdata->lcd_if == LCD_IMD) {
         lcd_hdl = dev_open("imd", priv);
+        if (lcd_hdl) {
+            dev_ioctl(lcd_hdl, IOCTL_IMD_SET_CB_FUNC, get_lcd_send_ok);
+        }
     } else if (lcd_pdata->lcd_if == LCD_PAP) {
         lcd_hdl = dev_open("pap", NULL);
     } else if (lcd_pdata->lcd_if == LCD_EMI) {

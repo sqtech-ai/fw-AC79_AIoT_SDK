@@ -178,6 +178,7 @@ struct aec_s_attr {
     int SimplexThr;
     u16 hw_delay_offset;            /*dac hardware delay offset*/
     u16 wn_gain;                    /*white_noise gain*/
+    u16 dac_ref_sr;                 //dac参考采样率,要是编码时AEC采样率(8k或16k)的整数倍
 
     float AGC_NDT_fade_in_step; 	//in dB
     float AGC_NDT_fade_out_step; 	//in dB

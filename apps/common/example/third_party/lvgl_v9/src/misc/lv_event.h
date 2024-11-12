@@ -18,6 +18,8 @@ extern "C" {
 #include "lv_types.h"
 #include "../lv_conf_internal.h"
 
+#include "lv_array.h"
+
 /*********************
  *      DEFINES
  *********************/
@@ -25,9 +27,8 @@ extern "C" {
 /**********************
  *      TYPEDEFS
  **********************/
-struct _lv_event_t;
 
-typedef void (*lv_event_cb_t)(struct _lv_event_t *e);
+typedef void (*lv_event_cb_t)(lv_event_t *e);
 
 typedef struct {
     lv_event_cb_t cb;
@@ -98,6 +99,7 @@ typedef enum {
     /** Events of optional LVGL components*/
     LV_EVENT_INVALIDATE_AREA,
     LV_EVENT_RESOLUTION_CHANGED,
+    LV_EVENT_COLOR_FORMAT_CHANGED,
     LV_EVENT_REFR_REQUEST,
     LV_EVENT_REFR_START,
     LV_EVENT_REFR_READY,
@@ -106,28 +108,27 @@ typedef enum {
     LV_EVENT_FLUSH_START,
     LV_EVENT_FLUSH_FINISH,
 
-    _LV_EVENT_LAST,               /** Number of default events*/
+    LV_EVENT_VSYNC,
 
-    LV_EVENT_PREPROCESS = 0x80,   /** This is a flag that can be set with an event so it's processed
+    _LV_EVENT_LAST,                 /** Number of default events*/
+
+    LV_EVENT_PREPROCESS = 0x8000,   /** This is a flag that can be set with an event so it's processed
                                       before the class default event processing */
 } lv_event_code_t;
 
-typedef struct {
-    lv_event_dsc_t *dsc;
-    uint32_t cnt;
-} lv_event_list_t;
+typedef lv_array_t lv_event_list_t;
 
-typedef struct _lv_event_t {
+struct _lv_event_t {
     void *current_target;
     void *original_target;
     lv_event_code_t code;
     void *user_data;
     void *param;
-    struct _lv_event_t *prev;
+    lv_event_t *prev;
     uint8_t deleted : 1;
     uint8_t stop_processing : 1;
     uint8_t stop_bubbling : 1;
-} lv_event_t;
+};
 
 /**
  * @brief Event callback.

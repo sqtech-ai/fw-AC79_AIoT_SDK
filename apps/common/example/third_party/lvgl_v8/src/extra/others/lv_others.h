@@ -20,6 +20,8 @@ extern "C" {
 #include "imgfont/lv_imgfont.h"
 #include "msg/lv_msg.h"
 #include "ime/lv_ime_pinyin.h"
+#include "anim_effect/lv_anim_effect.h"
+#include "file_explorer/lv_file_explorer.h"
 
 /*********************
  *      DEFINES

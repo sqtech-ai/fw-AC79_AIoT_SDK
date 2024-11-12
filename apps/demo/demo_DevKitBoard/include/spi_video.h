@@ -58,6 +58,7 @@ frist_line_data         (480-2) x line_data        end_line_data
 #define Y_PACK_LEN                   (CAMERA_W*CAMERA_H)
 
 /**********定义bt6565摄像头时序******/
+#define CAM_VSTART_VALUE                 ntohl(0xff0000ab)  //帧头
 #define CAM_LSTART_VALUE                 ntohl(0xff000080)  //行头
 #define CAM_FHEAD_SIZE	             4     //帧头长
 #define CAM_FEND_SIZE	             4     //帧尾长

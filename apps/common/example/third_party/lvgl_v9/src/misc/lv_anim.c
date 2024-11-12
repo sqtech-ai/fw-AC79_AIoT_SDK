@@ -33,7 +33,7 @@
  **********************/
 static void anim_timer(lv_timer_t *param);
 static void anim_mark_list_change(void);
-static void anim_ready_handler(lv_anim_t *a);
+static void anim_completed_handler(lv_anim_t *a);
 static int32_t lv_anim_path_cubic_bezier(const lv_anim_t *a, int32_t x1,
         int32_t y1, int32_t x2, int32_t y2);
 static uint32_t convert_speed_to_time(uint32_t speed, int32_t start, int32_t end);
@@ -134,7 +134,7 @@ lv_anim_t *lv_anim_start(const lv_anim_t *a)
     return new_anim;
 }
 
-uint32_t lv_anim_get_playtime(lv_anim_t *a)
+uint32_t lv_anim_get_playtime(const lv_anim_t *a)
 {
     if (a->repeat_cnt == LV_ANIM_REPEAT_INFINITE) {
         return LV_ANIM_PLAYTIME_INFINITE;
@@ -145,7 +145,7 @@ uint32_t lv_anim_get_playtime(lv_anim_t *a)
         repeate_cnt = 1;
     }
 
-    uint32_t playtime = a->repeat_delay + a->duration + a->playback_delay + a->playback_time;
+    uint32_t playtime = a->repeat_delay + a->duration + a->playback_delay + a->playback_duration;
     playtime = playtime * a->repeat_cnt;
     return playtime;
 }
@@ -173,7 +173,7 @@ lv_anim_t *lv_anim_get(void *var, lv_anim_exec_xcb_t exec_cb)
     return NULL;
 }
 
-struct _lv_timer_t *lv_anim_get_timer(void)
+lv_timer_t *lv_anim_get_timer(void)
 {
     return state.timer;
 }
@@ -214,7 +214,7 @@ uint32_t lv_anim_speed_clamped(uint32_t speed, uint32_t min_time, uint32_t max_t
 
 uint32_t lv_anim_speed(uint32_t speed)
 {
-    return lv_anim_speed_clamped(speed, 0, 1023);
+    return lv_anim_speed_clamped(speed, 0, 10000);
 }
 
 void lv_anim_refr_now(void)
@@ -352,7 +352,7 @@ static void anim_timer(lv_timer_t *param)
         a->last_timer_run = lv_tick_get();
 
         /*It can be set by `lv_anim_delete()` typically in `end_cb`. If set then an animation delete
-         * happened in `anim_ready_handler` which could make this linked list reading corrupt
+         * happened in `anim_completed_handler` which could make this linked list reading corrupt
          * because the list is changed meanwhile
          */
         state.anim_list_changed = false;
@@ -394,14 +394,14 @@ static void anim_timer(lv_timer_t *param)
                     if (a->exec_cb) {
                         a->exec_cb(a->var, new_value);
                     }
-                    if (a->custom_exec_cb) {
+                    if (!state.anim_list_changed && a->custom_exec_cb) {
                         a->custom_exec_cb(a, new_value);
                     }
                 }
 
                 /*If the time is elapsed the animation is ready*/
-                if (a->act_time >= a->duration) {
-                    anim_ready_handler(a);
+                if (!state.anim_list_changed && a->act_time >= a->duration) {
+                    anim_completed_handler(a);
                 }
             }
         }
@@ -418,11 +418,11 @@ static void anim_timer(lv_timer_t *param)
 }
 
 /**
- * Called when an animation is ready to do the necessary thinks
+ * Called when an animation is completed to do the necessary things
  * e.g. repeat, play back, delete etc.
  * @param a pointer to an animation descriptor
  */
-static void anim_ready_handler(lv_anim_t *a)
+static void anim_completed_handler(lv_anim_t *a)
 {
     /*In the end of a forward anim decrement repeat cnt.*/
     if (a->playback_now == 0 && a->repeat_cnt > 0 && a->repeat_cnt != LV_ANIM_REPEAT_INFINITE) {
@@ -432,17 +432,17 @@ static void anim_ready_handler(lv_anim_t *a)
     /*Delete the animation if
      * - no repeat left and no play back (simple one shot animation)
      * - no repeat, play back is enabled and play back is ready*/
-    if (a->repeat_cnt == 0 && (a->playback_time == 0 || a->playback_now == 1)) {
+    if (a->repeat_cnt == 0 && (a->playback_duration == 0 || a->playback_now == 1)) {
 
         /*Delete the animation from the list.
-         * This way the `ready_cb` will see the animations like it's animation is ready deleted*/
+         * This way the `completed_cb` will see the animations like it's animation is already deleted*/
         _lv_ll_remove(anim_ll_p, a);
         /*Flag that the list has changed*/
         anim_mark_list_change();
 
         /*Call the callback function at the end*/
-        if (a->ready_cb != NULL) {
-            a->ready_cb(a);
+        if (a->completed_cb != NULL) {
+            a->completed_cb(a);
         }
         if (a->deleted_cb != NULL) {
             a->deleted_cb(a);
@@ -453,7 +453,7 @@ static void anim_ready_handler(lv_anim_t *a)
     else {
         a->act_time = -(int32_t)(a->repeat_delay); /*Restart the animation*/
         /*Swap the start and end values in play back mode*/
-        if (a->playback_time != 0) {
+        if (a->playback_duration != 0) {
             /*If now turning back use the 'playback_pause*/
             if (a->playback_now == 0) {
                 a->act_time = -(int32_t)(a->playback_delay);
@@ -465,10 +465,10 @@ static void anim_ready_handler(lv_anim_t *a)
             int32_t tmp    = a->start_value;
             a->start_value = a->end_value;
             a->end_value   = tmp;
-            /*Swap the time and playback_time*/
+            /*Swap the time and playback_duration*/
             tmp = a->duration;
-            a->duration = a->playback_time;
-            a->playback_time = tmp;
+            a->duration = a->playback_duration;
+            a->playback_duration = tmp;
         }
     }
 }
@@ -516,7 +516,7 @@ static uint32_t convert_speed_to_time(uint32_t speed_or_time, int32_t start, int
 static void resolve_time(lv_anim_t *a)
 {
     a->duration = convert_speed_to_time(a->duration, a->start_value, a->end_value);
-    a->playback_time = convert_speed_to_time(a->playback_time, a->start_value, a->end_value);
+    a->playback_duration = convert_speed_to_time(a->playback_duration, a->start_value, a->end_value);
     a->playback_delay = convert_speed_to_time(a->playback_delay, a->start_value, a->end_value);
     a->repeat_delay = convert_speed_to_time(a->repeat_delay, a->start_value, a->end_value);
 }

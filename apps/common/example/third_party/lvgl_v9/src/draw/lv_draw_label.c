@@ -29,7 +29,7 @@
  *  STATIC PROTOTYPES
  **********************/
 static void draw_letter(lv_draw_unit_t *draw_unit, lv_draw_glyph_dsc_t *dsc,  const lv_point_t *pos,
-                        const lv_font_t *font, uint32_t letter, lv_draw_letter_cb_t cb);
+                        const lv_font_t *font, uint32_t letter, lv_draw_glyph_cb_t cb);
 
 /**********************
  *  STATIC VARIABLES
@@ -61,7 +61,7 @@ void lv_draw_label_dsc_init(lv_draw_label_dsc_t *dsc)
     dsc->base.dsc_size = sizeof(lv_draw_label_dsc_t);
 }
 
-void lv_draw_letter_dsc_init(lv_draw_glyph_dsc_t *dsc)
+void lv_draw_glyph_dsc_init(lv_draw_glyph_dsc_t *dsc)
 {
     lv_memzero(dsc, sizeof(lv_draw_glyph_dsc_t));
 }
@@ -80,6 +80,7 @@ LV_ATTRIBUTE_FAST_MEM void lv_draw_label(lv_layer_t *layer, const lv_draw_label_
         return;
     }
 
+    LV_PROFILER_BEGIN;
     lv_draw_task_t *t = lv_draw_add_task(layer, coords);
 
     t->draw_dsc = lv_malloc(sizeof(*dsc));
@@ -93,9 +94,10 @@ LV_ATTRIBUTE_FAST_MEM void lv_draw_label(lv_layer_t *layer, const lv_draw_label_
     }
 
     lv_draw_finalize_task_creation(layer, t);
+    LV_PROFILER_END;
 }
 
-LV_ATTRIBUTE_FAST_MEM void lv_draw_letter(lv_layer_t *layer, lv_draw_label_dsc_t *dsc,
+LV_ATTRIBUTE_FAST_MEM void lv_draw_character(lv_layer_t *layer, lv_draw_label_dsc_t *dsc,
         const lv_point_t *point, uint32_t unicode_letter)
 {
     if (dsc->opa <= LV_OPA_MIN) {
@@ -109,6 +111,8 @@ LV_ATTRIBUTE_FAST_MEM void lv_draw_letter(lv_layer_t *layer, lv_draw_label_dsc_t
     if (_lv_text_is_marker(unicode_letter)) {
         return;
     }
+
+    LV_PROFILER_BEGIN;
 
     lv_font_glyph_dsc_t g;
     lv_font_get_glyph_dsc(dsc->font, &g, unicode_letter, 0);
@@ -136,11 +140,12 @@ LV_ATTRIBUTE_FAST_MEM void lv_draw_letter(lv_layer_t *layer, lv_draw_label_dsc_t
     dsc->text_local = 1;
 
     lv_draw_label(layer, dsc, &a);
+    LV_PROFILER_END;
 }
 
-void lv_draw_label_iterate_letters(lv_draw_unit_t *draw_unit, const lv_draw_label_dsc_t *dsc,
-                                   const lv_area_t *coords,
-                                   lv_draw_letter_cb_t cb)
+void lv_draw_label_iterate_characters(lv_draw_unit_t *draw_unit, const lv_draw_label_dsc_t *dsc,
+                                      const lv_area_t *coords,
+                                      lv_draw_glyph_cb_t cb)
 {
     const lv_font_t *font = dsc->font;
     int32_t w;
@@ -244,7 +249,7 @@ void lv_draw_label_iterate_letters(lv_draw_unit_t *draw_unit, const lv_draw_labe
 
     lv_area_t bg_coords;
     lv_draw_glyph_dsc_t draw_letter_dsc;
-    lv_draw_letter_dsc_init(&draw_letter_dsc);
+    lv_draw_glyph_dsc_init(&draw_letter_dsc);
     draw_letter_dsc.opa = dsc->opa;
     draw_letter_dsc.bg_coords = &bg_coords;
     draw_letter_dsc.color = dsc->color;
@@ -364,7 +369,10 @@ void lv_draw_label_iterate_letters(lv_draw_unit_t *draw_unit, const lv_draw_labe
             break;
         }
     }
-    lv_draw_buf_free(draw_letter_dsc._bitmap_buf_unaligned);
+
+    if (draw_letter_dsc._draw_buf) {
+        lv_draw_buf_destroy(draw_letter_dsc._draw_buf);
+    }
 
     LV_ASSERT_MEM_INTEGRITY();
 }
@@ -374,7 +382,7 @@ void lv_draw_label_iterate_letters(lv_draw_unit_t *draw_unit, const lv_draw_labe
  **********************/
 
 static void draw_letter(lv_draw_unit_t *draw_unit, lv_draw_glyph_dsc_t *dsc,  const lv_point_t *pos,
-                        const lv_font_t *font, uint32_t letter, lv_draw_letter_cb_t cb)
+                        const lv_font_t *font, uint32_t letter, lv_draw_glyph_cb_t cb)
 {
     lv_font_glyph_dsc_t g;
 
@@ -408,29 +416,47 @@ static void draw_letter(lv_draw_unit_t *draw_unit, lv_draw_glyph_dsc_t *dsc,  co
         return;
     }
 
-    uint32_t bitmap_size = lv_draw_buf_width_to_stride(g.box_w, LV_COLOR_FORMAT_A8) * g.box_h;
-    bitmap_size = (bitmap_size + 63) &
-                  (~63);   /*Round up to avoid many allocations if the next buffer is just slightly larger*/
-    if (dsc->_bitmap_buf_size < bitmap_size) {
-        lv_draw_buf_free(dsc->_bitmap_buf_unaligned);
-        dsc->_bitmap_buf_unaligned = lv_draw_buf_malloc(bitmap_size, LV_COLOR_FORMAT_A8);
-        LV_ASSERT_MALLOC(dsc->_bitmap_buf_unaligned);
-        dsc->bitmap_buf = lv_draw_buf_align(dsc->_bitmap_buf_unaligned, LV_COLOR_FORMAT_A8);
-        dsc->_bitmap_buf_size = bitmap_size;
-    }
-
     if (g.resolved_font) {
-        dsc->bitmap = lv_font_get_glyph_bitmap(g.resolved_font, letter, dsc->bitmap_buf);
+        lv_draw_buf_t *draw_buf = NULL;
+        if (g.bpp < LV_IMGFONT_BPP) {
+            /*Only check draw buf for bitmap glyph*/
+            draw_buf = lv_draw_buf_reshape(dsc->_draw_buf, 0, g.box_w, g.box_h, LV_STRIDE_AUTO);
+            if (draw_buf == NULL) {
+                if (dsc->_draw_buf) {
+                    lv_draw_buf_destroy(dsc->_draw_buf);
+                }
+
+                uint32_t h = g.box_h;
+                if (h * g.box_w < 64) {
+                    h *= 2;    /*Alloc a slightly larger buffer*/
+                }
+                draw_buf = lv_draw_buf_create(g.box_w, h, LV_COLOR_FORMAT_A8, LV_STRIDE_AUTO);
+                LV_ASSERT_MALLOC(draw_buf);
+                draw_buf->header.h = g.box_h;
+                dsc->_draw_buf = draw_buf;
+            }
+        }
+
+        dsc->glyph_data = (void *)lv_font_get_glyph_bitmap(&g, letter, draw_buf);
+        if (dsc->glyph_data == NULL) {
+            dsc->format = LV_DRAW_LETTER_BITMAP_FORMAT_INVALID;
+        } else if (g.bpp == LV_IMGFONT_BPP) {
+            dsc->format = LV_DRAW_LETTER_BITMAP_FORMAT_IMAGE;
+        } else if (g.bpp == LV_VECFONT_BPP) {
+            dsc->format = LV_DRAW_LETTER_VECTOR_FORMAT;
+        } else {
+            dsc->format = LV_DRAW_LETTER_BITMAP_FORMAT_A8;
+        }
     } else {
-        dsc->bitmap = NULL;
-    }
-    dsc->letter_coords = &letter_coords;
-    if (g.bpp == LV_IMGFONT_BPP) {
-        dsc->format = LV_DRAW_LETTER_BITMAP_FORMAT_IMAGE;
-    } else {
-        dsc->format = LV_DRAW_LETTER_BITMAP_FORMAT_A8;
+        dsc->format = LV_DRAW_LETTER_BITMAP_FORMAT_INVALID;
     }
 
+    dsc->letter_coords = &letter_coords;
+    dsc->g = &g;
     cb(draw_unit, dsc, NULL, NULL);
+
+    if (g.resolved_font && font->release_glyph) {
+        font->release_glyph(font, &g);
+    }
     LV_PROFILER_END;
 }

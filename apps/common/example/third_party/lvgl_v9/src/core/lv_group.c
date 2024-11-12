@@ -610,4 +610,3 @@ static lv_indev_t *get_indev(const lv_group_t *g)
 
     return indev_guess;
 }
-

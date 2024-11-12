@@ -326,7 +326,7 @@ VM_LEN=32K;
 #if CONFIG_DOUBLE_BANK_ENABLE
 VM_OPT=0;
 #else
-VM_OPT=1;//单备份升级VM在升级时候默认VM不需要擦除,选择擦除会在ota_loader第二阶段擦除比较长，而且可能会造成VM丢失
+VM_OPT=0;//单备份升级VM在升级时候默认VM不需要擦除,选择擦除会在ota_loader第二阶段擦除比较长，而且可能会造成VM丢失
 #endif
 
 BTIF_ADR=AUTO; [设置资源]
@@ -401,36 +401,31 @@ TUYA_LEN=0x1000;
 TUYA_OPT=1;
 #endif
 
-/***************资源文件打包 请阅读以下信息******************************/
-//packers文件夹下会生成AUPACKRES,UIPACKRES这两个包是资源文件打包好的包需要
-//根据实际大小填写AUPACKRES_ADR,AUPACKRES_LEN,
-//AUPACKRES_ADR 配置 AUTO 第一次下载后会下载不进 需要根据FLASH INFO打印的实际地址填写
-//例如AUPACKRES 378KB = 0x5e800 实际填大小可以填大一些 AUPACKRES_LEN = 0x5f000
-//AUPACKRES_OPT为下载是否需要擦除
-#if defined CONFIG_AUDIO_ENABLE && defined CONFIG_VOICE_PROMPT_FILE_SAVE_IN_RESERVED_EXPAND_ZONE
-AUPACKRES_FILE=packres/AUPACKRES; [烧录后不可升级的资源]
-AUPACKRES_ADR=AUTO; [请根据编译后FLASH INFO打印的实际地址填写,比如0x59b000]
-AUPACKRES_LEN=AUTO; [更新提示音资源打包后必须更新此实际长度,比如0x141000]
-AUPACKRES_OPT=1;
-#endif
-
-#if defined CONFIG_UI_ENABLE && defined CONFIG_UI_FILE_SAVE_IN_RESERVED_EXPAND_ZONE
-UIPACKRES_FILE=packres/UIPACKRES; [烧录后不可升级的资源]
-UIPACKRES_ADR=AUTO; [请根据编译后FLASH INFO打印的实际地址填写,比如0x6dc000]
-UIPACKRES_LEN=AUTO; [更新UI资源打包后必须更新此实际长度,比如0x123000]
-UIPACKRES_OPT=1;
-#endif
-
-/* fixed.mp3_FILE=fixed_res/fixed.mp3; [烧录后不可升级的资源] */
-/* fixed.mp3_ADR=AUTO; */
-/* fixed.mp3_LEN=0x4000; */
-/* fixed.mp3_OPT=1; */
-
 #if defined TCFG_EXTFLASH_ENABLE
 //截取flash的一段空间作为extflash设备
 EXTFLASH_ADR=AUTO;
 EXTFLASH_LEN=0x400000;
 EXTFLASH_OPT=1;
+#endif
+
+/***************资源文件打包 请阅读以下信息******************************/
+//packers文件夹下会生成AUPACKRES,UIPACKRES这两个包是资源文件打包好的包需要
+//根据实际大小填写AUPACKRES_ADR,AUPACKRES_LEN,
+//工程中默认根据flash大小,在app_config.h中配置了资源的地址和长度，
+//资源起始地址和大小, 根据产品生命周期最大情况定义,
+//audio和ui资源需要放到最后, 新增的预留区配置请在前面添加
+#if defined CONFIG_AUDIO_ENABLE && defined CONFIG_VOICE_PROMPT_FILE_SAVE_IN_RESERVED_EXPAND_ZONE
+AUPACKRES_FILE=packres/AUPACKRES;
+AUPACKRES_ADR=CONFIG_AUDIO_PACKRES_ADR;
+AUPACKRES_LEN=CONFIG_AUDIO_PACKRES_LEN;
+AUPACKRES_OPT=1;
+#endif
+
+#if defined CONFIG_UI_ENABLE && defined CONFIG_UI_FILE_SAVE_IN_RESERVED_EXPAND_ZONE
+UIPACKRES_FILE=packres/UIPACKRES;
+UIPACKRES_ADR=CONFIG_UI_PACKRES_ADR;
+UIPACKRES_LEN=CONFIG_UI_PACKRES_LEN;
+UIPACKRES_OPT=1;
 #endif
 
 [BURNER_CONFIG]

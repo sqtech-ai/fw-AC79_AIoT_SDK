@@ -47,7 +47,7 @@ static void disp_flush(lv_display_t *disp, const lv_area_t *area, uint8_t *px_ma
 /**********************
  *      MACROS
  **********************/
-#define THREE_FB_ACCELERATION  //利用双核双线程+3FB加速 ,某些场景能够提升1-2帧
+/* #define THREE_FB_ACCELERATION  //利用双核双线程+3FB加速 ,某些场景能够提升1-2帧  */
 
 #ifdef THREE_FB_ACCELERATION
 #include "os/os_api.h"
@@ -109,7 +109,7 @@ void lv_port_disp_init(void)
     /* Example 1
      * One buffer for partial rendering*/
     static LV_PIXEL_COLOR_T buf_1_1[MY_DISP_HOR_RES * 10];                          /*A buffer for 10 rows*/
-    lv_display_set_draw_buffers(disp, buf_1_1, NULL, sizeof(buf_1_1), LV_DISPLAY_RENDER_MODE_PARTIAL);
+    lv_display_set_buffers(disp, buf_1_1, NULL, sizeof(buf_1_1), LV_DISPLAY_RENDER_MODE_PARTIAL);
 #endif
 #if 0
     /* Example 2
@@ -117,7 +117,7 @@ void lv_port_disp_init(void)
      * In flush_cb DMA or similar hardware should be used to update the display in the background.*/
     static LV_PIXEL_COLOR_T buf_2_1[MY_DISP_HOR_RES * 10];
     static LV_PIXEL_COLOR_T buf_2_2[MY_DISP_HOR_RES * 10];
-    lv_display_set_draw_buffers(disp, buf_2_1, buf_2_2, sizeof(buf_2_1), LV_DISPLAY_RENDER_MODE_PARTIAL);
+    lv_display_set_buffers(disp, buf_2_1, buf_2_2, sizeof(buf_2_1), LV_DISPLAY_RENDER_MODE_PARTIAL);
 #endif
 
     /* Example 3
@@ -127,10 +127,10 @@ void lv_port_disp_init(void)
     static LV_PIXEL_COLOR_T buf_3_2[MY_DISP_HOR_RES * MY_DISP_VER_RES] __attribute__((aligned(32)));            /*Another screen sized buffer*/
 
 #ifdef THREE_FB_ACCELERATION
-    lv_display_set_draw_buffers(disp, buf_3_1, buf_3_2, buf_3_3, sizeof(buf_3_1), LV_DISPLAY_RENDER_MODE_PARTIAL);
-    /*lv_display_set_draw_buffers(disp, buf_3_1, buf_3_2, buf_3_3, sizeof(buf_3_1), LV_DISPLAY_RENDER_MODE_FULL);*/
+    lv_display_set_buffers(disp, buf_3_1, buf_3_2, buf_3_3, sizeof(buf_3_1), LV_DISPLAY_RENDER_MODE_FULL);
+    /*lv_display_set_buffers(disp, buf_3_1, buf_3_2, buf_3_3, sizeof(buf_3_1), LV_DISPLAY_RENDER_MODE_PARTIAL);*/
 #else
-    lv_display_set_draw_buffers(disp, buf_3_1, buf_3_2, NULL, sizeof(buf_3_1), LV_DISPLAY_RENDER_MODE_PARTIAL);
+    lv_display_set_buffers(disp, buf_3_1, buf_3_2, NULL, sizeof(buf_3_1), LV_DISPLAY_RENDER_MODE_PARTIAL);
 #endif
 
 #ifdef THREE_FB_ACCELERATION
@@ -159,12 +159,12 @@ static void lv_lcd_draw_trig(const lv_area_t *area)
     /*while (next_disp.fb != NULL) {};*/
     spin_lock(&fb_lock);
     /* 将绘制好的 offline_fb 设置为 next_fb */
-    next_disp.fb = LV_GLOBAL_DEFAULT()->disp_refresh->buf_act;
+    next_disp.fb = LV_GLOBAL_DEFAULT()->disp_refresh->buf_act->data;
     if (LV_GLOBAL_DEFAULT()->disp_refresh->render_mode != LV_DISPLAY_RENDER_MODE_FULL) {
         memcpy((void *)&next_disp.area, area, sizeof(lv_area_t));
     }
     /* 把上一帧的 online_fb 作为下一帧的 offline_fb */
-    LV_GLOBAL_DEFAULT()->disp_refresh->buf_act = next_offline_disp.fb;
+    LV_GLOBAL_DEFAULT()->disp_refresh->buf_act->data = next_offline_disp.fb;
     spin_unlock(&fb_lock);
 
     /*os_sem_set(&mcu_lcd_physics_flush_sem,0);*/

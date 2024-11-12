@@ -57,7 +57,7 @@ static void lvgl_main_task(void *priv)
     lv_demo_benchmark();
     /* lv_example_freetype_1(); */
     /*lv_demo_widgets();*/
-    //lv_example_rlottie_1();//FIXME:有死机问题 void renderer::Layer::render(VPainter *painter, const VRle &inheritMask
+    //lv_example_rlottie_1();
     //lv_example_rlottie_2();
     /* lv_example_btn_1(); */
     /*lv_demo_keypad_encoder();*/

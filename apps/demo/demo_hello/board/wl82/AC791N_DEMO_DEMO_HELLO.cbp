@@ -54,7 +54,6 @@
 <Add option="-DCONFIG_UPDATA_ENABLE" />
 <Add option="-DCONFIG_OTA_UPDATA_ENABLE" />
 <Add option="-DCONFIG_ITEM_FORMAT_VM" />
-<Add option="-DCOREMARK_COMMIT_HASH=\&quot;d5fad6bd094899101a4e5fd53af7298160ced6ab\&quot;" />
 <Add option="-fno-unwind-tables" />
 <Add option="-ffunction-sections" />
 <Add option="-fdata-sections" />
@@ -85,8 +84,6 @@
 <Add directory="../../../../../apps" />
 <Add directory="../../../../../apps/demo/demo_hello/include" />
 <Add directory="../../../../../include_lib/system/os" />
-<Add directory="../../../../../apps/common/example/third_party/BenchMark/coremark" />
-<Add directory="../../../../../apps/common/example/third_party/BenchMark/coremark/posix" />
 </Compiler>
 <Linker>
 <Add option="--plugin-opt=-pi32v2-always-use-itblock=false" />
@@ -158,19 +155,6 @@
 <Unit filename="../../../../../apps/common/config/user_cfg.c"><Option compilerVer="CC"/></Unit>
 <Unit filename="../../../../../apps/common/debug/debug.c"><Option compilerVer="CC"/></Unit>
 <Unit filename="../../../../../apps/common/debug/debug_user.c"><Option compilerVer="CC"/></Unit>
-<Unit filename="../../../../../apps/common/example/third_party/BenchMark/coremark/core_list_join.c"><Option compilerVer="CC"/></Unit>
-<Unit filename="../../../../../apps/common/example/third_party/BenchMark/coremark/core_main.c"><Option compilerVer="CC"/></Unit>
-<Unit filename="../../../../../apps/common/example/third_party/BenchMark/coremark/core_matrix.c"><Option compilerVer="CC"/></Unit>
-<Unit filename="../../../../../apps/common/example/third_party/BenchMark/coremark/core_state.c"><Option compilerVer="CC"/></Unit>
-<Unit filename="../../../../../apps/common/example/third_party/BenchMark/coremark/core_util.c"><Option compilerVer="CC"/></Unit>
-<Unit filename="../../../../../apps/common/example/third_party/BenchMark/coremark/coremark.h" />
-<Unit filename="../../../../../apps/common/example/third_party/BenchMark/coremark/posix/core_portme.c"><Option compilerVer="CC"/></Unit>
-<Unit filename="../../../../../apps/common/example/third_party/BenchMark/coremark/posix/core_portme.h" />
-<Unit filename="../../../../../apps/common/example/third_party/BenchMark/coremark/posix/core_portme_posix_overrides.h" />
-<Unit filename="../../../../../apps/common/example/third_party/BenchMark/dhrystone/dhry.h" />
-<Unit filename="../../../../../apps/common/example/third_party/BenchMark/dhrystone/dhry21a.c"><Option compilerVer="CC"/></Unit>
-<Unit filename="../../../../../apps/common/example/third_party/BenchMark/dhrystone/dhry21b.c"><Option compilerVer="CC"/></Unit>
-<Unit filename="../../../../../apps/common/example/third_party/BenchMark/main.c"><Option compilerVer="CC"/></Unit>
 <Unit filename="../../../../../apps/common/system/init.c"><Option compilerVer="CC"/></Unit>
 <Unit filename="../../../../../apps/common/system/system_reset_reason.c"><Option compilerVer="CC"/></Unit>
 <Unit filename="../../../../../apps/common/system/version.c"><Option compilerVer="CC"/></Unit>
@@ -198,11 +182,8 @@
 <Unit filename="../../../../../include_lib/btstack/version.z.S" />
 <Unit filename="../../../../../include_lib/c++/include/stddef.h" />
 <Unit filename="../../../../../include_lib/c++/include/stdint.h" />
-<Unit filename="../../../../../include_lib/c++/include/stdio.h" />
 <Unit filename="../../../../../include_lib/c++/include/stdlib.h" />
 <Unit filename="../../../../../include_lib/c++/include/string.h" />
-<Unit filename="../../../../../include_lib/c++/simple_pthread/pthread.h" />
-<Unit filename="../../../../../include_lib/c++/simple_pthread/simple_pthread_comm.h" />
 <Unit filename="../../../../../include_lib/driver/cpu/wl82/asm/WL82.h" />
 <Unit filename="../../../../../include_lib/driver/cpu/wl82/asm/adc_api.h" />
 <Unit filename="../../../../../include_lib/driver/cpu/wl82/asm/audio.h" />
@@ -284,15 +265,11 @@
 <Unit filename="../../../../../include_lib/driver/version.z.S" />
 <Unit filename="../../../../../include_lib/media/version.z.S" />
 <Unit filename="../../../../../include_lib/net/version.z.S" />
-<Unit filename="../../../../../include_lib/newlib/include/machine/time.h" />
 <Unit filename="../../../../../include_lib/newlib/include/machine/types.h" />
 <Unit filename="../../../../../include_lib/newlib/include/strings.h" />
 <Unit filename="../../../../../include_lib/newlib/include/sys/_stdint.h" />
-<Unit filename="../../../../../include_lib/newlib/include/sys/_timespec.h" />
-<Unit filename="../../../../../include_lib/newlib/include/sys/timespec.h" />
 <Unit filename="../../../../../include_lib/newlib/include/sys/types.h" />
 <Unit filename="../../../../../include_lib/newlib/include/sys/unistd.h" />
-<Unit filename="../../../../../include_lib/newlib/include/time.h" />
 <Unit filename="../../../../../include_lib/newlib/include/unistd.h" />
 <Unit filename="../../../../../include_lib/server/audio_dev.h" />
 <Unit filename="../../../../../include_lib/server/version.z.S" />

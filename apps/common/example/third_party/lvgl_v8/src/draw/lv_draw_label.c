@@ -374,7 +374,6 @@ void lv_draw_letter(lv_draw_ctx_t *draw_ctx, const lv_draw_label_dsc_t *dsc,  co
     draw_ctx->draw_letter(draw_ctx, dsc, pos_p, letter);
 }
 
-
 /**********************
  *   STATIC FUNCTIONS
  **********************/
@@ -422,4 +421,3 @@ static uint8_t hex_char_to_num(char hex)
 
     return result;
 }
-

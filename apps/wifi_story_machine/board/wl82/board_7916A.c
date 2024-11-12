@@ -454,6 +454,9 @@ static const struct dac_platform_data dac_data = {
     .fade_enable = 1,
     .fade_delay_ms = 10,
 #endif
+#ifdef CONFIG_AEC_USE_PLAY_MUSIC_ENABLE
+    .sr_points = 960,
+#endif
 };
 static const struct adc_platform_data adc_data = {
 #ifdef CONFIG_ALL_ADC_CHANNEL_OPEN_ENABLE

@@ -21,9 +21,9 @@ static void ui_data_handle(u8 *data, u32 size)
 {
     ui_send_data_ready(data, size);
 }
-static void camera_data_handle(u8 *data, u32 size)
+static void camera_data_handle(u8 *data, u32 size, int width, int height)
 {
-    camera_send_data_ready(data, size);
+    camera_send_data_ready(data, size, width, height);
 }
 
 static void send_data_to_lcd(u8 *data, u32 size)//最终通过NO_te线程发送数据
@@ -39,7 +39,7 @@ static void send_data_to_lcd(u8 *data, u32 size)//最终通过NO_te线程发送�
         req_buf = malloc(LCD_RGB888_DATA_SIZE);
         if (req_buf) {
             RGB565_to_RGB888(data, req_buf, LCD_W, LCD_H);
-            camera_data_handle(req_buf, LCD_RGB888_DATA_SIZE);
+            camera_data_handle(req_buf, LCD_RGB888_DATA_SIZE, LCD_W, LCD_H);
             free(req_buf);
         }
     }

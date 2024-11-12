@@ -131,7 +131,6 @@ DEFINES := \
 	-DCONFIG_UPDATA_ENABLE \
 	-DCONFIG_OTA_UPDATA_ENABLE \
 	-DCONFIG_ITEM_FORMAT_VM \
-	-DCOREMARK_COMMIT_HASH=\"d5fad6bd094899101a4e5fd53af7298160ced6ab\" \
 	-D_XOPEN_SOURCE=700 \
 	-D_GNU_SOURCE \
 	-D__ELF__ \
@@ -164,8 +163,6 @@ INCLUDES := \
 	-I../../../../../apps \
 	-I../../../../../apps/demo/demo_hello/include \
 	-I../../../../../include_lib/system/os \
-	-I../../../../../apps/common/example/third_party/BenchMark/coremark \
-	-I../../../../../apps/common/example/third_party/BenchMark/coremark/posix \
 
 
 # 需要编译的 .c 文件
@@ -177,15 +174,6 @@ c_SRC_FILES := \
 	../../../../../apps/common/config/user_cfg.c \
 	../../../../../apps/common/debug/debug.c \
 	../../../../../apps/common/debug/debug_user.c \
-	../../../../../apps/common/example/third_party/BenchMark/coremark/core_list_join.c \
-	../../../../../apps/common/example/third_party/BenchMark/coremark/core_main.c \
-	../../../../../apps/common/example/third_party/BenchMark/coremark/core_matrix.c \
-	../../../../../apps/common/example/third_party/BenchMark/coremark/core_state.c \
-	../../../../../apps/common/example/third_party/BenchMark/coremark/core_util.c \
-	../../../../../apps/common/example/third_party/BenchMark/coremark/posix/core_portme.c \
-	../../../../../apps/common/example/third_party/BenchMark/dhrystone/dhry21a.c \
-	../../../../../apps/common/example/third_party/BenchMark/dhrystone/dhry21b.c \
-	../../../../../apps/common/example/third_party/BenchMark/main.c \
 	../../../../../apps/common/system/init.c \
 	../../../../../apps/common/system/system_reset_reason.c \
 	../../../../../apps/common/system/version.c \

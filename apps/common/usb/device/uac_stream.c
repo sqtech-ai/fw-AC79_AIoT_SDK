@@ -411,6 +411,13 @@ void uac_mic_stream_close(const usb_dev usb_id)
     device_event_notify(DEVICE_EVENT_FROM_UAC, &event);
 }
 
+
+u8 uac_get_mic_stream_status(const usb_dev usb_id)
+{
+    return mic_stream_is_open[usb_id];
+}
+
+
 _WEAK_
 s8 app_audio_get_volume(u8 state)
 {

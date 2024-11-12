@@ -30,8 +30,11 @@ template <typename T>
 class vcow_ptr
 {
     struct model {
-        std::atomic<std::size_t> mRef{1};
-
+#if 0//FIXME:存在内存delete还在使用的死机问题,以及内存泄漏的问题
+        std::atomic<std::size_t> mRef {1};
+#else
+        std::size_t mRef {1};
+#endif
         model() = default;
 
         template <class... Args>

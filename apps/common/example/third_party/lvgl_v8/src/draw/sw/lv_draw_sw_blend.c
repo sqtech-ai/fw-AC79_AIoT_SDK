@@ -30,7 +30,6 @@ static void /* LV_ATTRIBUTE_FAST_MEM */ fill_normal(lv_color_t *dest_buf, const 
         lv_coord_t dest_stride, lv_color_t color, lv_opa_t opa,
         const lv_opa_t *mask, lv_coord_t mask_stride);
 
-
 #if LV_COLOR_SCREEN_TRANSP
 static void /* LV_ATTRIBUTE_FAST_MEM */ fill_argb(lv_color_t *dest_buf, const lv_area_t *dest_area,
         lv_coord_t dest_stride, lv_color_t color, lv_opa_t opa,
@@ -88,7 +87,6 @@ static inline lv_color_t color_blend_true_color_multiply(lv_color_t fg, lv_color
         else dest_buf[x] = lv_color_mix(src_buf[x], dest_buf[x], *mask_tmp_x);            \
     }                                                                                               \
     mask_tmp_x++;
-
 
 /**********************
  *   GLOBAL FUNCTIONS
@@ -178,7 +176,6 @@ void LV_ATTRIBUTE_FAST_MEM lv_draw_sw_blend_basic(lv_draw_ctx_t *draw_ctx,
 
     lv_area_move(&blend_area, -draw_ctx->buf_area->x1, -draw_ctx->buf_area->y1);
 
-
     if (disp->driver->set_px_cb) {
         if (dsc->src_buf == NULL) {
             fill_set_px(dest_buf, &blend_area, dest_stride, dsc->color, dsc->opa, mask, mask_stride);
@@ -212,7 +209,6 @@ void LV_ATTRIBUTE_FAST_MEM lv_draw_sw_blend_basic(lv_draw_ctx_t *draw_ctx,
     }
 }
 
-
 /**********************
  *   STATIC FUNCTIONS
  **********************/
@@ -238,7 +234,6 @@ static void fill_set_px(lv_color_t *dest_buf, const lv_area_t *blend_area, lv_co
         for (y = 0; y < h; y++) {
             for (x = 0; x < w; x++) {
                 if (mask[x]) {
-
 
                     disp->driver->set_px_cb(disp->driver, (void *)dest_buf, dest_stride, blend_area->x1 + x, blend_area->y1 + y, color,
                                             (uint32_t)((uint32_t)opa * mask[x]) >> 8);
@@ -754,8 +749,6 @@ static void LV_ATTRIBUTE_FAST_MEM map_normal(lv_color_t *dest_buf, const lv_area
     }
 }
 
-
-
 #if LV_COLOR_SCREEN_TRANSP
 static void LV_ATTRIBUTE_FAST_MEM map_argb(lv_color_t *dest_buf, const lv_area_t *dest_area,
         lv_coord_t dest_stride, const lv_color_t *src_buf,
@@ -891,7 +884,6 @@ static void LV_ATTRIBUTE_FAST_MEM map_argb(lv_color_t *dest_buf, const lv_area_t
     }
 }
 #endif
-
 
 #if LV_DRAW_COMPLEX
 static void map_blended(lv_color_t *dest_buf, const lv_area_t *dest_area, lv_coord_t dest_stride,
@@ -1083,4 +1075,3 @@ static inline lv_color_t color_blend_true_color_multiply(lv_color_t fg, lv_color
 }
 
 #endif
-

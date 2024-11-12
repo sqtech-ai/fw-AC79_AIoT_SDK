@@ -150,8 +150,8 @@ DEFINES := \
 	-DFINSH_USING_MSH_DEFAULT \
 	-DFREETYPE_COMMIT_HASH=\"45903920b984540bb629bc89f4c010159c23a89a\" \
 	-DFT2_BUILD_LIBRARY \
-	-DRLOTTIE_COMMIT_HASH=\"056c0a1bc14bcee6f6b1a821013872a1228b0fa9\" \
-	-DLVGL_COMMIT_HASH=\"master_492721c99fd63c8a2c6467e257d20fd3e730d6b9\" \
+	-DRLOTTIE_COMMIT_HASH=\"492fbb753924ae7cad27072a2b6ddedde88dc4bd\" \
+	-DLVGL_COMMIT_HASH=\"release_v9.0_51b8d8e4ea7ed4cb7a4ad295234740b81fc46e6b\" \
 	-D_XOPEN_SOURCE=700 \
 	-D_GNU_SOURCE \
 	-D__ELF__ \
@@ -666,12 +666,12 @@ c_SRC_FILES := \
 	../../../../../apps/common/example/third_party/lvgl_v9/examples/widgets/bar/lv_example_bar_5.c \
 	../../../../../apps/common/example/third_party/lvgl_v9/examples/widgets/bar/lv_example_bar_6.c \
 	../../../../../apps/common/example/third_party/lvgl_v9/examples/widgets/bar/lv_example_bar_7.c \
-	../../../../../apps/common/example/third_party/lvgl_v9/examples/widgets/btn/lv_example_btn_1.c \
-	../../../../../apps/common/example/third_party/lvgl_v9/examples/widgets/btn/lv_example_btn_2.c \
-	../../../../../apps/common/example/third_party/lvgl_v9/examples/widgets/btn/lv_example_btn_3.c \
-	../../../../../apps/common/example/third_party/lvgl_v9/examples/widgets/btnmatrix/lv_example_btnmatrix_1.c \
-	../../../../../apps/common/example/third_party/lvgl_v9/examples/widgets/btnmatrix/lv_example_btnmatrix_2.c \
-	../../../../../apps/common/example/third_party/lvgl_v9/examples/widgets/btnmatrix/lv_example_btnmatrix_3.c \
+	../../../../../apps/common/example/third_party/lvgl_v9/examples/widgets/button/lv_example_button_1.c \
+	../../../../../apps/common/example/third_party/lvgl_v9/examples/widgets/button/lv_example_button_2.c \
+	../../../../../apps/common/example/third_party/lvgl_v9/examples/widgets/button/lv_example_button_3.c \
+	../../../../../apps/common/example/third_party/lvgl_v9/examples/widgets/buttonmatrix/lv_example_buttonmatrix_1.c \
+	../../../../../apps/common/example/third_party/lvgl_v9/examples/widgets/buttonmatrix/lv_example_buttonmatrix_2.c \
+	../../../../../apps/common/example/third_party/lvgl_v9/examples/widgets/buttonmatrix/lv_example_buttonmatrix_3.c \
 	../../../../../apps/common/example/third_party/lvgl_v9/examples/widgets/calendar/lv_example_calendar_1.c \
 	../../../../../apps/common/example/third_party/lvgl_v9/examples/widgets/canvas/lv_example_canvas_1.c \
 	../../../../../apps/common/example/third_party/lvgl_v9/examples/widgets/canvas/lv_example_canvas_2.c \
@@ -694,11 +694,11 @@ c_SRC_FILES := \
 	../../../../../apps/common/example/third_party/lvgl_v9/examples/widgets/dropdown/lv_example_dropdown_1.c \
 	../../../../../apps/common/example/third_party/lvgl_v9/examples/widgets/dropdown/lv_example_dropdown_2.c \
 	../../../../../apps/common/example/third_party/lvgl_v9/examples/widgets/dropdown/lv_example_dropdown_3.c \
-	../../../../../apps/common/example/third_party/lvgl_v9/examples/widgets/img/lv_example_img_1.c \
-	../../../../../apps/common/example/third_party/lvgl_v9/examples/widgets/img/lv_example_img_2.c \
-	../../../../../apps/common/example/third_party/lvgl_v9/examples/widgets/img/lv_example_img_3.c \
-	../../../../../apps/common/example/third_party/lvgl_v9/examples/widgets/img/lv_example_img_4.c \
-	../../../../../apps/common/example/third_party/lvgl_v9/examples/widgets/imgbtn/lv_example_imgbtn_1.c \
+	../../../../../apps/common/example/third_party/lvgl_v9/examples/widgets/image/lv_example_image_1.c \
+	../../../../../apps/common/example/third_party/lvgl_v9/examples/widgets/image/lv_example_image_2.c \
+	../../../../../apps/common/example/third_party/lvgl_v9/examples/widgets/image/lv_example_image_3.c \
+	../../../../../apps/common/example/third_party/lvgl_v9/examples/widgets/image/lv_example_image_4.c \
+	../../../../../apps/common/example/third_party/lvgl_v9/examples/widgets/imagebutton/lv_example_imagebutton_1.c \
 	../../../../../apps/common/example/third_party/lvgl_v9/examples/widgets/keyboard/lv_example_keyboard_1.c \
 	../../../../../apps/common/example/third_party/lvgl_v9/examples/widgets/keyboard/lv_example_keyboard_2.c \
 	../../../../../apps/common/example/third_party/lvgl_v9/examples/widgets/label/lv_example_label_1.c \
@@ -757,20 +757,6 @@ c_SRC_FILES := \
 	../../../../../apps/common/example/third_party/lvgl_v9/src/core/lv_obj_style_gen.c \
 	../../../../../apps/common/example/third_party/lvgl_v9/src/core/lv_obj_tree.c \
 	../../../../../apps/common/example/third_party/lvgl_v9/src/core/lv_refr.c \
-	../../../../../apps/common/example/third_party/lvgl_v9/src/dev/display/drm/lv_linux_drm.c \
-	../../../../../apps/common/example/third_party/lvgl_v9/src/dev/display/fb/lv_linux_fbdev.c \
-	../../../../../apps/common/example/third_party/lvgl_v9/src/dev/evdev/lv_evdev.c \
-	../../../../../apps/common/example/third_party/lvgl_v9/src/dev/nuttx/lv_nuttx_entry.c \
-	../../../../../apps/common/example/third_party/lvgl_v9/src/dev/nuttx/lv_nuttx_fbdev.c \
-	../../../../../apps/common/example/third_party/lvgl_v9/src/dev/nuttx/lv_nuttx_lcd.c \
-	../../../../../apps/common/example/third_party/lvgl_v9/src/dev/nuttx/lv_nuttx_libuv.c \
-	../../../../../apps/common/example/third_party/lvgl_v9/src/dev/nuttx/lv_nuttx_touchscreen.c \
-	../../../../../apps/common/example/third_party/lvgl_v9/src/dev/sdl/lv_sdl_keyboard.c \
-	../../../../../apps/common/example/third_party/lvgl_v9/src/dev/sdl/lv_sdl_mouse.c \
-	../../../../../apps/common/example/third_party/lvgl_v9/src/dev/sdl/lv_sdl_mousewheel.c \
-	../../../../../apps/common/example/third_party/lvgl_v9/src/dev/sdl/lv_sdl_window.c \
-	../../../../../apps/common/example/third_party/lvgl_v9/src/dev/x11/lv_x11_display.c \
-	../../../../../apps/common/example/third_party/lvgl_v9/src/dev/x11/lv_x11_input.c \
 	../../../../../apps/common/example/third_party/lvgl_v9/src/display/lv_display.c \
 	../../../../../apps/common/example/third_party/lvgl_v9/src/draw/lv_draw.c \
 	../../../../../apps/common/example/third_party/lvgl_v9/src/draw/lv_draw_arc.c \
@@ -784,37 +770,12 @@ c_SRC_FILES := \
 	../../../../../apps/common/example/third_party/lvgl_v9/src/draw/lv_draw_vector.c \
 	../../../../../apps/common/example/third_party/lvgl_v9/src/draw/lv_image_buf.c \
 	../../../../../apps/common/example/third_party/lvgl_v9/src/draw/lv_image_decoder.c \
-	../../../../../apps/common/example/third_party/lvgl_v9/src/draw/nxp/pxp/lv_draw_buf_pxp.c \
-	../../../../../apps/common/example/third_party/lvgl_v9/src/draw/nxp/pxp/lv_draw_pxp.c \
-	../../../../../apps/common/example/third_party/lvgl_v9/src/draw/nxp/pxp/lv_draw_pxp_bg_img.c \
-	../../../../../apps/common/example/third_party/lvgl_v9/src/draw/nxp/pxp/lv_draw_pxp_fill.c \
-	../../../../../apps/common/example/third_party/lvgl_v9/src/draw/nxp/pxp/lv_draw_pxp_img.c \
-	../../../../../apps/common/example/third_party/lvgl_v9/src/draw/nxp/pxp/lv_draw_pxp_layer.c \
-	../../../../../apps/common/example/third_party/lvgl_v9/src/draw/nxp/pxp/lv_pxp_cfg.c \
-	../../../../../apps/common/example/third_party/lvgl_v9/src/draw/nxp/pxp/lv_pxp_osa.c \
-	../../../../../apps/common/example/third_party/lvgl_v9/src/draw/nxp/pxp/lv_pxp_utils.c \
-	../../../../../apps/common/example/third_party/lvgl_v9/src/draw/nxp/vglite/lv_draw_buf_vglite.c \
-	../../../../../apps/common/example/third_party/lvgl_v9/src/draw/nxp/vglite/lv_draw_vglite.c \
-	../../../../../apps/common/example/third_party/lvgl_v9/src/draw/nxp/vglite/lv_draw_vglite_arc.c \
-	../../../../../apps/common/example/third_party/lvgl_v9/src/draw/nxp/vglite/lv_draw_vglite_bg_img.c \
-	../../../../../apps/common/example/third_party/lvgl_v9/src/draw/nxp/vglite/lv_draw_vglite_border.c \
-	../../../../../apps/common/example/third_party/lvgl_v9/src/draw/nxp/vglite/lv_draw_vglite_fill.c \
-	../../../../../apps/common/example/third_party/lvgl_v9/src/draw/nxp/vglite/lv_draw_vglite_img.c \
-	../../../../../apps/common/example/third_party/lvgl_v9/src/draw/nxp/vglite/lv_draw_vglite_label.c \
-	../../../../../apps/common/example/third_party/lvgl_v9/src/draw/nxp/vglite/lv_draw_vglite_layer.c \
-	../../../../../apps/common/example/third_party/lvgl_v9/src/draw/nxp/vglite/lv_draw_vglite_line.c \
-	../../../../../apps/common/example/third_party/lvgl_v9/src/draw/nxp/vglite/lv_vglite_buf.c \
-	../../../../../apps/common/example/third_party/lvgl_v9/src/draw/nxp/vglite/lv_vglite_matrix.c \
-	../../../../../apps/common/example/third_party/lvgl_v9/src/draw/nxp/vglite/lv_vglite_path.c \
-	../../../../../apps/common/example/third_party/lvgl_v9/src/draw/nxp/vglite/lv_vglite_utils.c \
-	../../../../../apps/common/example/third_party/lvgl_v9/src/draw/sdl/lv_draw_sdl.c \
 	../../../../../apps/common/example/third_party/lvgl_v9/src/draw/sw/blend/lv_draw_sw_blend.c \
 	../../../../../apps/common/example/third_party/lvgl_v9/src/draw/sw/blend/lv_draw_sw_blend_to_argb8888.c \
 	../../../../../apps/common/example/third_party/lvgl_v9/src/draw/sw/blend/lv_draw_sw_blend_to_rgb565.c \
 	../../../../../apps/common/example/third_party/lvgl_v9/src/draw/sw/blend/lv_draw_sw_blend_to_rgb888.c \
 	../../../../../apps/common/example/third_party/lvgl_v9/src/draw/sw/lv_draw_sw.c \
 	../../../../../apps/common/example/third_party/lvgl_v9/src/draw/sw/lv_draw_sw_arc.c \
-	../../../../../apps/common/example/third_party/lvgl_v9/src/draw/sw/lv_draw_sw_bg_img.c \
 	../../../../../apps/common/example/third_party/lvgl_v9/src/draw/sw/lv_draw_sw_border.c \
 	../../../../../apps/common/example/third_party/lvgl_v9/src/draw/sw/lv_draw_sw_box_shadow.c \
 	../../../../../apps/common/example/third_party/lvgl_v9/src/draw/sw/lv_draw_sw_fill.c \
@@ -827,6 +788,7 @@ c_SRC_FILES := \
 	../../../../../apps/common/example/third_party/lvgl_v9/src/draw/sw/lv_draw_sw_transform.c \
 	../../../../../apps/common/example/third_party/lvgl_v9/src/draw/sw/lv_draw_sw_triangle.c \
 	../../../../../apps/common/example/third_party/lvgl_v9/src/draw/sw/lv_draw_sw_vector.c \
+	../../../../../apps/common/example/third_party/lvgl_v9/src/drivers/evdev/lv_evdev.c \
 	../../../../../apps/common/example/third_party/lvgl_v9/src/font/lv_binfont_loader.c \
 	../../../../../apps/common/example/third_party/lvgl_v9/src/font/lv_font.c \
 	../../../../../apps/common/example/third_party/lvgl_v9/src/font/lv_font_dejavu_16_persian_hebrew.c \
@@ -867,9 +829,9 @@ c_SRC_FILES := \
 	../../../../../apps/common/example/third_party/lvgl_v9/src/libs/bmp/lv_bmp.c \
 	../../../../../apps/common/example/third_party/lvgl_v9/src/libs/ffmpeg/lv_ffmpeg.c \
 	../../../../../apps/common/example/third_party/lvgl_v9/src/libs/freetype/lv_freetype.c \
+	../../../../../apps/common/example/third_party/lvgl_v9/src/libs/freetype/lv_freetype_glyph.c \
 	../../../../../apps/common/example/third_party/lvgl_v9/src/libs/freetype/lv_freetype_image.c \
 	../../../../../apps/common/example/third_party/lvgl_v9/src/libs/freetype/lv_freetype_outline.c \
-	../../../../../apps/common/example/third_party/lvgl_v9/src/libs/freetype/lv_freetype_sbit.c \
 	../../../../../apps/common/example/third_party/lvgl_v9/src/libs/freetype/lv_ftsystem.c \
 	../../../../../apps/common/example/third_party/lvgl_v9/src/libs/fsdrv/lv_fs_cbfs.c \
 	../../../../../apps/common/example/third_party/lvgl_v9/src/libs/fsdrv/lv_fs_fatfs.c \
@@ -893,14 +855,16 @@ c_SRC_FILES := \
 	../../../../../apps/common/example/third_party/lvgl_v9/src/libs/tjpgd/lv_tjpgd.c \
 	../../../../../apps/common/example/third_party/lvgl_v9/src/libs/tjpgd/tjpgd.c \
 	../../../../../apps/common/example/third_party/lvgl_v9/src/lv_init.c \
+	../../../../../apps/common/example/third_party/lvgl_v9/src/misc/cache/_lv_cache_lru_rb.c \
+	../../../../../apps/common/example/third_party/lvgl_v9/src/misc/cache/lv_cache.c \
+	../../../../../apps/common/example/third_party/lvgl_v9/src/misc/cache/lv_cache_entry.c \
+	../../../../../apps/common/example/third_party/lvgl_v9/src/misc/cache/lv_image_cache.c \
 	../../../../../apps/common/example/third_party/lvgl_v9/src/misc/lv_anim.c \
 	../../../../../apps/common/example/third_party/lvgl_v9/src/misc/lv_anim_timeline.c \
 	../../../../../apps/common/example/third_party/lvgl_v9/src/misc/lv_area.c \
 	../../../../../apps/common/example/third_party/lvgl_v9/src/misc/lv_array.c \
 	../../../../../apps/common/example/third_party/lvgl_v9/src/misc/lv_async.c \
 	../../../../../apps/common/example/third_party/lvgl_v9/src/misc/lv_bidi.c \
-	../../../../../apps/common/example/third_party/lvgl_v9/src/misc/lv_cache.c \
-	../../../../../apps/common/example/third_party/lvgl_v9/src/misc/lv_cache_builtin.c \
 	../../../../../apps/common/example/third_party/lvgl_v9/src/misc/lv_color.c \
 	../../../../../apps/common/example/third_party/lvgl_v9/src/misc/lv_color_op.c \
 	../../../../../apps/common/example/third_party/lvgl_v9/src/misc/lv_event.c \
@@ -908,7 +872,6 @@ c_SRC_FILES := \
 	../../../../../apps/common/example/third_party/lvgl_v9/src/misc/lv_ll.c \
 	../../../../../apps/common/example/third_party/lvgl_v9/src/misc/lv_log.c \
 	../../../../../apps/common/example/third_party/lvgl_v9/src/misc/lv_lru.c \
-	../../../../../apps/common/example/third_party/lvgl_v9/src/misc/lv_lru_rb.c \
 	../../../../../apps/common/example/third_party/lvgl_v9/src/misc/lv_math.c \
 	../../../../../apps/common/example/third_party/lvgl_v9/src/misc/lv_palette.c \
 	../../../../../apps/common/example/third_party/lvgl_v9/src/misc/lv_profiler_builtin.c \
@@ -931,6 +894,7 @@ c_SRC_FILES := \
 	../../../../../apps/common/example/third_party/lvgl_v9/src/others/observer/lv_observer.c \
 	../../../../../apps/common/example/third_party/lvgl_v9/src/others/snapshot/lv_snapshot.c \
 	../../../../../apps/common/example/third_party/lvgl_v9/src/others/sysmon/lv_sysmon.c \
+	../../../../../apps/common/example/third_party/lvgl_v9/src/others/vg_lite_tvg/vg_lite_matrix.c \
 	../../../../../apps/common/example/third_party/lvgl_v9/src/stdlib/builtin/lv_mem_core_builtin.c \
 	../../../../../apps/common/example/third_party/lvgl_v9/src/stdlib/builtin/lv_sprintf_builtin.c \
 	../../../../../apps/common/example/third_party/lvgl_v9/src/stdlib/builtin/lv_string_builtin.c \
@@ -943,10 +907,10 @@ c_SRC_FILES := \
 	../../../../../apps/common/example/third_party/lvgl_v9/src/stdlib/rtthread/lv_mem_core_rtthread.c \
 	../../../../../apps/common/example/third_party/lvgl_v9/src/stdlib/rtthread/lv_sprintf_rtthread.c \
 	../../../../../apps/common/example/third_party/lvgl_v9/src/stdlib/rtthread/lv_string_rtthread.c \
-	../../../../../apps/common/example/third_party/lvgl_v9/src/themes/basic/lv_theme_basic.c \
 	../../../../../apps/common/example/third_party/lvgl_v9/src/themes/default/lv_theme_default.c \
 	../../../../../apps/common/example/third_party/lvgl_v9/src/themes/lv_theme.c \
 	../../../../../apps/common/example/third_party/lvgl_v9/src/themes/mono/lv_theme_mono.c \
+	../../../../../apps/common/example/third_party/lvgl_v9/src/themes/simple/lv_theme_simple.c \
 	../../../../../apps/common/example/third_party/lvgl_v9/src/tick/lv_tick.c \
 	../../../../../apps/common/example/third_party/lvgl_v9/src/widgets/animimage/lv_animimage.c \
 	../../../../../apps/common/example/third_party/lvgl_v9/src/widgets/arc/lv_arc.c \
@@ -961,7 +925,7 @@ c_SRC_FILES := \
 	../../../../../apps/common/example/third_party/lvgl_v9/src/widgets/checkbox/lv_checkbox.c \
 	../../../../../apps/common/example/third_party/lvgl_v9/src/widgets/dropdown/lv_dropdown.c \
 	../../../../../apps/common/example/third_party/lvgl_v9/src/widgets/image/lv_image.c \
-	../../../../../apps/common/example/third_party/lvgl_v9/src/widgets/imgbtn/lv_imgbtn.c \
+	../../../../../apps/common/example/third_party/lvgl_v9/src/widgets/imagebutton/lv_imagebutton.c \
 	../../../../../apps/common/example/third_party/lvgl_v9/src/widgets/keyboard/lv_keyboard.c \
 	../../../../../apps/common/example/third_party/lvgl_v9/src/widgets/label/lv_label.c \
 	../../../../../apps/common/example/third_party/lvgl_v9/src/widgets/led/lv_led.c \
@@ -989,6 +953,7 @@ c_SRC_FILES := \
 	../../../../../apps/common/example/update/http_upgrade/example2/main.c \
 	../../../../../apps/common/example/update/sd_udisk_upgrade/main.c \
 	../../../../../apps/common/example/video/camera/dvp/main.c \
+	../../../../../apps/common/example/video/camera/spi/main.c \
 	../../../../../apps/common/example/video/image/avi/main.c \
 	../../../../../apps/common/example/video/image/enc_qr_code/main.c \
 	../../../../../apps/common/example/video/image/gif/main.c \
@@ -1066,6 +1031,7 @@ c_SRC_FILES := \
 	../../../../../apps/common/usb/device/ram_disk_update.c \
 	../../../../../apps/common/usb/device/task_pc.c \
 	../../../../../apps/common/usb/device/uac.c \
+	../../../../../apps/common/usb/device/uac2.c \
 	../../../../../apps/common/usb/device/uac_stream.c \
 	../../../../../apps/common/usb/device/usb_device.c \
 	../../../../../apps/common/usb/device/user_setup.c \
