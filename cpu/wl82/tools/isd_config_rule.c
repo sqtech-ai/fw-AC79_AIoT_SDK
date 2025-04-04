@@ -208,7 +208,7 @@ ENABLE_SDRAM=1; [使能SDRAM]
 //###SDRAM配置====================================================================
 SDRAM_TEST_SIZE=4K; 	[SDRAM校验测试大小，默认4K(2M:2048K, 8M:8192K)]
 #ifdef CONFIG_RELEASE_ENABLE
-SDRAM_CONFIG_VAL=-1;	[SDRAM在系统第二次以后启动，配置信息使用flash中的值，默认-1使能，0则不使能]
+SDRAM_CONFIG_VAL=0;	[SDRAM在系统第二次以后启动，配置信息使用flash中的值，默认-1使能，0则不使能]
 #else
 SDRAM_CONFIG_VAL=0;	[SDRAM在系统第二次以后启动，配置信息使用flash中的值，默认-1使能，0则不使能]
 #endif

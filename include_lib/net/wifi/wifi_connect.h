@@ -599,5 +599,16 @@ extern void wifi_backoff_cfg(u8 cwmax);
  */
 extern u32 wifi_get_tbtt(void);
 
+/**
+ * @brief 设置edca参数，在dhcp成功后调用以确保覆盖之前配置
+ * @param ac_type 0:AC_BE, 1:AC_BK, 2:AC_VI, 3:AC_VO
+ * @param txop_limit 取值范围0~255 ,单位：32us
+ * @param cwmin 取值范围0~15
+ * @param cwmax 取值范围0~15
+ * @param aifsn 取值范围0~15
+ *
+ */
+void wifi_edca_parm_set(u8 ac_type, u8 txop_limit, u8 cwmin, u8 cwmax, u8 aifsn);
+
 #endif  //_WIFI_CONNECT_H_
 

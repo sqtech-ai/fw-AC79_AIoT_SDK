@@ -332,6 +332,18 @@ void local_irq_enable(void)
     __local_irq_enable();
 }
 
+__attribute__((used))
+void __rt_local_irq_disable(void)
+{
+    local_irq_disable();
+}
+
+__attribute__((used))
+void __rt_local_irq_enable(void)
+{
+    local_irq_enable();
+}
+
 #else
 
 __attribute__((always_inline))
