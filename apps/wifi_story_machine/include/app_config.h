@@ -225,7 +225,7 @@
 // #define CONFIG_SCAN_PEN_ENABLE               //扫描笔图像拼接
 // #define CONFIG_HTTP_SERVER_ENABLE            //HTTP服务器
 // #define CONFIG_FTP_SERVER_ENABLE             //FTP服务器
-
+// #define CONFIG_VOLC_LLM_ENABLE               //火山大模型
 
 /*************电信云平台配网方式选择*************/
 #ifdef CONFIG_TELECOM_SDK_ENABLE

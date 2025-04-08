@@ -9,23 +9,18 @@
 
 #ifdef CONFIG_VIDEO_ENABLE
 
-static void *iic = NULL;
-static u8 BYD30A2_reset_io[2] = {-1, -1};
-static u8 BYD30A2_power_io[2] = {-1, -1};
-
 /*
-#if (CONFIG_VIDEO_IMAGE_W > 240)
-#define BYD30A2_DEVP_INPUT_W        128
-#define BYD30A2_DEVP_INPUT_H	    160
-#else
-#define BYD30A2_DEVP_INPUT_W 		CONFIG_VIDEO_IMAGE_W
-#define BYD30A2_DEVP_INPUT_H		CONFIG_VIDEO_IMAGE_H
-#endif
-*/
+ * #if (CONFIG_VIDEO_IMAGE_W > 240)
+ * #define BYD30A2_DEVP_INPUT_W     128
+ * #define BYD30A2_DEVP_INPUT_H     160
+ * #else
+ * #define BYD30A2_DEVP_INPUT_W     CONFIG_VIDEO_IMAGE_W
+ * #define BYD30A2_DEVP_INPUT_H     CONFIG_VIDEO_IMAGE_H
+ * #endif
+ */
 
-#define BYD30A2_DEVP_INPUT_W        240//128
-#define BYD30A2_DEVP_INPUT_H	    320//176
-
+#define BYD30A2_DEVP_INPUT_W        240
+#define BYD30A2_DEVP_INPUT_H	    320
 
 #define BYD30A2_WRCMD 0xdc
 #define BYD30A2_RDCMD 0xdd
@@ -33,12 +28,19 @@ static u8 BYD30A2_power_io[2] = {-1, -1};
 #define CONFIG_INPUT_FPS	15//30
 
 #define DELAY_TIME	10
+
+
+static void *iic = NULL;
+static u8 BYD30A2_reset_io[2] = {-1, -1};
+static u8 BYD30A2_power_io[2] = {-1, -1};
+
 struct reginfo {
     u8 reg;
     u8 val;
 };
+
 static const struct reginfo sensor_init_data[] = {
-    0xf2, 0x01, //软复位
+    0xf2, 0x01, ///< 复位所有寄存器
     0x15, 0x80,
     0x6b, 0x73,
     0x04, 0x00,
@@ -54,24 +56,23 @@ static const struct reginfo sensor_init_data[] = {
     0x36, 0x21,
     0x37, 0x13,
 #if (CONFIG_INPUT_FPS == 15)
-    0xca, 0x02, //15ps
+    0xca, 0x02, ///< 15ps
 #else
-    0xca, 0x03, //30ps
+    0xca, 0x03, ///< 30ps
 #endif
 
-    //分辨率设置
+// 分辨率设置。注意：END_ADDRW <= 248 并且 END_ADDRH <= 328
 #define START_ADDRW 0
 #define START_ADDRH 0
 #define END_ADDRW (BYD30A2_DEVP_INPUT_W + START_ADDRW)
 #define END_ADDRH (BYD30A2_DEVP_INPUT_H + START_ADDRH)
-    //(END_ADDRW <= 248 || END_ADDRH <= 328)
 
     0x17, START_ADDRW,
     0x18, END_ADDRW,
     0x19, START_ADDRH,
     0x1a, (END_ADDRH >> 1) & 0xFF,
-    0x12, 0x13 | ((END_ADDRH & 0x1) << 7), //MTK:20 ZX:10 RDA:40 //only YUV_Y	NO have UV*/
-    //0x12,0x10 | ((END_ADDRH & 0x1) << 7),//MTK:20 ZX:10 RDA:40*/
+    /* 0x12, 0x13 | ((END_ADDRH & 0x1) << 7), ///< output mode: only Y  */
+    0x12, 0x10 | ((END_ADDRH & 0x1) << 7), ///< output mode: YUV422
 
     0xcb, 0x22,
     0xcc, 0x89,
@@ -125,7 +126,7 @@ static const struct reginfo sensor_init_data[] = {
     0x95, 0xfd,
     0x9a, 0x20,
     0x9e, 0xbc,
-    0xf0, 0x83,//动态帧率关闭 0x8f打开
+    0xf0, 0x83,///< 动态帧率关闭 0x8f打开
     0x51, 0x06,
     0x52, 0x25,
     0x53, 0x2b,
@@ -161,11 +162,9 @@ static const struct reginfo sensor_init_data[] = {
     0xb4, 0x0C,
     0x00, 0x40,
     0x13, 0x07,
-
 };
 
-static s32 BYD30A2_set_output_size(u16 *width, u16 *height, u8 *freq);
-static unsigned char wrBYD30A2Reg(unsigned char regID, unsigned char regDat)
+static u8 wrBYD30A2Reg(u8 regID, u8 regDat)
 {
     u8 ret = 1;
     dev_ioctl(iic, IIC_IOCTL_START, 0);
@@ -193,7 +192,7 @@ exit:
     return ret;
 }
 
-static unsigned char rdBYD30A2Reg(unsigned char regID, unsigned char *regDat)
+static u8 rdBYD30A2Reg(u8 regID, u8 *regDat)
 {
     u8 ret = 1;
     dev_ioctl(iic, IIC_IOCTL_START, 0);
@@ -229,6 +228,7 @@ static void BYD30A2_config_SENSOR(u16 *width, u16 *height, u8 *format, u8 *frame
         wrBYD30A2Reg(sensor_init_data[i].reg, sensor_init_data[i].val);
     }
 }
+
 static s32 BYD30A2_set_output_size(u16 *width, u16 *height, u8 *freq)
 {
     u16 liv_width = *width;
@@ -236,6 +236,7 @@ static s32 BYD30A2_set_output_size(u16 *width, u16 *height, u8 *freq)
 
     return 0;
 }
+
 static s32 BYD30A2_power_ctl(u8 isp_dev, u8 is_work)
 {
     return 0;
@@ -261,6 +262,7 @@ static void BYD30A2_powerio_ctl(u32 _power_gpio, u32 on_off)
 {
     gpio_direction_output(_power_gpio, on_off);
 }
+
 static void BYD30A2_reset(u8 isp_dev)
 {
     u8 res_io;
@@ -286,7 +288,6 @@ static void BYD30A2_reset(u8 isp_dev)
         gpio_direction_output(res_io, 1);
     }
 }
-
 
 static s32 BYD30A2_check(u8 isp_dev, u32 _reset_gpio, u32 _power_gpio)
 {
@@ -315,7 +316,6 @@ static s32 BYD30A2_check(u8 isp_dev, u32 _reset_gpio, u32 _power_gpio)
     return 0;
 }
 
-
 static s32 BYD30A2_init(u8 isp_dev, u16 *width, u16 *height, u8 *format, u8 *frame_freq)
 {
     puts("\n\n BYD30A2 \n\n");
@@ -326,6 +326,7 @@ static s32 BYD30A2_init(u8 isp_dev, u16 *width, u16 *height, u8 *format, u8 *fra
 
     return 0;
 }
+
 void set_rev_sensor_BYD30A2(u16 rev_flag)
 {
     if (!rev_flag) {
@@ -348,13 +349,17 @@ void BYD30A2_dvp_wr_reg(u16 addr, u16 val)
 }
 
 // *INDENT-OFF*
-REGISTER_CAMERA1(BYD30A2) = {
+// BYD30A2为SPI摄像头
+/* REGISTER_CAMERA1(BYD30A2) = { */
+REGISTER_CAMERA(BYD30A2) = {
     .logo 				= 	"BYD30A2",
     .isp_dev 			= 	ISP_DEV_NONE,
-    .in_format 			= 	SEN_IN_FORMAT_UYVY,
-    .mbus_type          =   SEN_MBUS_PARALLEL,
-    .mbus_config        =   0,//SEN_MBUS_DATA_WIDTH_8B  | SEN_MBUS_HSYNC_ACTIVE_HIGH | SEN_MBUS_PCLK_SAMPLE_FALLING | SEN_MBUS_VSYNC_ACTIVE_HIGH,
-    .sync_config		=   0,//WL82/AC791才可以H-V SYNC互换，请留意
+    .in_format 			= 	SEN_IN_FORMAT_YUYV,
+
+    .mbus_type          =   SEN_MBUS_BT656,
+    .mbus_config        =   SEN_MBUS_DATA_WIDTH_1B | \
+                            SEN_MBUS_PCLK_SAMPLE_FALLING,
+    .sync_config		=   0,
     .fps         		= 	CONFIG_INPUT_FPS,
     .out_fps			=   CONFIG_INPUT_FPS,
     .sen_size 			= 	{BYD30A2_DEVP_INPUT_W, BYD30A2_DEVP_INPUT_H},
@@ -377,3 +382,33 @@ REGISTER_CAMERA1(BYD30A2) = {
 };
 
 #endif
+
+/*
+ * // 参考板级配置如下
+ * static const struct camera_platform_data camera0_data = {
+ *     .xclk_gpio      = IO_PORTH_02,
+ *     .reset_gpio     = IO_PORTH_03,
+ *     .online_detect  = NULL,
+ *     .pwdn_gpio      = -1,
+ *     .power_value    = 0,
+ *     .interface      = SEN_INTERFACE0,
+ *     .dvp={
+ *         .pclk_gpio   = IO_PORTA_08,
+ *         .hsync_gpio  = IO_PORTA_09,
+ *         .vsync_gpio  = IO_PORTA_10,
+ *         .group_port  = ISC_GROUPA,
+ *         .data_gpio   = {
+ *                 -1,//IO_PORTA_07,
+ *                 -1,//IO_PORTA_06,
+ *                 -1,//IO_PORTA_05,
+ *                 -1,//IO_PORTA_04,
+ *                 -1,//IO_PORTA_03,
+ *                 -1,//IO_PORTA_02,
+ *                 IO_PORTA_01,
+ *                 -1,//IO_PORTA_00,
+ *                 -1,
+ *                 -1,
+ *         },
+ *     }
+ * };
+ */

@@ -107,12 +107,14 @@ const int config_btctler_le_hw_ram_use_static = 1;
 
 // Master multi-link
 #if TRANS_MULTI_BLE_EN
-const int config_btctler_le_master_multilink = 1;
-const int config_multilink_support_esco_enalbe = 1;
+const int config_btctler_le_master_multilink = 0;
+const int config_multilink_support_esco_enalbe = 0;
 #else
 const int config_btctler_le_master_multilink = 0;
 const int config_multilink_support_esco_enalbe = 0;
 #endif
+
+const int config_btctler_le_slave_multilink = 1;
 
 #if TRANS_MULTI_BLE_EN
 const int config_btctler_le_hw_nums = TRANS_MULTI_BLE_SLAVE_NUMS + TRANS_MULTI_BLE_MASTER_NUMS;

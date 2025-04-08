@@ -28,7 +28,7 @@ EXT_CFLAGS  := # Windows 下不需要 -D__SHELL__
 export PATH:=$(TOOL_DIR);$(PATH)
 
 ## 后处理脚本
-FIXBAT          := ..\..\..\..\tools\utils\fixbat.exe # 用于处理 utf8->gbk 编码问题
+FIXBAT          := ../../../../tools/utils/fixbat.exe # 用于处理 utf8->gbk 编码问题
 POST_SCRIPT     := ../../../../cpu/wl82/tools/download.bat
 RUN_POST_SCRIPT := ..\..\..\..\cpu\wl82\tools\download.bat
 else
@@ -88,10 +88,17 @@ CFLAGS := \
 	-mllvm -pi32v2-large-program=true \
 	-fms-extensions \
 	-w \
+	-fno-unwind-tables \
+	-ffunction-sections \
+	-fdata-sections \
+	-fmessage-length=0 \
 
 
 # C++额外的编译参数
-CXXFLAGS :=
+CXXFLAGS := \
+	-std=gnu++14 \
+	-fno-exceptions \
+	-fno-rtti \
 
 
 # 宏定义
@@ -133,6 +140,9 @@ DEFINES := \
 	-DCONFIG_LMP_CONN_SUSPEND_ENABLE \
 	-DCONFIG_LMP_REFRESH_ENCRYPTION_KEY_ENABLE \
 	-DCONFIG_ITEM_FORMAT_VM \
+	-D_XOPEN_SOURCE=700 \
+	-D_GNU_SOURCE \
+	-D__ELF__ \
 
 
 DEFINES += $(EXT_CFLAGS) # 额外的一些定义
@@ -198,10 +208,44 @@ INCLUDES := \
 	-I../../../../apps/common/ble/include \
 	-I../../../../include_lib/utils/btmesh \
 	-I../../../../include_lib/utils/btmesh/adaptation \
+	-I../../../../apps/common/LLM/audio \
+	-I../../../../apps/common/LLM/volc/inc \
+	-I../../../../apps/common/LLM/volc \
+	-I../../../../apps/common/LLM/extra \
+	-I../../../../include_lib/net/cJSON_common \
+	-I../../../../include_lib/net/curl/include \
+	-I../../../../include_lib/net/lwip_2_1_3/lwip/src/include/compat/posix \
+	-I../../../../include_lib/net/lwip_2_1_3/lwip/src/include/compat/stdc \
+	-I../../../../include_lib/system/os \
 
 
 # 需要编译的 .c 文件
 c_SRC_FILES := \
+	../../../../apps/common/LLM/audio/audio_input.c \
+	../../../../apps/common/LLM/extra/g711.c \
+	../../../../apps/common/LLM/volc/VolcEngineRTCLiteDemo.c \
+	../../../../apps/common/LLM/volc/access_token.c \
+	../../../../apps/common/LLM/volc/net_request.c \
+	../../../../apps/common/LLM/volc/src/common/volc_crypto.c \
+	../../../../apps/common/LLM/volc/src/common/volc_sprintf.c \
+	../../../../apps/common/LLM/volc/src/common/volc_string.c \
+	../../../../apps/common/LLM/volc/src/common/volc_tls.c \
+	../../../../apps/common/LLM/volc/src/platform/volc_atomic.c \
+	../../../../apps/common/LLM/volc/src/platform/volc_cond.c \
+	../../../../apps/common/LLM/volc/src/platform/volc_device.c \
+	../../../../apps/common/LLM/volc/src/platform/volc_device_finger_print.c \
+	../../../../apps/common/LLM/volc/src/platform/volc_directory.c \
+	../../../../apps/common/LLM/volc/src/platform/volc_errno.c \
+	../../../../apps/common/LLM/volc/src/platform/volc_fileio.c \
+	../../../../apps/common/LLM/volc/src/platform/volc_log.c \
+	../../../../apps/common/LLM/volc/src/platform/volc_memory.c \
+	../../../../apps/common/LLM/volc/src/platform/volc_mutex.c \
+	../../../../apps/common/LLM/volc/src/platform/volc_network.c \
+	../../../../apps/common/LLM/volc/src/platform/volc_socket.c \
+	../../../../apps/common/LLM/volc/src/platform/volc_thread.c \
+	../../../../apps/common/LLM/volc/src/platform/volc_time.c \
+	../../../../apps/common/LLM/volc/src/platform/volc_uuid.c \
+	../../../../apps/common/LLM/volc/src/platform/volc_zlib.c \
 	../../../../apps/common/asr/aisp/aisp.c \
 	../../../../apps/common/asr/jlkws/jlkws.c \
 	../../../../apps/common/asr/roobo/roobo.c \
@@ -239,6 +283,7 @@ c_SRC_FILES := \
 	../../../../apps/common/ble/multi_demo/le_multi_client.c \
 	../../../../apps/common/ble/multi_demo/le_multi_common.c \
 	../../../../apps/common/ble/multi_demo/le_multi_trans.c \
+	../../../../apps/common/c++/cpp_run_init.c \
 	../../../../apps/common/camera/byd20a6/byd20a6.c \
 	../../../../apps/common/camera/byd30a2/byd30a2.c \
 	../../../../apps/common/camera/byd3720/byd3720.c \
@@ -425,7 +470,8 @@ s_SRC_FILES :=
 
 
 # 需要编译的 .cpp 文件
-cpp_SRC_FILES :=
+cpp_SRC_FILES := \
+	../../../../apps/common/c++/cxx_runtime.cpp \
 
 
 # 需要编译的 .cc 文件
@@ -574,6 +620,8 @@ LFLAGS := \
 	../../../../cpu/wl82/liba/res.a \
 	../../../../cpu/wl82/liba/font.a \
 	../../../../cpu/wl82/liba/ui_draw.a \
+	../../../../cpu/wl82/liba/libVolcEngineRTCLite.a \
+	../../../../cpu/wl82/liba/libcurl.a \
 	-T../../../../cpu/wl82/sdk.ld \
 	-M=../../../../cpu/wl82/tools/sdk.map \
 	--end-group  \
@@ -653,37 +701,31 @@ endif
 $(BUILD_DIR)/%.c.o : $(ROOT_PREFIX)/%.c
 	$(info +CC $<)
 	$(QUITE) $(MKDIR) $(@D)
-	$(QUITE) $(CC) $(CFLAGS) $(DEFINES) $(INCLUDES) -MM -MT $@ $< -o $(@:.o=.d)
-	$(QUITE) $(CC) $(CFLAGS) $(DEFINES) $(INCLUDES) -c $< -o $@
+	$(QUITE) $(CC) $(CFLAGS) $(DEFINES) $(INCLUDES) -MMD -MF $(@:.o=.d) -c $< -o $@
 
 $(BUILD_DIR)/%.S.o : $(ROOT_PREFIX)/%.S
 	$(info +AS $<)
 	$(QUITE) $(MKDIR) $(@D)
-	$(QUITE) $(CC) $(CFLAGS) $(DEFINES) $(INCLUDES) -MM -MT $@ $< -o $(@:.o=.d)
-	$(QUITE) $(CC) $(CFLAGS) $(DEFINES) $(INCLUDES) -c $< -o $@
+	$(QUITE) $(CC) $(CFLAGS) $(DEFINES) $(INCLUDES) -MMD -MF $(@:.o=.d) -c $< -o $@
 
 $(BUILD_DIR)/%.s.o : $(ROOT_PREFIX)/%.s
 	$(info +AS $<)
 	$(QUITE) $(MKDIR) $(@D)
-	$(QUITE) $(CC) $(CFLAGS) $(DEFINES) $(INCLUDES) -MM -MT $@ $< -o $(@:.o=.d)
-	$(QUITE) $(CC) $(CFLAGS) $(DEFINES) $(INCLUDES) -c $< -o $@
+	$(QUITE) $(CC) $(CFLAGS) $(DEFINES) $(INCLUDES) -MMD -MF $(@:.o=.d) -c $< -o $@
 
 $(BUILD_DIR)/%.cpp.o : $(ROOT_PREFIX)/%.cpp
 	$(info +CXX $<)
 	$(QUITE) $(MKDIR) $(@D)
-	$(QUITE) $(CXX) $(CXXFLAGS) $(CFLAGS) $(DEFINES) $(INCLUDES) -MM -MT $@ $< -o $(@:.o=.d)
-	$(QUITE) $(CXX) $(CXXFLAGS) $(CFLAGS) $(DEFINES) $(INCLUDES) -c $< -o $@
+	$(QUITE) $(CXX) $(CXXFLAGS) $(CFLAGS) $(DEFINES) $(INCLUDES) -MMD -MF $(@:.o=.d) -c $< -o $@
 
 $(BUILD_DIR)/%.cxx.o : $(ROOT_PREFIX)/%.cxx
 	$(info +CXX $<)
 	$(QUITE) $(MKDIR) $(@D)
-	$(QUITE) $(CXX) $(CXXFLAGS) $(CFLAGS) $(DEFINES) $(INCLUDES) -MM -MT $@ $< -o $(@:.o=.d)
-	$(QUITE) $(CXX) $(CXXFLAGS) $(CFLAGS) $(DEFINES) $(INCLUDES) -c $< -o $@
+	$(QUITE) $(CXX) $(CXXFLAGS) $(CFLAGS) $(DEFINES) $(INCLUDES) -MMD -MF $(@:.o=.d) -c $< -o $@
 
 $(BUILD_DIR)/%.cc.o : $(ROOT_PREFIX)/%.cc
 	$(info +CXX $<)
 	$(QUITE) $(MKDIR) $(@D)
-	$(QUITE) $(CXX) $(CXXFLAGS) $(CFLAGS) $(DEFINES) $(INCLUDES) -MM -MT $@ $< -o $(@:.o=.d)
-	$(QUITE) $(CXX) $(CXXFLAGS) $(CFLAGS) $(DEFINES) $(INCLUDES) -c $< -o $@
+	$(QUITE) $(CXX) $(CXXFLAGS) $(CFLAGS) $(DEFINES) $(INCLUDES) -MMD -MF $(@:.o=.d) -c $< -o $@
 
 -include $(DEP_FILES)

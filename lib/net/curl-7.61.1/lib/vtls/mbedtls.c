@@ -139,11 +139,11 @@ int mbedtls_pk_parse_keyfile(void *a, char *b, ...)
     infof(0, "%s is NULL function\n", __func__);
     return 1;
 }
-int mbedtls_pk_write_pubkey_der(void *a, char *b, int c)
-{
-    infof(0, "%s is NULL function\n", __func__);
-    return 1;
-}
+//int mbedtls_pk_write_pubkey_der(void *a, char *b, int c)
+//{
+//    infof(0, "%s is NULL function\n", __func__);
+//    return 1;
+//}
 
 unsigned int mbedtls_version_get_number()
 {

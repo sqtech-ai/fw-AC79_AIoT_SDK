@@ -646,6 +646,12 @@ static int wifi_event_callback(void *network_ctx, enum WIFI_EVENT event)
             break;
         }
 #endif
+
+#ifdef CONFIG_VOLC_LLM_ENABLE
+        int VolcEngineRTCDemo();
+        thread_fork("Volc_demo", 4, 3 * 1024, 0, 0, VolcEngineRTCDemo, NULL);
+#endif
+
         wifi_set_sta_connect_best_ssid(0);
         __this->request_connect_flag = 0;
 
@@ -933,7 +939,6 @@ static void wifi_app_task(void *priv)  //主要是create wifi 线程的
 #if !IP_NAPT_EXT
     wifi_and_network_on();
 #endif
-
 #if defined CONFIG_BT_ENABLE
     extern void bt_ble_module_init(void);
     bt_ble_module_init();

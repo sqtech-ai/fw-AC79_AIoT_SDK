@@ -193,6 +193,12 @@ void app_default_event_handler(struct sys_event *event)
     case SYS_NET_EVENT:
         break;
     case SYS_BT_EVENT:
+#if (RCSP_MODE)
+        if (event->from == BT_EVENT_FROM_BLE_RCSP_UPDATE) {
+            struct bt_event *e = (struct device_event *)event->payload;
+            JL_rcsp_update_msg_deal(NULL, e->event, e->args);
+        }
+#endif
         break;
     default:
         ASSERT(0, "unknow event type: %s\n", __func__);

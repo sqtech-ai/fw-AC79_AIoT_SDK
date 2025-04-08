@@ -104,8 +104,8 @@ static int extflash_dev_write(struct device *device, void *buf, u32 len, u32 off
         w_size += remain_size;
 
         for (int i = begin + 1; i < end; i++) {
-            norflash_erase(IOCTL_ERASE_SECTOR, (begin + i) * align_size);
-            norflash_write(NULL, data + w_size, align_size, (begin + i) * align_size);
+            norflash_erase(IOCTL_ERASE_SECTOR, i * align_size);
+            norflash_write(NULL, data + w_size, align_size, i * align_size);
             w_size += align_size;
         }
 

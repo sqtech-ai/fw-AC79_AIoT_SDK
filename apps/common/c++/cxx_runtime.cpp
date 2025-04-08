@@ -5,6 +5,7 @@ extern "C" {
     int fseek(void *file, int offset, int orig);
     int ftell(void *file);
     void *malloc(size_t);
+    void *calloc(size_t __nmemb, size_t __size);
     void free(void *);
     extern int vsnprintf(char *, unsigned long, const char *, __builtin_va_list);
     extern int vsprintf(char *str, const char *format, va_list ap);
@@ -49,11 +50,11 @@ extern "C" {
         return -1;
     }
 
-    int fputc(int c, void *stream)   // should be FILE *stream
-    {
-        printf("Need to make sure \"fputc\" runs OK!");
-        return -1;
-    }
+    // int fputc(int c, void *stream)   // should be FILE *stream
+    // {
+    // printf("Need to make sure \"fputc\" runs OK!");
+    // return -1;
+    // }
 
     char *fgets(char *str, int n, void *stream)// should be FILE *stream
     {
@@ -70,6 +71,12 @@ extern "C" {
     int fflush(void *stream)// should be FILE *stream
     {
         printf("Need to make sure \"fflush\" runs OK!");
+        return 0;
+    }
+
+    int fputs(const char *s, void *stream)
+    {
+        printf("Need to make sure \"fputs\" runs OK!");
         return 0;
     }
 
@@ -113,15 +120,15 @@ extern "C" {
         return chars;
     }
 
-    void __rt_local_irq_disable(void)
-    {
-        local_irq_disable();
-    }
+    // void __rt_local_irq_disable(void)
+    // {
+    // local_irq_disable();
+    // }
 
-    void __rt_local_irq_enable(void)
-    {
-        local_irq_enable();
-    }
+    // void __rt_local_irq_enable(void)
+    // {
+    // local_irq_enable();
+    // }
 
     int atexit(void (*)(void))
     {
@@ -139,9 +146,10 @@ extern "C" {
         return free(p);
     }
 
-    void *_calloc_r(size_t sz)
+    void *_calloc_r(struct _reent *ptr, size_t size, size_t len)
     {
-        return malloc(sz);
+        void *pt = calloc(size, len);
+        return pt;
     }
 }
 

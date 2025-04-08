@@ -28,7 +28,7 @@ EXT_CFLAGS  := # Windows 下不需要 -D__SHELL__
 export PATH:=$(TOOL_DIR);$(PATH)
 
 ## 后处理脚本
-FIXBAT          := ..\..\..\..\tools\utils\fixbat.exe # 用于处理 utf8->gbk 编码问题
+FIXBAT          := ../../../../tools/utils/fixbat.exe # 用于处理 utf8->gbk 编码问题
 POST_SCRIPT     := ../../../../cpu/wl82/tools/download.bat
 RUN_POST_SCRIPT := ..\..\..\..\cpu\wl82\tools\download.bat
 else
@@ -458,37 +458,31 @@ endif
 $(BUILD_DIR)/%.c.o : $(ROOT_PREFIX)/%.c
 	$(info +CC $<)
 	$(QUITE) $(MKDIR) $(@D)
-	$(QUITE) $(CC) $(CFLAGS) $(DEFINES) $(INCLUDES) -MM -MT $@ $< -o $(@:.o=.d)
-	$(QUITE) $(CC) $(CFLAGS) $(DEFINES) $(INCLUDES) -c $< -o $@
+	$(QUITE) $(CC) $(CFLAGS) $(DEFINES) $(INCLUDES) -MMD -MF $(@:.o=.d) -c $< -o $@
 
 $(BUILD_DIR)/%.S.o : $(ROOT_PREFIX)/%.S
 	$(info +AS $<)
 	$(QUITE) $(MKDIR) $(@D)
-	$(QUITE) $(CC) $(CFLAGS) $(DEFINES) $(INCLUDES) -MM -MT $@ $< -o $(@:.o=.d)
-	$(QUITE) $(CC) $(CFLAGS) $(DEFINES) $(INCLUDES) -c $< -o $@
+	$(QUITE) $(CC) $(CFLAGS) $(DEFINES) $(INCLUDES) -MMD -MF $(@:.o=.d) -c $< -o $@
 
 $(BUILD_DIR)/%.s.o : $(ROOT_PREFIX)/%.s
 	$(info +AS $<)
 	$(QUITE) $(MKDIR) $(@D)
-	$(QUITE) $(CC) $(CFLAGS) $(DEFINES) $(INCLUDES) -MM -MT $@ $< -o $(@:.o=.d)
-	$(QUITE) $(CC) $(CFLAGS) $(DEFINES) $(INCLUDES) -c $< -o $@
+	$(QUITE) $(CC) $(CFLAGS) $(DEFINES) $(INCLUDES) -MMD -MF $(@:.o=.d) -c $< -o $@
 
 $(BUILD_DIR)/%.cpp.o : $(ROOT_PREFIX)/%.cpp
 	$(info +CXX $<)
 	$(QUITE) $(MKDIR) $(@D)
-	$(QUITE) $(CXX) $(CXXFLAGS) $(CFLAGS) $(DEFINES) $(INCLUDES) -MM -MT $@ $< -o $(@:.o=.d)
-	$(QUITE) $(CXX) $(CXXFLAGS) $(CFLAGS) $(DEFINES) $(INCLUDES) -c $< -o $@
+	$(QUITE) $(CXX) $(CXXFLAGS) $(CFLAGS) $(DEFINES) $(INCLUDES) -MMD -MF $(@:.o=.d) -c $< -o $@
 
 $(BUILD_DIR)/%.cxx.o : $(ROOT_PREFIX)/%.cxx
 	$(info +CXX $<)
 	$(QUITE) $(MKDIR) $(@D)
-	$(QUITE) $(CXX) $(CXXFLAGS) $(CFLAGS) $(DEFINES) $(INCLUDES) -MM -MT $@ $< -o $(@:.o=.d)
-	$(QUITE) $(CXX) $(CXXFLAGS) $(CFLAGS) $(DEFINES) $(INCLUDES) -c $< -o $@
+	$(QUITE) $(CXX) $(CXXFLAGS) $(CFLAGS) $(DEFINES) $(INCLUDES) -MMD -MF $(@:.o=.d) -c $< -o $@
 
 $(BUILD_DIR)/%.cc.o : $(ROOT_PREFIX)/%.cc
 	$(info +CXX $<)
 	$(QUITE) $(MKDIR) $(@D)
-	$(QUITE) $(CXX) $(CXXFLAGS) $(CFLAGS) $(DEFINES) $(INCLUDES) -MM -MT $@ $< -o $(@:.o=.d)
-	$(QUITE) $(CXX) $(CXXFLAGS) $(CFLAGS) $(DEFINES) $(INCLUDES) -c $< -o $@
+	$(QUITE) $(CXX) $(CXXFLAGS) $(CFLAGS) $(DEFINES) $(INCLUDES) -MMD -MF $(@:.o=.d) -c $< -o $@
 
 -include $(DEP_FILES)

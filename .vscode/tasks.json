@@ -25,22 +25,82 @@
             "group": "build"
         }
         ,{
+            "label": "ac791n_wifi_camera",
+            "type": "shell",
+            "windows": {
+                "command": ".vscode/winmk.bat ac791n_wifi_camera"
+            },
+            "command": "make ac791n_wifi_camera -j`nproc`",
+            "problemMatcher": [],
+            "group": "build"
+        }
+        ,{
+            "label": "ac791n_scan_box",
+            "type": "shell",
+            "windows": {
+                "command": ".vscode/winmk.bat ac791n_scan_box"
+            },
+            "command": "make ac791n_scan_box -j`nproc`",
+            "problemMatcher": [],
+            "group": "build"
+        }
+        ,{
+            "label": "ac791n_wifi_ipc",
+            "type": "shell",
+            "windows": {
+                "command": ".vscode/winmk.bat ac791n_wifi_ipc"
+            },
+            "command": "make ac791n_wifi_ipc -j`nproc`",
+            "problemMatcher": [],
+            "group": "build"
+        }
+        ,{
+            "label": "ac791n_wifi_story_machine",
+            "type": "shell",
+            "windows": {
+                "command": ".vscode/winmk.bat ac791n_wifi_story_machine"
+            },
+            "command": "make ac791n_wifi_story_machine -j`nproc`",
+            "problemMatcher": [],
+            "group": "build"
+        }
+        ,{
+            "label": "ac791n_demo_demo_ble",
+            "type": "shell",
+            "windows": {
+                "command": ".vscode/winmk.bat ac791n_demo_demo_ble"
+            },
+            "command": "make ac791n_demo_demo_ble -j`nproc`",
+            "problemMatcher": [],
+            "group": "build"
+        }
+        ,{
+            "label": "ac791n_demo_demo_wifi_ext",
+            "type": "shell",
+            "windows": {
+                "command": ".vscode/winmk.bat ac791n_demo_demo_wifi_ext"
+            },
+            "command": "make ac791n_demo_demo_wifi_ext -j`nproc`",
+            "problemMatcher": [],
+            "group": "build"
+        }
+        ,{
+            "label": "ac791n_demo_demo_edr",
+            "type": "shell",
+            "windows": {
+                "command": ".vscode/winmk.bat ac791n_demo_demo_edr"
+            },
+            "command": "make ac791n_demo_demo_edr -j`nproc`",
+            "problemMatcher": [],
+            "group": "build"
+        }
+        ,{
             "label": "ac791n_demo_demo_ui",
             "type": "shell",
             "windows": {
                 "command": ".vscode/winmk.bat ac791n_demo_demo_ui"
             },
             "command": "make ac791n_demo_demo_ui -j`nproc`",
-            "problemMatcher": [],
-            "group": "build"
-        }
-        ,{
-            "label": "ac791n_demo_demo_matter",
-            "type": "shell",
-            "windows": {
-                "command": ".vscode/winmk.bat ac791n_demo_demo_matter"
-            },
-            "command": "make ac791n_demo_demo_matter -j`nproc`",
             "problemMatcher": [],
             "group": "build"
         }
@@ -55,12 +115,12 @@
             "group": "build"
         }
         ,{
-            "label": "ac791n_demo_demo_edr",
+            "label": "ac791n_demo_demo_devkitboard",
             "type": "shell",
             "windows": {
-                "command": ".vscode/winmk.bat ac791n_demo_demo_edr"
+                "command": ".vscode/winmk.bat ac791n_demo_demo_devkitboard"
             },
-            "command": "make ac791n_demo_demo_edr -j`nproc`",
+            "command": "make ac791n_demo_demo_devkitboard -j`nproc`",
             "problemMatcher": [],
             "group": "build"
         }
@@ -85,36 +145,6 @@
             "group": "build"
         }
         ,{
-            "label": "ac791n_demo_demo_wifi",
-            "type": "shell",
-            "windows": {
-                "command": ".vscode/winmk.bat ac791n_demo_demo_wifi"
-            },
-            "command": "make ac791n_demo_demo_wifi -j`nproc`",
-            "problemMatcher": [],
-            "group": "build"
-        }
-        ,{
-            "label": "ac791n_demo_demo_wifi_ext",
-            "type": "shell",
-            "windows": {
-                "command": ".vscode/winmk.bat ac791n_demo_demo_wifi_ext"
-            },
-            "command": "make ac791n_demo_demo_wifi_ext -j`nproc`",
-            "problemMatcher": [],
-            "group": "build"
-        }
-        ,{
-            "label": "ac791n_demo_demo_devkitboard",
-            "type": "shell",
-            "windows": {
-                "command": ".vscode/winmk.bat ac791n_demo_demo_devkitboard"
-            },
-            "command": "make ac791n_demo_demo_devkitboard -j`nproc`",
-            "problemMatcher": [],
-            "group": "build"
-        }
-        ,{
             "label": "ac791n_demo_demo_audio",
             "type": "shell",
             "windows": {
@@ -125,52 +155,82 @@
             "group": "build"
         }
         ,{
-            "label": "ac791n_demo_demo_ble",
+            "label": "ac791n_demo_demo_wifi",
             "type": "shell",
             "windows": {
-                "command": ".vscode/winmk.bat ac791n_demo_demo_ble"
+                "command": ".vscode/winmk.bat ac791n_demo_demo_wifi"
             },
-            "command": "make ac791n_demo_demo_ble -j`nproc`",
+            "command": "make ac791n_demo_demo_wifi -j`nproc`",
             "problemMatcher": [],
             "group": "build"
         }
         ,{
-            "label": "ac791n_wifi_camera",
+            "label": "clean_ac791n_wifi_camera",
             "type": "shell",
             "windows": {
-                "command": ".vscode/winmk.bat ac791n_wifi_camera"
+                "command": ".vscode/winmk.bat clean_ac791n_wifi_camera"
             },
-            "command": "make ac791n_wifi_camera -j`nproc`",
+            "command": "make clean_ac791n_wifi_camera -j`nproc`",
             "problemMatcher": [],
             "group": "build"
         }
         ,{
-            "label": "ac791n_wifi_story_machine",
+            "label": "clean_ac791n_scan_box",
             "type": "shell",
             "windows": {
-                "command": ".vscode/winmk.bat ac791n_wifi_story_machine"
+                "command": ".vscode/winmk.bat clean_ac791n_scan_box"
             },
-            "command": "make ac791n_wifi_story_machine -j`nproc`",
+            "command": "make clean_ac791n_scan_box -j`nproc`",
             "problemMatcher": [],
             "group": "build"
         }
         ,{
-            "label": "ac791n_wifi_ipc",
+            "label": "clean_ac791n_wifi_ipc",
             "type": "shell",
             "windows": {
-                "command": ".vscode/winmk.bat ac791n_wifi_ipc"
+                "command": ".vscode/winmk.bat clean_ac791n_wifi_ipc"
             },
-            "command": "make ac791n_wifi_ipc -j`nproc`",
+            "command": "make clean_ac791n_wifi_ipc -j`nproc`",
             "problemMatcher": [],
             "group": "build"
         }
         ,{
-            "label": "ac791n_scan_box",
+            "label": "clean_ac791n_wifi_story_machine",
             "type": "shell",
             "windows": {
-                "command": ".vscode/winmk.bat ac791n_scan_box"
+                "command": ".vscode/winmk.bat clean_ac791n_wifi_story_machine"
             },
-            "command": "make ac791n_scan_box -j`nproc`",
+            "command": "make clean_ac791n_wifi_story_machine -j`nproc`",
+            "problemMatcher": [],
+            "group": "build"
+        }
+        ,{
+            "label": "clean_ac791n_demo_demo_ble",
+            "type": "shell",
+            "windows": {
+                "command": ".vscode/winmk.bat clean_ac791n_demo_demo_ble"
+            },
+            "command": "make clean_ac791n_demo_demo_ble -j`nproc`",
+            "problemMatcher": [],
+            "group": "build"
+        }
+        ,{
+            "label": "clean_ac791n_demo_demo_wifi_ext",
+            "type": "shell",
+            "windows": {
+                "command": ".vscode/winmk.bat clean_ac791n_demo_demo_wifi_ext"
+            },
+            "command": "make clean_ac791n_demo_demo_wifi_ext -j`nproc`",
+            "problemMatcher": [],
+            "group": "build"
+        }
+        ,{
+            "label": "clean_ac791n_demo_demo_edr",
+            "type": "shell",
+            "windows": {
+                "command": ".vscode/winmk.bat clean_ac791n_demo_demo_edr"
+            },
+            "command": "make clean_ac791n_demo_demo_edr -j`nproc`",
             "problemMatcher": [],
             "group": "build"
         }
@@ -185,16 +245,6 @@
             "group": "build"
         }
         ,{
-            "label": "clean_ac791n_demo_demo_matter",
-            "type": "shell",
-            "windows": {
-                "command": ".vscode/winmk.bat clean_ac791n_demo_demo_matter"
-            },
-            "command": "make clean_ac791n_demo_demo_matter -j`nproc`",
-            "problemMatcher": [],
-            "group": "build"
-        }
-        ,{
             "label": "clean_ac791n_demo_demo_hello",
             "type": "shell",
             "windows": {
@@ -205,12 +255,12 @@
             "group": "build"
         }
         ,{
-            "label": "clean_ac791n_demo_demo_edr",
+            "label": "clean_ac791n_demo_demo_devkitboard",
             "type": "shell",
             "windows": {
-                "command": ".vscode/winmk.bat clean_ac791n_demo_demo_edr"
+                "command": ".vscode/winmk.bat clean_ac791n_demo_demo_devkitboard"
             },
-            "command": "make clean_ac791n_demo_demo_edr -j`nproc`",
+            "command": "make clean_ac791n_demo_demo_devkitboard -j`nproc`",
             "problemMatcher": [],
             "group": "build"
         }
@@ -235,36 +285,6 @@
             "group": "build"
         }
         ,{
-            "label": "clean_ac791n_demo_demo_wifi",
-            "type": "shell",
-            "windows": {
-                "command": ".vscode/winmk.bat clean_ac791n_demo_demo_wifi"
-            },
-            "command": "make clean_ac791n_demo_demo_wifi -j`nproc`",
-            "problemMatcher": [],
-            "group": "build"
-        }
-        ,{
-            "label": "clean_ac791n_demo_demo_wifi_ext",
-            "type": "shell",
-            "windows": {
-                "command": ".vscode/winmk.bat clean_ac791n_demo_demo_wifi_ext"
-            },
-            "command": "make clean_ac791n_demo_demo_wifi_ext -j`nproc`",
-            "problemMatcher": [],
-            "group": "build"
-        }
-        ,{
-            "label": "clean_ac791n_demo_demo_devkitboard",
-            "type": "shell",
-            "windows": {
-                "command": ".vscode/winmk.bat clean_ac791n_demo_demo_devkitboard"
-            },
-            "command": "make clean_ac791n_demo_demo_devkitboard -j`nproc`",
-            "problemMatcher": [],
-            "group": "build"
-        }
-        ,{
             "label": "clean_ac791n_demo_demo_audio",
             "type": "shell",
             "windows": {
@@ -275,52 +295,12 @@
             "group": "build"
         }
         ,{
-            "label": "clean_ac791n_demo_demo_ble",
+            "label": "clean_ac791n_demo_demo_wifi",
             "type": "shell",
             "windows": {
-                "command": ".vscode/winmk.bat clean_ac791n_demo_demo_ble"
+                "command": ".vscode/winmk.bat clean_ac791n_demo_demo_wifi"
             },
-            "command": "make clean_ac791n_demo_demo_ble -j`nproc`",
-            "problemMatcher": [],
-            "group": "build"
-        }
-        ,{
-            "label": "clean_ac791n_wifi_camera",
-            "type": "shell",
-            "windows": {
-                "command": ".vscode/winmk.bat clean_ac791n_wifi_camera"
-            },
-            "command": "make clean_ac791n_wifi_camera -j`nproc`",
-            "problemMatcher": [],
-            "group": "build"
-        }
-        ,{
-            "label": "clean_ac791n_wifi_story_machine",
-            "type": "shell",
-            "windows": {
-                "command": ".vscode/winmk.bat clean_ac791n_wifi_story_machine"
-            },
-            "command": "make clean_ac791n_wifi_story_machine -j`nproc`",
-            "problemMatcher": [],
-            "group": "build"
-        }
-        ,{
-            "label": "clean_ac791n_wifi_ipc",
-            "type": "shell",
-            "windows": {
-                "command": ".vscode/winmk.bat clean_ac791n_wifi_ipc"
-            },
-            "command": "make clean_ac791n_wifi_ipc -j`nproc`",
-            "problemMatcher": [],
-            "group": "build"
-        }
-        ,{
-            "label": "clean_ac791n_scan_box",
-            "type": "shell",
-            "windows": {
-                "command": ".vscode/winmk.bat clean_ac791n_scan_box"
-            },
-            "command": "make clean_ac791n_scan_box -j`nproc`",
+            "command": "make clean_ac791n_demo_demo_wifi -j`nproc`",
             "problemMatcher": [],
             "group": "build"
         }
