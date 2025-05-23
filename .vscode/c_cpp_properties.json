@@ -420,7 +420,20 @@
                 "${workspaceFolder}/include_lib/net/curl/include",
                 "${workspaceFolder}/include_lib/net/lwip_2_1_3/lwip/src/include/compat/posix",
                 "${workspaceFolder}/include_lib/net/lwip_2_1_3/lwip/src/include/compat/stdc",
-                "${workspaceFolder}/include_lib/system/os"
+                "${workspaceFolder}/include_lib/system/os",
+                "${workspaceFolder}/include_lib/net/libwebsockets/include",
+                "${workspaceFolder}/include_lib/net/libwebsockets/include/libwebsockets",
+                "${workspaceFolder}/apps/common/LLM/onesdk/src",
+                "${workspaceFolder}/apps/common/LLM/onesdk/src/aigw",
+                "${workspaceFolder}/apps/common/LLM/onesdk/src/util",
+                "${workspaceFolder}/apps/common/LLM/onesdk/src/aws",
+                "${workspaceFolder}/apps/common/LLM/onesdk/include",
+                "${workspaceFolder}/apps/common/LLM/onesdk/include/iot",
+                "${workspaceFolder}/apps/common/LLM/onesdk/include/protocols",
+                "${workspaceFolder}/apps/common/LLM/onesdk/include/thing_model",
+                "${workspaceFolder}/apps/common/LLM/onesdk/include/platform/plat",
+                "${workspaceFolder}/apps/common/LLM/onesdk/platform",
+                "${workspaceFolder}/apps/common/LLM/onesdk"
             ],
             "intelliSenseMode": "clang-x86",
             "name": "AC791N_WIFI_STORY_MACHINE"

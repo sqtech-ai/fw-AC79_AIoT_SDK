@@ -9,14 +9,18 @@
 /* #include "jlsp_kws_aec.h" */
 
 #if (defined CONFIG_ASR_ALGORITHM) && (CONFIG_ASR_ALGORITHM == JLKWS_ALGORITHM)
-
 const int CONFIG_KWS_RAM_USE_ENABLE = 1;
 
 extern void aisp_resume(void);
 
 #define ONCE_SR_POINTS	160//256
 
+#if (defined CONFIG_SXY_QYAI_ENABLE)
+#define ONCE_SR_POINTS   160
 #define AISP_BUF_SIZE	(ONCE_SR_POINTS * 2 * 2)	//跑不过来时适当加大倍数
+#else
+#define AISP_BUF_SIZE	(ONCE_SR_POINTS * 2 * 2)	//跑不过来时适当加大倍数
+#endif
 #define MIC_SR_LEN		(ONCE_SR_POINTS * 2)
 
 #ifdef CONFIG_AEC_ENC_ENABLE
@@ -319,8 +323,19 @@ static void aisp_task(void *priv)
             key.type = KEY_EVENT_USER;
             /* key_event_notify(KEY_EVENT_FROM_USER, &key); */
 
+#if (defined CONFIG_SXY_QYAI_ENABLE)
+            if (ret == 2) {
+                extern int qyai_pcm_strat(int sample_rate);
+                qyai_pcm_strat(__this->sample_rate);
+            }
+#endif
             jl_far_kws_model_reset(kws);
         }
+
+#if (defined CONFIG_SXY_QYAI_ENABLE)
+        extern int qyai_pcm_write(char *buf, int len, int sample_rate);
+        qyai_pcm_write(near_data_buf, sizeof(near_data_buf), __this->sample_rate);
+#endif
 
         time_cnt += timer_get_ms() - time;
         if (++cnt == 100) {
@@ -342,7 +357,10 @@ __exit:
     }
 
     __this->run_flag = 0;
-
+#if (defined CONFIG_SXY_QYAI_ENABLE)
+    extern void qyai_pcm_uninit(void);
+    qyai_pcm_uninit();
+#endif
 }
 
 static void enc_server_event_handler(void *priv, int argc, int *argv)
@@ -351,6 +369,14 @@ static void enc_server_event_handler(void *priv, int argc, int *argv)
     case AUDIO_SERVER_EVENT_ERR:
     case AUDIO_SERVER_EVENT_END:
         break;
+#if (defined CONFIG_SXY_QYAI_ENABLE)
+    case AUDIO_SERVER_EVENT_SPEAK_START:       /*!< VAD检测到开始说话 */
+        qyai_speek_start();
+        break;
+    case AUDIO_SERVER_EVENT_SPEAK_STOP:        /*!< VAD检测到停止说话 */
+        qyai_speek_stop();
+        break;
+#endif
     default:
         break;
     }
@@ -444,6 +470,10 @@ void aisp_resume(void)
     struct aec_s_attr aec_param = {0};
     aec_param.EnableBit = AEC_MODE_ADVANCE;
     req.enc.aec_attr = &aec_param;
+#ifdef CONFIG_SXY_QYAI_ENABLE
+    req.enc.aec_enable = 0;
+    aec_param.output_way = 0;	 //1:使用硬件回采 0:使用软件回采
+#else
     req.enc.aec_enable = 1;
 
     extern void get_cfg_file_aec_config(struct aec_s_attr * aec_param);
@@ -478,11 +508,21 @@ void aisp_resume(void)
     if (aec_param.output_way == 0) {
         aec_param.dac_ref_sr = 48000; //aec软件回采dac参考采样率
     }
-
+#endif
+#endif
+#if (defined CONFIG_SXY_QYAI_ENABLE)
+    if (req.enc.channel == 1 && !strcmp(req.enc.sample_source, "mic") && (req.enc.sample_rate == 8000 || req.enc.sample_rate == 16000)) {
+        req.enc.use_vad = 1; //打开VAD断句功能
+        req.enc.dns_enable = 1; //打开降噪功能
+        req.enc.vad_auto_refresh = 1; //VAD自动刷新
+        req.enc.vad_start_threshold = 300;
+        req.enc.vad_stop_threshold = 0;
+    }
 #endif
 
     server_request(__this->mic_enc, AUDIO_REQ_ENC, &req);
 
+#ifndef CONFIG_SXY_QYAI_ENABLE
 #if defined CONFIG_AEC_ENC_ENABLE && !defined CONFIG_FPGA_ENABLE
     if (aec_param.output_way) {
 #ifdef CONFIG_ALL_ADC_CHANNEL_OPEN_ENABLE
@@ -490,6 +530,7 @@ void aisp_resume(void)
         adc_multiplex_set_gain("mic", BIT(CONFIG_AISP_LINEIN_ADC_CHANNEL), CONFIG_AISP_LINEIN_ADC_GAIN * 2);
 #endif
     }
+#endif
 #endif
 
 }

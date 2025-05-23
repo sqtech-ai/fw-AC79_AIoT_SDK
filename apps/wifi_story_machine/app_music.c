@@ -2,6 +2,7 @@
 #include "system/includes.h"
 #include "asm/ladc.h"
 #include "server/audio_server.h"
+#include "server/server_core.h"
 #include "app_config.h"
 #include "action.h"
 #include "storage_device.h"
@@ -540,6 +541,156 @@ static void app_music_stop_voice_prompt(void)
         }
     }
 }
+
+#ifdef CONFIG_SXY_QYAI_ENABLE
+static int app_music_set_dec_volume(char set_volume, int step)
+{
+    union audio_req req = {0};
+    int volume = set_volume;
+
+    if (step) {
+        volume = __this->volume + step;
+    }
+    if (volume < MIN_VOLUME_VALUE) {
+        volume = MIN_VOLUME_VALUE;
+    } else if (volume > MAX_VOLUME_VALUE) {
+#ifdef CONFIG_VOICE_PROMPT_FILE_PATH
+        app_music_play_mix_file(CONFIG_VOICE_PROMPT_FILE_PATH"VolumeFull.mp3");
+#else
+        app_music_play_mix_file("VolumeFull.mp3");
+#endif
+        volume = MAX_VOLUME_VALUE;
+    }
+    if (volume == __this->volume) {
+        return -EINVAL;
+    }
+    __this->volume = volume;
+
+    printf("->set_dec_volume: %d\n", volume);
+
+
+#ifdef CONFIG_VOICE_PROMPT_FILE_PATH
+    if (volume == MAX_VOLUME_VALUE) {
+        app_music_play_mix_file(CONFIG_VOICE_PROMPT_FILE_PATH"VolumeFull.mp3");
+    } else {
+        app_music_play_mix_file(CONFIG_VOICE_PROMPT_FILE_PATH"Volume.mp3");
+    }
+#else
+    if (volume == MAX_VOLUME_VALUE) {
+        app_music_play_mix_file("VolumeFull.mp3");
+    } else {
+        app_music_play_mix_file("Volume.mp3");
+    }
+#endif
+
+    if (!__this->dec_server) {
+        return -EFAULT;
+    }
+
+    req.dec.cmd     = AUDIO_DEC_SET_VOLUME;
+    req.dec.volume  = volume;
+    server_request(__this->dec_server, AUDIO_REQ_DEC, &req);
+
+    return 0;
+}
+
+int app_set_res_music_volume(char volume)
+{
+    return app_music_set_dec_volume(volume, 0);
+}
+
+static int app_music_play_waite_stop(int timeout)
+{
+    if (!timeout) {
+        return __this->file ? 0 : 1;
+    }
+    int start_t = timer_get_ms();
+    char *task = os_current_task();
+    if (!strcmp(task, "app_core")) {
+        puts("err cannot waite in app_core task\n\n");
+        return -1;
+    }
+    while (__this->file) {
+        os_time_dly(1);
+        if ((timer_get_ms() - start_t) > timeout) {
+            return -1;
+        }
+    }
+    return 0;
+}
+
+int app_play_res_music(const char *name)
+{
+    struct intent it;
+    struct application *app;
+
+    init_intent(&it);
+    app = get_current_app();
+    if (!app) {
+        printf("get_current_app fail");
+        return -1;
+    }
+
+    if (strcmp(app->name, "app_music") == 0) {
+        it.name = "app_music";
+        it.action = ACTION_MUSIC_PLAY_VOICE_PROMPT;
+        //it.data = "Volume.mp3";
+        it.data = name;
+        it.exdata = 1;
+        start_app(&it);
+    }
+    return 0;
+}
+
+int app_stop_res_music(void)
+{
+    return app_music_play_set_stop();
+}
+
+int app_waite_res_music(int timeout)
+{
+    return app_music_play_waite_stop(timeout);
+}
+
+int app_res_music_stop_get(void *p)
+{
+    return __this->file ? 0 : 1;
+}
+
+//打断提示音的播放
+static int app_music_play_set_stop(void)
+{
+    union audio_req req = {0};
+
+    if (!__this->dec_server) {
+        return -EFAULT;
+    }
+    req.dec.cmd     = AUDIO_DEC_STOP;
+    server_request(__this->dec_server, AUDIO_REQ_DEC, &req);
+
+    if (__this->file) {
+        fclose(__this->file);
+        __this->file = NULL;
+    }
+    if (!__this->key_disable) {
+        key_event_enable();
+    }
+    return 0;
+}
+
+int app_get_res_music_volume(char *volume)
+{
+    if (volume) {
+        *volume = __this->volume;
+    }
+    return __this->volume;
+}
+
+int app_set_res_music_volume_step(char volume)
+{
+    return app_music_set_dec_volume(0, volume);
+}
+#endif
 
 /*
  * ****************************本地播放*************************************
@@ -3889,6 +4040,9 @@ static void app_music_exit(void)
 /*
  *按键响应函数
  */
+/* #ifdef CONFIG_SXY_QYAI_ENABLE */
+/* static int last_key_click = 0; */
+/* #endif */
 static int app_music_key_click(struct key_event *key)
 {
     switch (key->value) {
@@ -4109,6 +4263,9 @@ static int app_music_key_click(struct key_event *key)
     default:
         break;
     }
+    /* #ifdef CONFIG_SXY_QYAI_ENABLE */
+    /* last_key_click = key->value; */
+    /* #endif */
     return false;
 }
 
@@ -4175,6 +4332,11 @@ static int app_music_key_up(struct key_event *key)
             __this->dec_ops->dec_play_pause(1);
         }
         break;
+    /* case KEY_MODE://长按进行按键 */
+    /* if((last_key_click & 0xFF00) && (last_key_click & 0xFF) == KEY_MODE){//上一次长按是对应的按键 */
+    /* qyai_key_vad_end(); */
+    /* } */
+    /* break; */
     default:
         break;
     }
@@ -4222,7 +4384,10 @@ static int app_music_key_long(struct key_event *key)
 #endif
         break;
     case KEY_MODE:
-#ifdef CONFIG_NET_ENABLE
+        /* #ifdef CONFIG_SXY_QYAI_ENABLE */
+        /* qyai_key_vad_start(); */
+        /* #elif defined CONFIG_NET_ENABLE */
+#if defined CONFIG_NET_ENABLE
         puts("switch_net_config\n");
         app_music_net_config();
 #endif
@@ -4360,7 +4525,9 @@ static int app_music_key_long(struct key_event *key)
     default:
         break;
     }
-
+    /* #ifdef CONFIG_SXY_QYAI_ENABLE */
+    /* last_key_click = key->value | 0xFF00; */
+    /* #endif */
     return false;
 }
 
@@ -4580,6 +4747,12 @@ static int app_music_net_event_handler(struct net_event *event)
         switch (event->event) {
         case NET_CONNECT_TIMEOUT_NOT_FOUND_SSID:
         case NET_CONNECT_ASSOCIAT_FAIL:
+#ifdef CONFIG_SXY_QYAI_ENABLE
+            app_music_play_voice_prompt("NetCfgFail.mp3", NULL);
+#if (TCFG_BT_NET_CFG_EN || BT_NET_CFG_QYAI_EN)
+            ble_cfg_net_result_notify(event->event);
+#endif
+#else
             if (__this->mode == NET_MUSIC_MODE) {
                 app_music_play_voice_prompt("NetCfgFail.mp3", NULL);
 #if defined CONFIG_TURING_SDK_ENABLE && BT_NET_CFG_TURING_EN
@@ -4588,6 +4761,7 @@ static int app_music_net_event_handler(struct net_event *event)
                 ble_cfg_net_result_notify(event->event);
 #endif
             }
+#endif
             break;
         case NET_EVENT_SMP_CFG_FIRST:
             if (__this->mode == NET_MUSIC_MODE) {
@@ -4668,7 +4842,7 @@ static int app_music_net_event_handler(struct net_event *event)
 #endif
 
             if (!is_in_config_network_state()) {
-#if BT_NET_CFG_EN
+#if BT_NET_CFG_EN || BT_NET_CFG_QYAI_EN
                 ble_cfg_net_result_notify(event->event);
 #endif
                 app_music_play_voice_prompt("NetCfgSucc.mp3", __this->dec_ops->dec_breakpoint);
@@ -4969,3 +5143,4 @@ REGISTER_APPLICATION(app_music) = {
 };
 
 #endif
+

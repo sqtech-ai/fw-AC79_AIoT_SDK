@@ -191,6 +191,7 @@ c_SRC_FILES := \
 	../../../../apps/common/ble/le_net_central.c \
 	../../../../apps/common/ble/le_net_cfg.c \
 	../../../../apps/common/ble/le_net_cfg_dui.c \
+	../../../../apps/common/ble/le_net_cfg_qyai.c \
 	../../../../apps/common/ble/le_net_cfg_tencent.c \
 	../../../../apps/common/ble/le_net_cfg_turing.c \
 	../../../../apps/common/ble/le_trans_data.c \

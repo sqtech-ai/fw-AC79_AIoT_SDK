@@ -22,13 +22,15 @@
 #define MSG_AUDIO_RECORDER_FIRST_PLAY_NEXT_STOP_PLAY_TEST   11
 
 
-#define AUDIO_PLAY_VOICE_VOLUME   50
+#define AUDIO_PLAY_VOICE_VOLUME   80
 #define AUDIO_RECORD_VOICE_VOLUME 100
 
-#ifdef AUDIO_TYPE_G711A
+#ifdef CONFIG_VOLC_LLM_ENABLE
 #define AUDIO_RECORD_VOICE_UPLORD_LEN (320)
+#elif defined CONFIG_ONESDK_LLM_ENABLE
+#define AUDIO_RECORD_VOICE_UPLORD_LEN (3200)
 #else
-#define AUDIO_RECORD_VOICE_UPLORD_LEN (40)
+#define AUDIO_RECORD_VOICE_UPLORD_LEN (320)
 #endif
 
 #define _AUDIO_TASK_NAME    "audio_task"
@@ -252,8 +254,8 @@ static VOID audio_recoder_init()
         req.enc.vad_auto_refresh = 1;   //VAD自动刷新
     }
     if (req.enc.use_vad == 1) {
-        req.enc.vad_start_threshold = 0;    //ms
-        req.enc.vad_stop_threshold  = 5000;    //ms
+        req.enc.vad_start_threshold = 300;    //ms
+        req.enc.vad_stop_threshold  = 0;    //ms
     }
 
 #ifdef CONFIG_AEC_ENC_ENABLE
@@ -569,10 +571,10 @@ static int _audio_soft_init(VOID)
     u8 *pcm_buff_w = NULL;
     u8 *pcm_buff_r = NULL;
     audio_debug("into volc audio soft init");
-    pcm_buff_w = malloc(SAMPLE_RATE * CHANNEL * 0.25);
-    cbuf_init(&g_audio_hdl.pcm_cbuff_w, pcm_buff_w, SAMPLE_RATE * CHANNEL * 0.25);
-    pcm_buff_r = malloc(SAMPLE_RATE * CHANNEL * 0.25);
-    cbuf_init(&g_audio_hdl.pcm_cbuff_r, pcm_buff_r, SAMPLE_RATE * CHANNEL * 0.25);
+    pcm_buff_w = malloc(SAMPLE_RATE * CHANNEL * 1);
+    cbuf_init(&g_audio_hdl.pcm_cbuff_w, pcm_buff_w, SAMPLE_RATE * CHANNEL * 1);
+    pcm_buff_r = malloc(SAMPLE_RATE * CHANNEL * 1);
+    cbuf_init(&g_audio_hdl.pcm_cbuff_r, pcm_buff_r, SAMPLE_RATE * CHANNEL * 1);
 
     if (!g_audio_hdl.enc_server) {
         g_audio_hdl.enc_server = server_open("audio_server", "enc");

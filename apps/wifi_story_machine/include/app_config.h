@@ -226,6 +226,8 @@
 // #define CONFIG_HTTP_SERVER_ENABLE            //HTTP服务器
 // #define CONFIG_FTP_SERVER_ENABLE             //FTP服务器
 // #define CONFIG_VOLC_LLM_ENABLE               //火山大模型
+// #define CONFIG_ONESDK_LLM_ENABLE
+// #define CONFIG_SXY_QYAI_ENABLE
 
 /*************电信云平台配网方式选择*************/
 #ifdef CONFIG_TELECOM_SDK_ENABLE
@@ -693,7 +695,15 @@
 #define BT_NET_CFG_TENCENT_EN                     0     //从机 腾讯云配网专用
 #endif
 
-#if BT_NET_CFG_TURING_EN + BT_NET_CFG_DUI_EN + BT_NET_CFG_TENCENT_EN + CONFIG_APP_BT_ENABLE > 0
+#ifdef CONFIG_SXY_QYAI_ENABLE
+#define BT_NET_CFG_QYAI_EN                        1    //从机 数芯语-轻语AI-配网专用
+#undef CONFIG_POWER_ON_ENABLE_BLE
+#define CONFIG_POWER_ON_ENABLE_BLE                0    //关闭自动打开BLE
+#else
+#define BT_NET_CFG_QYAI_EN                        0    //从机 数芯语-轻语AI-配网专用
+#endif
+
+#if BT_NET_CFG_TURING_EN + BT_NET_CFG_DUI_EN + BT_NET_CFG_TENCENT_EN + CONFIG_APP_BT_ENABLE + BT_NET_CFG_QYAI_EN > 0
 #define BT_NET_CFG_EN                             0     //从机 杰理配网专用
 #else
 #define BT_NET_CFG_EN                             1     //从机 杰理配网专用

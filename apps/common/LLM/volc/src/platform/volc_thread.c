@@ -69,9 +69,8 @@ uint32_t volc_thread_create(volc_tid_t *thread, const volc_thread_param_t *param
     }
     volc_debug("%s %d", __FUNCTION__, __LINE__);
     volc_debug("name:%s prio:%d, stack size:%d\n", param->name, priority, stack_size);
-    /* printf("name:%s prio:%d, stack size:%d\n", param->name, priority, stack_size); */
-    /* printf("name:%s prio:%d, stack size:%d cpu:%d \n", param->name, param->priority, param->stack_size, param->bind_cpu); */
     ret = thread_fork(param->name, priority, (stack_size) / sizeof(int), 0, thread, (void (*)(void *))start_routine, args);
+    *thread = thread;
     if (0 != ret) {
         volc_debug("%s %d", __FUNCTION__, __LINE__);
         return VOLC_FAILED;
@@ -86,7 +85,8 @@ void volc_thread_destroy(volc_tid_t thread)
     if (NULL == thread) {
         return;
     }
-    thread = 0;
+    int *pid = (int *)thread;
+    thread_kill(pid, KILL_WAIT);
 }
 
 void volc_thread_exit(volc_tid_t thread)
@@ -95,7 +95,7 @@ void volc_thread_exit(volc_tid_t thread)
     if (NULL == thread) {
         return;
     }
-    int *pid = (int *)&thread;
+    int *pid = (int *)thread;
     thread_kill(pid, KILL_WAIT);
 }
 

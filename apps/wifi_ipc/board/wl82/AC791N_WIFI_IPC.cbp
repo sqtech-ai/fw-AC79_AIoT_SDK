@@ -219,6 +219,7 @@
 <Unit filename="../../../../apps/common/ble/le_net_central.c"><Option compilerVer="CC"/></Unit>
 <Unit filename="../../../../apps/common/ble/le_net_cfg.c"><Option compilerVer="CC"/></Unit>
 <Unit filename="../../../../apps/common/ble/le_net_cfg_dui.c"><Option compilerVer="CC"/></Unit>
+<Unit filename="../../../../apps/common/ble/le_net_cfg_qyai.c"><Option compilerVer="CC"/></Unit>
 <Unit filename="../../../../apps/common/ble/le_net_cfg_tencent.c"><Option compilerVer="CC"/></Unit>
 <Unit filename="../../../../apps/common/ble/le_net_cfg_turing.c"><Option compilerVer="CC"/></Unit>
 <Unit filename="../../../../apps/common/ble/le_trans_data.c"><Option compilerVer="CC"/></Unit>

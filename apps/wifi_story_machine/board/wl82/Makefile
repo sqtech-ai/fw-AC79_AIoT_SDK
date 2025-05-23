@@ -217,12 +217,91 @@ INCLUDES := \
 	-I../../../../include_lib/net/lwip_2_1_3/lwip/src/include/compat/posix \
 	-I../../../../include_lib/net/lwip_2_1_3/lwip/src/include/compat/stdc \
 	-I../../../../include_lib/system/os \
+	-I../../../../include_lib/net/libwebsockets/include \
+	-I../../../../include_lib/net/libwebsockets/include/libwebsockets \
+	-I../../../../apps/common/LLM/onesdk/src \
+	-I../../../../apps/common/LLM/onesdk/src/aigw \
+	-I../../../../apps/common/LLM/onesdk/src/util \
+	-I../../../../apps/common/LLM/onesdk/src/aws \
+	-I../../../../apps/common/LLM/onesdk/include \
+	-I../../../../apps/common/LLM/onesdk/include/iot \
+	-I../../../../apps/common/LLM/onesdk/include/protocols \
+	-I../../../../apps/common/LLM/onesdk/include/thing_model \
+	-I../../../../apps/common/LLM/onesdk/include/platform/plat \
+	-I../../../../apps/common/LLM/onesdk/platform \
+	-I../../../../apps/common/LLM/onesdk \
 
 
 # 需要编译的 .c 文件
 c_SRC_FILES := \
+	../../../../apps/common/LLM/QYAI/net_music.c \
+	../../../../apps/common/LLM/QYAI/qyai_instruct_word.c \
+	../../../../apps/common/LLM/QYAI/qyai_pcm.c \
+	../../../../apps/common/LLM/QYAI/qyai_platform.c \
 	../../../../apps/common/LLM/audio/audio_input.c \
 	../../../../apps/common/LLM/extra/g711.c \
+	../../../../apps/common/LLM/onesdk/examples/onesdk_realtime/chat_agent/realtime_demo.c \
+	../../../../apps/common/LLM/onesdk/platform/plat/alloc.c \
+	../../../../apps/common/LLM/onesdk/platform/plat/platform.c \
+	../../../../apps/common/LLM/onesdk/platform/plat/util.c \
+	../../../../apps/common/LLM/onesdk/src/aigw/auth.c \
+	../../../../apps/common/LLM/onesdk/src/aigw/llm.c \
+	../../../../apps/common/LLM/onesdk/src/aws/common/allocator.c \
+	../../../../apps/common/LLM/onesdk/src/aws/common/array_list.c \
+	../../../../apps/common/LLM/onesdk/src/aws/common/assert.c \
+	../../../../apps/common/LLM/onesdk/src/aws/common/atomics.c \
+	../../../../apps/common/LLM/onesdk/src/aws/common/byte_buf.c \
+	../../../../apps/common/LLM/onesdk/src/aws/common/byte_order.c \
+	../../../../apps/common/LLM/onesdk/src/aws/common/clock.c \
+	../../../../apps/common/LLM/onesdk/src/aws/common/common.c \
+	../../../../apps/common/LLM/onesdk/src/aws/common/data_time.c \
+	../../../../apps/common/LLM/onesdk/src/aws/common/encoding.c \
+	../../../../apps/common/LLM/onesdk/src/aws/common/error.c \
+	../../../../apps/common/LLM/onesdk/src/aws/common/hash_table.c \
+	../../../../apps/common/LLM/onesdk/src/aws/common/json.c \
+	../../../../apps/common/LLM/onesdk/src/aws/common/linked_list.c \
+	../../../../apps/common/LLM/onesdk/src/aws/common/math.c \
+	../../../../apps/common/LLM/onesdk/src/aws/common/string.c \
+	../../../../apps/common/LLM/onesdk/src/aws/common/time.c \
+	../../../../apps/common/LLM/onesdk/src/aws/common/zero.c \
+	../../../../apps/common/LLM/onesdk/src/infer_inner_chat.c \
+	../../../../apps/common/LLM/onesdk/src/infer_realtime_ws.c \
+	../../../../apps/common/LLM/onesdk/src/iot/dynreg.c \
+	../../../../apps/common/LLM/onesdk/src/iot/iot_kv.c \
+	../../../../apps/common/LLM/onesdk/src/iot/iot_mqtt.c \
+	../../../../apps/common/LLM/onesdk/src/iot/iot_popen.c \
+	../../../../apps/common/LLM/onesdk/src/iot/iot_utils.c \
+	../../../../apps/common/LLM/onesdk/src/iot/log/iot_log.c \
+	../../../../apps/common/LLM/onesdk/src/iot/log/iot_log_report.c \
+	../../../../apps/common/LLM/onesdk/src/iot/ota/iot_ota_api.c \
+	../../../../apps/common/LLM/onesdk/src/iot/ota/iot_ota_utils.c \
+	../../../../apps/common/LLM/onesdk/src/iot/thingmodel/custom_topic.c \
+	../../../../apps/common/LLM/onesdk/src/iot/thingmodel/device_delay.c \
+	../../../../apps/common/LLM/onesdk/src/iot/thingmodel/event.c \
+	../../../../apps/common/LLM/onesdk/src/iot/thingmodel/gateway.c \
+	../../../../apps/common/LLM/onesdk/src/iot/thingmodel/iot_ntp.c \
+	../../../../apps/common/LLM/onesdk/src/iot/thingmodel/iot_tm_api.c \
+	../../../../apps/common/LLM/onesdk/src/iot/thingmodel/property.c \
+	../../../../apps/common/LLM/onesdk/src/iot/thingmodel/service.c \
+	../../../../apps/common/LLM/onesdk/src/iot/thingmodel/shadow.c \
+	../../../../apps/common/LLM/onesdk/src/iot/thingmodel/webshell.c \
+	../../../../apps/common/LLM/onesdk/src/iot_basic.c \
+	../../../../apps/common/LLM/onesdk/src/onesdk.c \
+	../../../../apps/common/LLM/onesdk/src/onesdk_chat.c \
+	../../../../apps/common/LLM/onesdk/src/onesdk_iot.c \
+	../../../../apps/common/LLM/onesdk/src/onesdk_rt.c \
+	../../../../apps/common/LLM/onesdk/src/protocols/http.c \
+	../../../../apps/common/LLM/onesdk/src/protocols/http_libs.c \
+	../../../../apps/common/LLM/onesdk/src/protocols/lws_http_client.c \
+	../../../../apps/common/LLM/onesdk/src/protocols/lws_http_download.c \
+	../../../../apps/common/LLM/onesdk/src/protocols/lws_http_upload.c \
+	../../../../apps/common/LLM/onesdk/src/util/aes.c \
+	../../../../apps/common/LLM/onesdk/src/util/aes_decode.c \
+	../../../../apps/common/LLM/onesdk/src/util/aws_json.c \
+	../../../../apps/common/LLM/onesdk/src/util/hmac_sha256.c \
+	../../../../apps/common/LLM/onesdk/src/util/md5.c \
+	../../../../apps/common/LLM/onesdk/src/util/sha256.c \
+	../../../../apps/common/LLM/onesdk/src/util/util.c \
 	../../../../apps/common/LLM/volc/VolcEngineRTCLiteDemo.c \
 	../../../../apps/common/LLM/volc/access_token.c \
 	../../../../apps/common/LLM/volc/net_request.c \
@@ -264,6 +343,7 @@ c_SRC_FILES := \
 	../../../../apps/common/ble/le_net_central.c \
 	../../../../apps/common/ble/le_net_cfg.c \
 	../../../../apps/common/ble/le_net_cfg_dui.c \
+	../../../../apps/common/ble/le_net_cfg_qyai.c \
 	../../../../apps/common/ble/le_net_cfg_tencent.c \
 	../../../../apps/common/ble/le_net_cfg_turing.c \
 	../../../../apps/common/ble/le_trans_data.c \
@@ -622,6 +702,10 @@ LFLAGS := \
 	../../../../cpu/wl82/liba/ui_draw.a \
 	../../../../cpu/wl82/liba/libVolcEngineRTCLite.a \
 	../../../../cpu/wl82/liba/libcurl.a \
+	../../../../cpu/wl82/liba/libwebsockets.a \
+	../../../../cpu/wl82/liba/cJSON.a  \
+	../../../../cpu/wl82/liba/libmbedtls_2_2_1.a  \
+	../../../../cpu/wl82/liba/sxy_qyai.a \
 	-T../../../../cpu/wl82/sdk.ld \
 	-M=../../../../cpu/wl82/tools/sdk.map \
 	--end-group  \

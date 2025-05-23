@@ -95,4 +95,8 @@ int system_wakeup_port_get(void)
     return -EINVAL;
 }
 
+void system_alarm_wakeup_clear(void)
+{
+    sys_rst_rs &= ~(SYS_RST_ALM_WKUP);
+}
 

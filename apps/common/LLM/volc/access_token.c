@@ -51,7 +51,7 @@ AccessToken *token_init(const char *app_id, const char *app_key,
     token->app_key = strdup(app_key);
     token->room_id = strdup(room_id);
     token->user_id = strdup(user_id);
-    token->issued_at = 1742198742;//(uint32_t)time(NULL);
+    token->issued_at = (uint32_t)time(NULL);
     token->nonce = rand() % 99999999 + 1;
     token->expire_at = 0;
     memset(token->privileges, 0, sizeof(token->privileges));
