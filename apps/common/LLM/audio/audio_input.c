@@ -30,7 +30,7 @@
 #elif defined CONFIG_ONESDK_LLM_ENABLE
 #define AUDIO_RECORD_VOICE_UPLORD_LEN (3200)
 #else
-#define AUDIO_RECORD_VOICE_UPLORD_LEN (320)
+#define AUDIO_RECORD_VOICE_UPLORD_LEN (1280)
 #endif
 
 #define _AUDIO_TASK_NAME    "audio_task"
@@ -142,7 +142,11 @@ int _device_get_voice_data(VOID *data, unsigned int max_len)
     cbuffer_t *cbuf = (cbuffer_t *)&g_audio_hdl.pcm_cbuff_w;
     unsigned int rlen;
     static flag = 1;
+#if defined CONFIG_ONESDK_LLM_ENABLE || defined  CONFIG_VOLC_LLM_ENABLE
     mdelay(20);
+#else
+    mdelay(30);
+#endif
     rlen = cbuf_get_data_size(cbuf);
     if (rlen == 0) {
         //    audio_debug("device_get_voice_data no data");
@@ -227,7 +231,12 @@ static VOID audio_recoder_init()
 
     flag = TRUE;
 
+#if defined CONFIG_ONESDK_LLM_ENABLE || defined  CONFIG_VOLC_LLM_ENABLE
+
     req.enc.frame_size = SAMPLE_RATE / 100 * 4 * CHANNEL;        //收集够多少字节PCM数据就回调一次fwrite
+#else
+    req.enc.frame_size = SAMPLE_RATE / 100 * 4 * CHANNEL * 2;        //收集够多少字节PCM数据就回调一次fwrite
+#endif
     req.enc.output_buf_len = req.enc.frame_size * 3; //底层缓冲buf至少设成3倍frame_size
     req.enc.cmd = AUDIO_ENC_OPEN;
     req.enc.channel = CHANNEL;
@@ -573,8 +582,13 @@ static int _audio_soft_init(VOID)
     audio_debug("into volc audio soft init");
     pcm_buff_w = malloc(SAMPLE_RATE * CHANNEL * 1);
     cbuf_init(&g_audio_hdl.pcm_cbuff_w, pcm_buff_w, SAMPLE_RATE * CHANNEL * 1);
+#if defined CONFIG_ONESDK_LLM_ENABLE || defined  CONFIG_VOLC_LLM_ENABLE
     pcm_buff_r = malloc(SAMPLE_RATE * CHANNEL * 1);
     cbuf_init(&g_audio_hdl.pcm_cbuff_r, pcm_buff_r, SAMPLE_RATE * CHANNEL * 1);
+#else
+    pcm_buff_r = malloc(SAMPLE_RATE * CHANNEL * 4);
+    cbuf_init(&g_audio_hdl.pcm_cbuff_r, pcm_buff_r, SAMPLE_RATE * CHANNEL * 4);
+#endif
 
     if (!g_audio_hdl.enc_server) {
         g_audio_hdl.enc_server = server_open("audio_server", "enc");

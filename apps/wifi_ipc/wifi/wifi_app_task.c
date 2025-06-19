@@ -571,6 +571,9 @@ static int wifi_event_callback(void *network_ctx, enum WIFI_EVENT event)
         ctp_keep_alive_find_dhwaddr_disconnect((struct eth_addr *)hwaddr->addr);
         cdp_keep_alive_find_dhwaddr_disconnect((struct eth_addr *)hwaddr->addr);
         break;
+    case WIFI_EVENT_STA_IP_GOT_IPV6_SUCC:
+        printf("network_user_callback->WIFI_EVENT_STA_IP_GOT_IPV6_SUCC");
+        break;
     default:
         break;
     }

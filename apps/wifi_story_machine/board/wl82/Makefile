@@ -230,6 +230,7 @@ INCLUDES := \
 	-I../../../../apps/common/LLM/onesdk/include/platform/plat \
 	-I../../../../apps/common/LLM/onesdk/platform \
 	-I../../../../apps/common/LLM/onesdk \
+	-I../../../../include_lib/net/web_socket \
 
 
 # 需要编译的 .c 文件
@@ -238,6 +239,7 @@ c_SRC_FILES := \
 	../../../../apps/common/LLM/QYAI/qyai_instruct_word.c \
 	../../../../apps/common/LLM/QYAI/qyai_pcm.c \
 	../../../../apps/common/LLM/QYAI/qyai_platform.c \
+	../../../../apps/common/LLM/aitoye2e/e2e_demo.c \
 	../../../../apps/common/LLM/audio/audio_input.c \
 	../../../../apps/common/LLM/extra/g711.c \
 	../../../../apps/common/LLM/onesdk/examples/onesdk_realtime/chat_agent/realtime_demo.c \
@@ -706,6 +708,8 @@ LFLAGS := \
 	../../../../cpu/wl82/liba/cJSON.a  \
 	../../../../cpu/wl82/liba/libmbedtls_2_2_1.a  \
 	../../../../cpu/wl82/liba/sxy_qyai.a \
+	../../../../cpu/wl82/liba/libe2e.a \
+	../../../../cpu/wl82/liba/websocket.a  \
 	-T../../../../cpu/wl82/sdk.ld \
 	-M=../../../../cpu/wl82/tools/sdk.map \
 	--end-group  \

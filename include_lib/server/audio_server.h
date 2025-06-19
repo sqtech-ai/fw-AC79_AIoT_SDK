@@ -35,6 +35,9 @@ enum {
     AUDIO_ATTR_DIGITAL_FADE_INOUT = BIT(13), /*!< 数字音量淡入淡出，解码开始时使用 */
     AUDIO_ATTR_SDRAM_PROMPT = BIT(14),   /*!< 播放存储在sdram的提示音 */
     AUDIO_ATTR_NO_WAIT_READY = BIT(15),  /*!< 当前解码开始时不需等待解码数据缓存 */
+    AUDIO_ATTR_OPUS_OGG_TYPE = BIT(16),  /*!< ogg封装的opus数据 */
+    AUDIO_ATTR_OPUS_RAWDTF_TYPE = BIT(17),  /*!< opus为raw数据，带8字节packet头(4字节大端包长+4字节range校验值) */
+    AUDIO_ATTR_OPUS_CBR_PKTLEN_TYPE = BIT(18),  /*!< opus为百度无头封装格式，需要设置cbr包长,数据为raw数据+CBR_OPUS包长 */
 };
 
 /**
@@ -125,6 +128,8 @@ struct audio_finfo {
     int sample_rate;  /*!< 采样率 */
     int bit_rate;     /*!< 比特率 */
     int total_time;   /*!< 总时间 */
+    u8 opus_dec_type;
+    int opus_pkt_len;
 };
 
 /**
@@ -166,6 +171,7 @@ struct audio_dec_output_ops {
     void *(*get_buf)(void *priv, u32 *len);          /*!< 获取buf空间 */
     void (*put_buf)(void *priv, void *buf, u32 len); /*!< 推送buf空间 */
     const struct audio_vfs_ops *vfs_ops;             /*!< 音频虚拟文件操作句柄指针 */
+    int (*set_audio_info)(void *, struct audio_finfo *info);    /*!< 设置解码器的音频信息 */
 };
 
 /**
@@ -258,7 +264,8 @@ struct audio_dec_req {
     u8 speedV;                                                                    /*!< >80是变快，<80是变慢，建议范围：30到130 */
     u16 repeat_num;                                                               /*!< 循环播放次数 */
     u16 pitchV;															          /*!< >32768是音调变高，<32768音调变低，建议范围20000到50000 */
-    u16 attr;                                                                     /*!< 解码附加属性 */
+    u32 attr;                                                                     /*!< 解码附加属性 */
+    u32 opus_cbr_pktlen;                                                          /*!< opus cbr 帧长 */
     u16 effect;                                                                   /*!< 音效附加属性 */
     u32 output_buf_len;                                                           /*!< 解码buffer大小 */
     u32 orig_sr;                                                                  /*!< 强制变采样前的原始采样率，当混响使能强制变采样时才使用 */

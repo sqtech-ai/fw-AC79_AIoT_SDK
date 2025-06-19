@@ -65,6 +65,8 @@ enum LWIP_EVENT {
 
     LWIP_BT_DHCP_BOUND_TIMEOUT,
     LWIP_BT_DHCP_BOUND_SUCC,
+
+    LWIP_IP_GOT_IPV6_SUCC,
 };
 
 struct iphdr {

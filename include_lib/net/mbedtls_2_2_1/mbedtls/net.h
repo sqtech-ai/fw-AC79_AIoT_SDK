@@ -63,7 +63,6 @@ extern "C" {
  * structures for hand-made UDP demultiplexing).
  */
 typedef struct {
-    int fd;
     struct sock_hdl *hdl;             /**< The underlying file descriptor                 */
     void *fd_priv;
     int (*cb_func)(enum sock_api_msg_type type, void *priv);
@@ -73,6 +72,7 @@ typedef struct {
     int connect_to_ms;
     OS_MUTEX mutex;
     u8 handshake_ok;
+    int fd;
 }
 mbedtls_net_context;
 

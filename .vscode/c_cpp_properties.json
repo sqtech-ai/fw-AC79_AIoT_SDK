@@ -433,7 +433,8 @@
                 "${workspaceFolder}/apps/common/LLM/onesdk/include/thing_model",
                 "${workspaceFolder}/apps/common/LLM/onesdk/include/platform/plat",
                 "${workspaceFolder}/apps/common/LLM/onesdk/platform",
-                "${workspaceFolder}/apps/common/LLM/onesdk"
+                "${workspaceFolder}/apps/common/LLM/onesdk",
+                "${workspaceFolder}/include_lib/net/web_socket"
             ],
             "intelliSenseMode": "clang-x86",
             "name": "AC791N_WIFI_STORY_MACHINE"

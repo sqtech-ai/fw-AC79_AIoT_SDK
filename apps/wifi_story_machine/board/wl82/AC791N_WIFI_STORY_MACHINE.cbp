@@ -151,6 +151,7 @@
 <Add directory="../../../../apps/common/LLM/onesdk/include/platform/plat" />
 <Add directory="../../../../apps/common/LLM/onesdk/platform" />
 <Add directory="../../../../apps/common/LLM/onesdk" />
+<Add directory="../../../../include_lib/net/web_socket" />
 </Compiler>
 <Linker>
 <Add option="--plugin-opt=-pi32v2-always-use-itblock=false" />
@@ -295,6 +296,8 @@
 <Add option="../../../../cpu/wl82/liba/cJSON.a " />
 <Add option="../../../../cpu/wl82/liba/libmbedtls_2_2_1.a " />
 <Add option="../../../../cpu/wl82/liba/sxy_qyai.a" />
+<Add option="../../../../cpu/wl82/liba/libe2e.a" />
+<Add option="../../../../cpu/wl82/liba/websocket.a " />
 <Add option="-T../../../../cpu/wl82/sdk.ld" />
 <Add option="-M=../../../../cpu/wl82/tools/sdk.map" />
 <Add option="--end-group " />
@@ -317,6 +320,8 @@
 <Unit filename="../../../../apps/common/LLM/QYAI/qyai_instruct_word.c"><Option compilerVer="CC"/></Unit>
 <Unit filename="../../../../apps/common/LLM/QYAI/qyai_pcm.c"><Option compilerVer="CC"/></Unit>
 <Unit filename="../../../../apps/common/LLM/QYAI/qyai_platform.c"><Option compilerVer="CC"/></Unit>
+<Unit filename="../../../../apps/common/LLM/aitoye2e/e2e.h" />
+<Unit filename="../../../../apps/common/LLM/aitoye2e/e2e_demo.c"><Option compilerVer="CC"/></Unit>
 <Unit filename="../../../../apps/common/LLM/audio/audio_input.c"><Option compilerVer="CC"/></Unit>
 <Unit filename="../../../../apps/common/LLM/audio/audio_input.h" />
 <Unit filename="../../../../apps/common/LLM/extra/g711.c"><Option compilerVer="CC"/></Unit>
