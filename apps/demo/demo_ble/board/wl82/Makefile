@@ -160,10 +160,10 @@ INCLUDES := \
 	-I../../../../../apps/common/config/include \
 	-I../../../../../include_lib/btstack \
 	-I../../../../../include_lib/net \
-	-I../../../../../include_lib/net/lwip_2_1_3/lwip/src/include \
-	-I../../../../../include_lib/net/lwip_2_1_3/lwip/src/include/lwip \
-	-I../../../../../include_lib/net/lwip_2_1_3/lwip/port \
-	-I../../../../../include_lib/net/lwip_2_1_3/lwip/app \
+	-I../../../../../include_lib/net/lwip_2_2_0/lwip/src/include \
+	-I../../../../../include_lib/net/lwip_2_2_0/lwip/src/include/lwip \
+	-I../../../../../include_lib/net/lwip_2_2_0/lwip/port \
+	-I../../../../../include_lib/net/lwip_2_2_0/lwip/app \
 	-I../../../../../apps/common/ble/include \
 	-I../../../../../include_lib/utils/btmesh \
 	-I../../../../../include_lib/utils/btmesh/adaptation \

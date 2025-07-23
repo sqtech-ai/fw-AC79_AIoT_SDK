@@ -163,10 +163,10 @@ INCLUDES := \
 	-I../../../../../include_lib/net/mbedtls_2_2_1 \
 	-I../../../../../include_lib/net/server \
 	-I../../../../../include_lib/server \
-	-I../../../../../include_lib/net/lwip_2_1_3/lwip/src/include \
-	-I../../../../../include_lib/net/lwip_2_1_3/lwip/src/include/lwip \
-	-I../../../../../include_lib/net/lwip_2_1_3/lwip/port \
-	-I../../../../../include_lib/net/lwip_2_1_3/lwip/app \
+	-I../../../../../include_lib/net/lwip_2_2_0/lwip/src/include \
+	-I../../../../../include_lib/net/lwip_2_2_0/lwip/src/include/lwip \
+	-I../../../../../include_lib/net/lwip_2_2_0/lwip/port \
+	-I../../../../../include_lib/net/lwip_2_2_0/lwip/app \
 
 
 # 需要编译的 .c 文件

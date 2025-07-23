@@ -643,9 +643,69 @@ static void wifi_scan_test(void)
         wifi_clear_scan_result();//若使用连接最优WIFI(connect_best_network)的情况下,如果不使用等待WIFI_EVENT_STA_SCAN_COMPLETED事件的方式, 在WIFI还未连接成功的情况下,有概率会造成wifi内部获取的结果被这里清空导致当次获取不到空中准备WIFI列表,需要等到下次扫描结果,因此如果使用connect_best_network的情况下,推荐使用等待事件 WIFI_EVENT_STA_SCAN_COMPLETED 扫描完成之后才去获取结果
     }
 }
+#include "asm/sdram.h"
+static const struct sdram_cfg_info_t sdram_cfg = {
+    .sdram_size = 2 * 1024 * 1024,
+    .sdram_test_size = 4 * 1024,
+    .sdram_config_val = -1,
+    .sdram_mode = 0,
+    .sdram_pll3_en = 0,
+    .sdram_pll3_nousb_en = 0,
+    .sdram_cl = 2,
+    .sdram_rlcnt = 1,
+    .sdram_d_dly = 1,
+    .sdram_q_dly = 1,
+    .sdram_phase = 3,
+    .sdram_dq_dly_trm = 4,
+};
+
+
+#ifdef CONFIG_DYNAMIC_SDRAM_ONOFF_ENABLE
+extern u32 dynamic_bss_size;
+extern u32 dynamic_bss_begin;
+extern u32 dynamic_data_vma;
+extern u32 dynamic_data_lma;
+extern u32 dynamic_data_size;
+
+int wifi_load_to_sdram(void)
+{
+    sdram_init(&sdram_cfg);
+    printf("bss_size:%x  bss_addr:%x  data_lma:%x  data_vma:%x  data_size:%d", &dynamic_bss_size, &dynamic_bss_begin, &dynamic_data_lma, &dynamic_data_vma, &dynamic_data_size);
+
+    memset(&dynamic_bss_begin, 0, &dynamic_bss_size);
+    memcpy(&dynamic_data_vma, &dynamic_data_lma, &dynamic_data_size);
+    flush_dcache(&dynamic_data_vma, &dynamic_data_size);
+    flush_dcache(&dynamic_bss_begin, &dynamic_bss_size);
+    wifi_set_store_ssid_cnt(NETWORK_SSID_INFO_CNT);
+    wifi_set_event_callback(wifi_event_callback);
+
+
+    wifi_on();
+
+
+
+}
+int wifi_unload_to_sdram(void)
+{
+
+    wifi_off();
+
+    flushinv_dcache(&dynamic_data_vma, &dynamic_data_size);
+    flushinv_dcache(&dynamic_bss_begin, &dynamic_bss_size);
+
+    sdram_uninit();
+
+}
+
+
+#endif
+
+
+
 
 static void wifi_demo_task(void *priv)
 {
+
     wifi_set_store_ssid_cnt(NETWORK_SSID_INFO_CNT);
     wifi_set_event_callback(wifi_event_callback);
 

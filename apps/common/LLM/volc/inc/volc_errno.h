@@ -23,6 +23,13 @@ extern "C" {
 #define VOLC_SUCCESS    0
 #define VOLC_FAILED     -1
 
+/**
+ * @brief 获取当前fd的errno
+ *
+ * @param fd 文件描述符
+ * @return 返回errno
+ */
+__byte_rtc_api__ int volc_errno(int fd);
 
 #ifdef __cplusplus
 }

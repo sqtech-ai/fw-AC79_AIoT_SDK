@@ -159,7 +159,7 @@ int mbedtls_net_connect_bind(mbedtls_net_context *ctx, int domain, int socktype,
     if (ctx->hdl == NULL) {
         return -1;
     }
-
+    ctx->fd = sock_get_socket(ctx->hdl);
 
     sock_set_reuseaddr(ctx->hdl);
 
@@ -195,7 +195,6 @@ int mbedtls_net_connect(mbedtls_net_context *ctx, const char *host, const char *
 {
     int ret;
     struct addrinfo hints, *addr_list, *cur;
-    struct sockaddr_in romte_addr;
 
     if ((ret = net_prepare()) != 0) {
         return (ret);
@@ -207,15 +206,6 @@ int mbedtls_net_connect(mbedtls_net_context *ctx, const char *host, const char *
     hints.ai_socktype = proto == MBEDTLS_NET_PROTO_UDP ? SOCK_DGRAM : SOCK_STREAM;
     hints.ai_protocol = proto == MBEDTLS_NET_PROTO_UDP ? IPPROTO_UDP : IPPROTO_TCP;
 
-
-    if (ctx->hdl == NULL) {
-
-        if ((ret = mbedtls_net_connect_bind(ctx, AF_INET, hints.ai_socktype, 0, 0, 0)) != 0) {
-            return ret;
-        }
-    }
-
-
     if (getaddrinfo(host, port, &hints, &addr_list) != 0) {
         return (MBEDTLS_ERR_NET_UNKNOWN_HOST);
     }
@@ -224,18 +214,52 @@ int mbedtls_net_connect(mbedtls_net_context *ctx, const char *host, const char *
     ret = MBEDTLS_ERR_NET_UNKNOWN_HOST;
 
     for (cur = addr_list; cur != NULL; cur = cur->ai_next) {
+        ctx->hdl = sock_reg(cur->ai_family, cur->ai_socktype, cur->ai_protocol, ctx->cb_func, ctx->priv);
+        if (ctx->hdl == NULL) {
+            ret = MBEDTLS_ERR_NET_SOCKET_FAILED;
+            continue;
+        }
+
+#if 1
+        if (ctx->send_to_ms) {
+            sock_set_send_timeout((void *)ctx->hdl, ctx->send_to_ms);
+        }
+        if (ctx->recv_to_ms) {
+            sock_set_recv_timeout((void *)ctx->hdl, ctx->recv_to_ms);
+        }
+
+        if (ctx->connect_to_ms) {
+            sock_set_connect_to((void *)ctx->hdl, ctx->connect_to_ms / 1000);
+        }
+#endif
+
+#if 0
+        if (cur->ai_family == AF_INET6) { //ipv6
+            if (mbedtls_bind(ctx->hdl, "::", NULL, proto)) {
+                sock_unreg(ctx->hdl);
+                ret = MBEDTLS_ERR_NET_BIND_FAILED;
+                goto finish;
+            }
+        } else { //ipv4
+            if (mbedtls_bind(ctx->hdl, NULL, "0", proto)) {
+                sock_unreg(ctx->hdl);
+                ret =  MBEDTLS_ERR_NET_BIND_FAILED;
+                goto finish;
+            }
+        }
+#endif
 
         if (sock_connect(ctx->hdl, cur->ai_addr, MSVC_INT_CAST cur->ai_addrlen) == 0) {
             ret = 0;
             break;
         }
 
+        sock_unreg(ctx->hdl);
         ret = MBEDTLS_ERR_NET_CONNECT_FAILED;
     }
 
+finish:
     freeaddrinfo(addr_list);
-
-
     return (ret);
 }
 
@@ -276,6 +300,7 @@ int mbedtls_net_bind(mbedtls_net_context *ctx, const char *bind_ip, const char *
             ret = MBEDTLS_ERR_NET_SOCKET_FAILED;
             continue;
         }
+        ctx->fd = sock_get_socket(ctx->hdl);
 
         if (ctx->send_to_ms) {
             sock_set_send_timeout((void *)ctx->hdl, ctx->send_to_ms);
@@ -395,7 +420,7 @@ int mbedtls_net_accept(mbedtls_net_context *bind_ctx,
         /* TCP: actual accept() */
         client_ctx->hdl =  sock_accept(bind_ctx->hdl, (struct sockaddr *) &client_addr, (socklen_t *)(&n), bind_ctx->cb_func, bind_ctx->priv);
         ret = (int)client_ctx->hdl;
-
+        client_ctx->fd = sock_get_socket(client_ctx->hdl);
         if (ret == 0) {
             if (net_would_block(bind_ctx) != 0) {
                 return (MBEDTLS_ERR_SSL_WANT_READ);
@@ -445,6 +470,7 @@ int mbedtls_net_accept(mbedtls_net_context *bind_ctx,
 
         if (sock_getsockname(client_ctx->hdl, (struct sockaddr *) &local_addr, (socklen_t *)(&n)) == 0) {
             bind_ctx->hdl = sock_reg(local_addr.ss_family, SOCK_DGRAM, IPPROTO_UDP, bind_ctx->cb_func, bind_ctx->priv);
+            bind_ctx->fd = sock_get_socket(bind_ctx->hdl);
             if (bind_ctx->hdl) {
                 if (sock_set_reuseaddr(bind_ctx->hdl)) {
                     sock_unreg(bind_ctx->hdl);
@@ -863,3 +889,4 @@ int mbedtls_ssl_read_ext(mbedtls_ssl_context *ssl, unsigned char *buf, size_t le
     return already_read;
 }
 #endif /* MBEDTLS_NET_C */
+

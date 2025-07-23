@@ -313,6 +313,9 @@ struct audio_enc_req {
     u8 sample_depth : 3;                      /*!< 采样深度16bit或者24bit */
     u8 dns_enable : 1;                        /*!< dns降噪算法 0:不使用 1:使用 */
     u8 wait_sem : 1;                          /*!< 编码器数据输出时如果缓存已满即等待信号量 */
+    u8 format_mode;                           /*!< 编码模式设置 opus: 0:百度无头. 1:酷狗_eng+range. 2:ogg封装,pc软件可播放. 3:size+rangeFinal. 源码可兼容版本. */
+    u8 complexity;                            /*!< 编码复杂度 opus-ogg  0.1.2.3. 3质量最好.速度要求最高*/
+    u8 frame_ms;                              /*!< opus-ogg编码帧时 20|40|60|80|100ms*/
     u16 vad_start_threshold;                  /*!< VAD连续检测到声音的阈值，表示开始说话，回调AUDIO_SERVER_EVENT_SPEAK_START，单位ms，填0使用库内默认值 */
     u16 vad_stop_threshold;                   /*!< VAD连续检测到静音的阈值, 表示停止说话，回调AUDIO_SERVER_EVENT_SPEAK_STOP，单位ms,填0使用库内默认值 */
     u16 frame_size;                           /*!< 编码器输出的每一帧帧长大小，只有pcm格式编码时才有效 */

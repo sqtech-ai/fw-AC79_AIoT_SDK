@@ -205,12 +205,12 @@ INCLUDES := \
 	-I../../../../../include_lib/net/mbedtls_2_2_1 \
 	-I../../../../../include_lib/net/wifi_module \
 	-I../../../../../include_lib/net/wifie \
-	-I../../../../../include_lib/net/lwip_2_1_3/lwip/src/include \
-	-I../../../../../include_lib/net/lwip_2_1_3/lwip/src/include/lwip \
-	-I../../../../../include_lib/net/lwip_2_1_3/lwip/port \
-	-I../../../../../include_lib/net/lwip_2_1_3/lwip/app \
-	-I../../../../../include_lib/net/lwip_2_1_3/lwip/app/ctp \
-	-I../../../../../include_lib/net/lwip_2_1_3/lwip/app/cdp \
+	-I../../../../../include_lib/net/lwip_2_2_0/lwip/src/include \
+	-I../../../../../include_lib/net/lwip_2_2_0/lwip/src/include/lwip \
+	-I../../../../../include_lib/net/lwip_2_2_0/lwip/port \
+	-I../../../../../include_lib/net/lwip_2_2_0/lwip/app \
+	-I../../../../../include_lib/net/lwip_2_2_0/lwip/app/ctp \
+	-I../../../../../include_lib/net/lwip_2_2_0/lwip/app/cdp \
 	-I../../../../../apps/common/net \
 	-I../../../../../apps/common/net/testbox/include \
 	-I../../../../../apps/common/ui/include \
@@ -1253,7 +1253,7 @@ LFLAGS := \
 	../../../../../cpu/wl82/liba/libdlna.a \
 	../../../../../cpu/wl82/liba/ai_server.a \
 	../../../../../cpu/wl82/liba/libmbedtls_2_2_1.a  \
-	../../../../../cpu/wl82/liba/lwip_2_1_3.a \
+	../../../../../cpu/wl82/liba/lwip_2_2_0.a \
 	../../../../../cpu/wl82/liba/wl_wifi.a \
 	--end-group \
 	../../../../../include_lib/c++/libstdc++/libemutls.a \

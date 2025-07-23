@@ -184,12 +184,12 @@ INCLUDES := \
 	-I../../../../include_lib/server \
 	-I../../../../include_lib/net/wifi_module \
 	-I../../../../include_lib/net/hostapdandwpa_supplicant \
-	-I../../../../include_lib/net/lwip_2_1_3/lwip/src/include \
-	-I../../../../include_lib/net/lwip_2_1_3/lwip/src/include/lwip \
-	-I../../../../include_lib/net/lwip_2_1_3/lwip/port \
-	-I../../../../include_lib/net/lwip_2_1_3/lwip/app \
-	-I../../../../include_lib/net/lwip_2_1_3/lwip/app/ctp \
-	-I../../../../include_lib/net/lwip_2_1_3/lwip/app/cdp \
+	-I../../../../include_lib/net/lwip_2_2_0/lwip/src/include \
+	-I../../../../include_lib/net/lwip_2_2_0/lwip/src/include/lwip \
+	-I../../../../include_lib/net/lwip_2_2_0/lwip/port \
+	-I../../../../include_lib/net/lwip_2_2_0/lwip/app \
+	-I../../../../include_lib/net/lwip_2_2_0/lwip/app/ctp \
+	-I../../../../include_lib/net/lwip_2_2_0/lwip/app/cdp \
 	-I../../../../apps/common \
 	-I../../../../include_lib/driver/device/usb \
 	-I../../../../include_lib/driver/device/usb/device \
@@ -432,7 +432,7 @@ LFLAGS := \
 	../../../../cpu/wl82/liba/media_app.a \
 	../../../../cpu/wl82/liba/wl_wifi_sta.a \
 	../../../../cpu/wl82/liba/wpasupplicant.a \
-	../../../../cpu/wl82/liba/lwip_2_1_3.a \
+	../../../../cpu/wl82/liba/lwip_2_2_0.a \
 	../../../../cpu/wl82/liba/stream_media_server.a \
 	../../../../cpu/wl82/liba/libmbedtls_2_2_1.a \
 	../../../../cpu/wl82/liba/iperf.a \

@@ -1,7 +1,6 @@
 #include "volc_thread.h"
 
 #include <unistd.h>
-//#include <freertos/FreeRTOS.h>
 #include "pthread.h"
 #include "os/os_api.h"
 #include "volc_errno.h"
@@ -21,17 +20,8 @@ volc_tid_t volc_thread_get_id(void)
 {
     // volc_debug("%s\n", __FUNCTION__);
     return (volc_tid_t)get_cur_thread_pid();
-//    return (volc_tid_t)pthread_self();
 }
 
-uint32_t volc_thread_get_name(volc_tid_t thread, char *name, uint32_t len)
-{
-    // volc_debug("%s\n", __FUNCTION__);
-    (void)thread;
-    (void)name;
-    (void)len;
-    return VOLC_SUCCESS;
-}
 
 uint32_t volc_thread_set_name(const char *name)
 {
@@ -40,9 +30,33 @@ uint32_t volc_thread_set_name(const char *name)
     return VOLC_SUCCESS;
 }
 
+#include "spinlock.h"
+
+DEFINE_SPINLOCK(volc_lock);
+static int volc_thread_pid[8];
+
+int *get_volc_thread_pid(void)
+{
+    spin_lock(&volc_lock);
+    int i = 0;
+    for (i = 0; i < 8; i++) {
+        if (volc_thread_pid[i] == 0) {
+            volc_thread_pid[i]  = !0;
+            break;
+        }
+    }
+    if (i == 8) {
+
+        spin_unlock(&volc_lock);
+        return NULL;
+    }
+    spin_unlock(&volc_lock);
+    return  &volc_thread_pid[i];
+
+}
+
 uint32_t volc_thread_create(volc_tid_t *thread, const volc_thread_param_t *param, void *(*start_routine)(void *), void *args)
 {
-    // volc_debug("%s\n", __FUNCTION__);
     int ret = 0;
     int stack_size = 0;
     int priority = 0;
@@ -69,8 +83,10 @@ uint32_t volc_thread_create(volc_tid_t *thread, const volc_thread_param_t *param
     }
     volc_debug("%s %d", __FUNCTION__, __LINE__);
     volc_debug("name:%s prio:%d, stack size:%d\n", param->name, priority, stack_size);
-    ret = thread_fork(param->name, priority, (stack_size) / sizeof(int), 0, thread, (void (*)(void *))start_routine, args);
-    *thread = thread;
+    int *handle = NULL;
+    handle = get_volc_thread_pid();
+    ret = thread_fork(param->name, priority, (stack_size) / sizeof(int), 0, handle, (void (*)(void *))start_routine, args);
+    *thread = handle;
     if (0 != ret) {
         volc_debug("%s %d", __FUNCTION__, __LINE__);
         return VOLC_FAILED;
@@ -85,18 +101,14 @@ void volc_thread_destroy(volc_tid_t thread)
     if (NULL == thread) {
         return;
     }
-    int *pid = (int *)thread;
-    thread_kill(pid, KILL_WAIT);
 }
 
 void volc_thread_exit(volc_tid_t thread)
 {
-    // volc_debug("%s\n", __FUNCTION__);
     if (NULL == thread) {
         return;
     }
-    int *pid = (int *)thread;
-    thread_kill(pid, KILL_WAIT);
+    thread_kill(thread, KILL_WAIT);
 }
 
 void volc_thread_sleep(uint64_t time)
@@ -133,12 +145,6 @@ uint32_t volc_thread_join(volc_tid_t thread, void *ret)
     return VOLC_SUCCESS;
 }
 
-uint32_t volc_thread_cancel(volc_tid_t thread)
-{
-    // volc_debug("%s\n", __FUNCTION__);
-    (void)thread;
-    return VOLC_SUCCESS;
-}
 
 uint32_t volc_thread_detach(volc_tid_t thread)
 {

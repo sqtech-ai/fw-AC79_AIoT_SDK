@@ -64,8 +64,9 @@ extern "C" {
  * When LWIP_WND_SCALE is enabled but TCP_RCV_SCALE is 0, we can use a large
  * send window while having a small receive window only.
  */
-#define LWIP_WND_SCALE                  1
-#define TCP_RCV_SCALE                   2
+#define LWIP_WND_SCALE                  0
+#define TCP_RCV_SCALE                   0
+
 #define DHCPS_UNICAST_ENABLE            0
 #if DHCPS_UNICAST_ENABLE
 #define ETHARP_SUPPORT_STATIC_ENTRIES   1

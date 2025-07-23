@@ -160,12 +160,12 @@ INCLUDES := \
 	-I../../../../../include_lib/utils/ui \
 	-I../../../../../include_lib/net \
 	-I../../../../../include_lib/net/wifi_module \
-	-I../../../../../include_lib/net/lwip_2_1_3/lwip/src/include \
-	-I../../../../../include_lib/net/lwip_2_1_3/lwip/src/include/lwip \
-	-I../../../../../include_lib/net/lwip_2_1_3/lwip/port \
-	-I../../../../../include_lib/net/lwip_2_1_3/lwip/app \
-	-I../../../../../include_lib/net/lwip_2_1_3/lwip/app/ctp \
-	-I../../../../../include_lib/net/lwip_2_1_3/lwip/app/cdp \
+	-I../../../../../include_lib/net/lwip_2_2_0/lwip/src/include \
+	-I../../../../../include_lib/net/lwip_2_2_0/lwip/src/include/lwip \
+	-I../../../../../include_lib/net/lwip_2_2_0/lwip/port \
+	-I../../../../../include_lib/net/lwip_2_2_0/lwip/app \
+	-I../../../../../include_lib/net/lwip_2_2_0/lwip/app/ctp \
+	-I../../../../../include_lib/net/lwip_2_2_0/lwip/app/cdp \
 	-I../../../../../apps/common/net \
 	-I../../../../../apps/common/net/testbox/include \
 	-I../../../../../apps/common/usb \
@@ -188,6 +188,7 @@ c_SRC_FILES := \
 	../../../../../apps/common/audio_music/eq_config_new.c \
 	../../../../../apps/common/audio_music/music_decrypt.c \
 	../../../../../apps/common/audio_music/usb_audio_api.c \
+	../../../../../apps/common/config/log_config/app_config.c \
 	../../../../../apps/common/config/log_config/lib_driver_config.c \
 	../../../../../apps/common/config/log_config/lib_system_config.c \
 	../../../../../apps/common/config/log_config/lib_update_config.c \
@@ -363,7 +364,7 @@ LFLAGS := \
 	../../../../../cpu/wl82/liba/libdns.a \
 	../../../../../cpu/wl82/liba/libjlsp.a \
 	../../../../../cpu/wl82/liba/libjlsp_kws_far_keyword.a \
-	../../../../../cpu/wl82/liba/libjlsp_kws_common.a \
+	../../../../../cpu/wl82/liba/libkwscommon.a \
 	../../../../../cpu/wl82/liba/lib_usb_syn.a \
 	../../../../../cpu/wl82/liba/libaisp_single.a \
 	../../../../../cpu/wl82/liba/libauth_aisp.a \
@@ -378,7 +379,7 @@ LFLAGS := \
 	../../../../../cpu/wl82/liba/lib_crossover_coff.a \
 	../../../../../cpu/wl82/liba/libdrc.a \
 	../../../../../cpu/wl82/liba/media_app.a \
-	../../../../../cpu/wl82/liba/lwip_2_1_3_sfc.a \
+	../../../../../cpu/wl82/liba/lwip_2_2_0_sfc.a \
 	../../../../../cpu/wl82/liba/wl_wifi_sta_sfc.a \
 	../../../../../cpu/wl82/liba/profile.a \
 	../../../../../cpu/wl82/liba/wpasupplicant.a \

@@ -28,7 +28,7 @@
 #define HAVE_ETH_WIRE_NETIF
 #define HAVE_LTE_NETIF
 #define HAVE_BT_NETIF
-#define HAVE_EXT_WIRELESS_NETIF
+/* #define HAVE_EXT_WIRELESS_NETIF */
 #define HAVE_WRIELESS_RAW_NETIF
 
 extern const u8 IPV4_ADDR_CONFLICT_DETECT;
@@ -42,6 +42,8 @@ extern err_t wireless_raw_ethernetif_init(struct netif *netif);
 extern void ntp_client_get_time(const char *host);
 extern int netdev_get_mac_addr(u8 *mac_addr);
 static void __lwip_renew(unsigned short parm);
+
+static u8 lwip_inited;
 
 int __attribute__((weak)) lwip_event_cb(void *lwip_ctx, enum LWIP_EVENT event)
 {
@@ -1208,10 +1210,11 @@ void Init_LwIP(u8_t lwip_netif)
     struct ip4_addr ipaddr;
     struct ip4_addr netmask;
     struct ip4_addr gw;
-
-    char host_name[32] = {0};
     struct netif *netif = NULL;
+    char host_name[32] = {0};
     netif_init_fn ethernetif_init = NULL;
+
+    ntp_client_init();
 
     struct lan_setting *lan_setting_info = net_get_lan_info(lwip_netif);
     if (!lan_setting_info) {
@@ -1276,7 +1279,6 @@ void Init_LwIP(u8_t lwip_netif)
 
     printf("|Init_LwIP [%d]\n", lwip_netif);
 
-    static u8 lwip_inited;
     if (!lwip_inited) {
         if (sys_sem_new(&sem, 0) != ERR_OK) {
             LWIP_ASSERT("failed to create sem", 0);
@@ -1316,6 +1318,55 @@ void Init_LwIP(u8_t lwip_netif)
 
     Display_IPAddress();
 }
+
+void Unint_LwIP(u8_t id)
+{
+
+
+    struct netif *netif = NULL;
+    switch (id) {
+#ifdef HAVE_ETH_WIRE_NETIF
+    case ETH_NETIF:
+        netif = &wire_netif;
+        break;
+#endif
+    case WIFI_NETIF:
+        netif = &wireless_netif;
+        break;
+#ifdef HAVE_WRIELESS_RAW_NETIF
+    case WIFI_RAW_NETIF:
+        netif = &wireless_raw_netif;
+        break;
+#endif
+#ifdef HAVE_EXT_WIRELESS_NETIF
+    case EXT_WIFI_NETIF:
+        netif = &ext_wireless_netif;
+        break;
+#endif
+#ifdef HAVE_BT_NETIF
+    case BT_NETIF:
+        netif = &bt_netif;
+        break;
+#endif
+#ifdef HAVE_LTE_NETIF
+    case LTE_NETIF:
+        netif = &lte_netif;
+        break;
+#endif
+
+    default:
+        printf("no support netif = %d\n", id);
+        return;
+    }
+
+    netif_set_down(netif);
+    netif_remove(netif);
+    void tcpip_uninit(void);
+    tcpip_uninit();
+    lwip_inited = 0;
+
+}
+
 
 /*The gethostname function retrieves the standard host name for the local computer.*/
 int gethostname(char *name, int namelen)

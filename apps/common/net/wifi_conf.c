@@ -99,6 +99,10 @@ const u8 MAX_LEN_OF_BSS_TABLE = 2; //BSS table 个数设置用于存放扫描结
 const u8 MAX_LEN_OF_BSS_TABLE = 4; //BSS table 个数设置用于存放扫描结果，最少为1个，不能为0，个数越多占用内存越大
 #endif
 
+const u8 CONFIG_WIFI_USE_TLSF_MEM = 0; //配置wifi使用独立的内存管理，与系统内存管理分割开
+/* const unsigned int CONFIG_WIFI_MAX_MEM_LIMIT = 200 * 1024; //允许wifi使用的内存大小 */
+#define CONFIG_WIFI_MAX_MEM_SIZE    (0)
+
 const u8 wifi_recv_poll = 0; //wifi接收数据方式，0为中断方式接收，1为轮询方式接收
 
 #if defined CONFIG_WIFI_IDLE_RESUME_BASEBAND_ENABLE
@@ -115,6 +119,19 @@ u16 wl_default_listen_interval = 3;	// 默认监听间隔是 3，防止没有 se
 
 u8 wl_transmit_keep_awake_time = 12;	// 默认收发包时等待 12 * 100ms 的清醒时间，该期间内系统不会休眠。单位 100ms，最小可设置为 1，即只等待 100ms
 /*--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+
+
+static u8 mem_pool[CONFIG_WIFI_MAX_MEM_SIZE]sec(.wifi_mem_pool);
+u8 *wifi_mem_pool(u32 *size)
+{
+    if (size == NULL) {
+        return NULL;
+    }
+    *size = CONFIG_WIFI_MAX_MEM_SIZE;
+    printf("wifi mem pool:%x  size:%d\n", mem_pool, *size);
+    return mem_pool;
+}
+
 
 #ifdef CONFIG_NET_ENABLE
 #if 0

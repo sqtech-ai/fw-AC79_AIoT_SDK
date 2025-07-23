@@ -58,7 +58,6 @@ typedef enum {
 } volc_socket_type_e;
 
 
-//typedef void* volc_poll_t;
 struct volc_pollfd {
     int   fd;         /* file descriptor */
     short events;     /* requested events */

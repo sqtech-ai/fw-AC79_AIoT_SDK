@@ -10,29 +10,17 @@
 
 uint64_t volc_get_time(void)
 {
-//    volc_debug("%s\n", __FUNCTION__);
-
     struct timespec now_time;
     clock_gettime(CLOCK_REALTIME, &now_time);
     return (uint64_t)now_time.tv_sec * VOLC_HUNDREDS_OF_NANOS_IN_A_SECOND + (uint64_t)now_time.tv_nsec / VOLC_DEFAULT_TIME_UNIT_IN_NANOS;
-
-// #if 1
-//     time_t now_time;
-//     time(&now_time);
-//     return ((uint64_t) now_time * 10000000ULL);
-// #endif // 0
-
 }
 
-/* #define CLOCK_MONOTONIC (clockid_t)4 */
 #define CLOCK_MONOTONIC 4
 
 uint64_t volc_get_montionic_time(void)
 {
-    /* printf("\n -[function] %s -[lnie] %d\n", __FUNCTION__, __LINE__); */
         struct timespec now_time;
         clock_gettime(CLOCK_MONOTONIC, &now_time);
-    /* printf("now_time:%d",(uint64_t)now_time.tv_sec * VOLC_HUNDREDS_OF_NANOS_IN_A_SECOND + (uint64_t)now_time.tv_nsec / VOLC_DEFAULT_TIME_UNIT_IN_NANOS); */
         return (uint64_t)now_time.tv_sec * VOLC_HUNDREDS_OF_NANOS_IN_A_SECOND + (uint64_t)now_time.tv_nsec / VOLC_DEFAULT_TIME_UNIT_IN_NANOS;
 };
 

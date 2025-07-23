@@ -14,6 +14,8 @@
 #define RTC_APP_ID   ""
 #define RTC_APP_KEY  ""
 
+#define BOT_ID       ""
+
 typedef struct {
     char room_id[129];
     char uid[129];
@@ -401,17 +403,24 @@ char *update_voice_chat_json(const char *app_id, const char *room_id, const char
 char *generate_random_string(int length)
 {
     const char charset[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-    char *str = malloc(length + 1); // +1 用于结尾的空字符
+    char *str = malloc(length + 1);
 
     if (str == NULL) {
-        return NULL; // 内存分配失败
+        return NULL;
+    }
+
+    // 在第一次调用前初始化随机种子（只需在整个程序中执行一次）
+    static int seeded = 0;
+    if (!seeded) {
+        srand(time(NULL));  // 使用当前时间作为种子
+        seeded = 1;
     }
 
     for (int i = 0; i < length; i++) {
-        int index = rand() % (sizeof(charset) - 1); // 生成0到字符集长度-1的随机索引
+        int index = rand() % (sizeof(charset) - 1);
         str[i] = charset[index];
     }
-    str[length] = '\0'; // 终止字符串
+    str[length] = '\0';
 
     return str;
 }

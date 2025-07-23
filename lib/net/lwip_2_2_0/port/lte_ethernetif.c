@@ -31,6 +31,33 @@ void lte_module_tx_packet(u16 length);
 void lte_module_release_current_rxpkt(void);
 unsigned char *lte_module_get_mac_addr(void);
 
+void *__attribute__((weak)) lte_module_get_txaddr(void)
+{
+    return NULL;
+}
+
+int __attribute__((weak)) lte_module_get_rxpkt_addr_len(struct lte_module_pkg *_oeth_data)
+{
+    return -1;
+}
+
+void __attribute__((weak)) lte_module_tx_packet(u16 length)
+{
+
+}
+
+void __attribute__((weak)) lte_module_release_current_rxpkt(void)
+{
+
+}
+
+unsigned char *__attribute__((weak)) lte_module_get_mac_addr(void)
+{
+    return NULL;
+}
+
+
+
 static void lte_rx_task(void *p_arg)
 {
     while (1) {

@@ -8,5 +8,5 @@ lib_mbedtls_2_2_1_version:
 
 #else
 
-.asciz "MBEDTLS_2_2_1-*modified*--@20231213-$807643d8"
+.asciz "MBEDTLS_2_2_1-*modified*--@20250723-$435a82ad"
 #endif

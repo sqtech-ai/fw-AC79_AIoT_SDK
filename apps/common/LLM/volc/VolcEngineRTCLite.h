@@ -23,8 +23,8 @@ extern "C" {
 #define __byte_rtc_api__ __attribute__((visibility("default")))
 #endif
 
-#define BYTE_RTC_API_VERSION "1.0.3"
-#define BYTE_RTC_API_VERSION_NUM 0x1003
+#define BYTE_RTC_API_VERSION "1.0.6"
+#define BYTE_RTC_API_VERSION_NUM 0x1006
 
 
 /**
@@ -326,6 +326,12 @@ typedef enum {
      */
     AUDIO_CODEC_TYPE_G711A  = 4,
 
+    /**
+     * @locale zh
+     * @brief G711U
+     */
+    AUDIO_CODEC_TYPE_G711U  = 5,
+
 } audio_codec_type_e;
 
 
@@ -395,6 +401,17 @@ typedef enum {
      */
     AUDIO_DATA_TYPE_PCMA    = 4,
 
+    /**
+     * @locale zh
+     * @brief PCM
+     */
+    AUDIO_DATA_TYPE_PCM = 5,
+
+    /**
+     * @locale zh
+     * @brief PCMU
+     */
+    AUDIO_DATA_TYPE_PCMU = 6,
 } audio_data_type_e;
 
 /**
@@ -645,7 +662,7 @@ typedef struct {
      * @param data_len 音频数据长度，单位字节
      */
     void (*on_audio_data)(byte_rtc_engine_t engine, const char *room, const char *uid, uint16_t sent_ts,
-                          audio_codec_type_e codec, const void *data_ptr, size_t data_len);
+                          audio_data_type_e codec, const void *data_ptr, size_t data_len);
 
     /**
      * @locale zh
@@ -748,6 +765,20 @@ typedef struct {
 
     void (*on_fini_notify)(byte_rtc_engine_t engine);
 
+
+    /**
+     * @locale zh
+     * @type callback
+     * @list 回调
+     * @order 16
+     * @brief agic场景下使用license模式，当配额用尽时，触发该回调。当收到该回调时，请及时续费。当配额用尽的时候，智能体会自动离房，会话已不能继续进行，应用层应该调用反初始化接口，待完成充值之后再重新初始化。
+     * @param engine 通过byte_rtc_create{@link #byte_rtc_create}创建的引擎实例
+     * @param message 配额即将用尽的提示信息
+     * @param extra 扩展信息，暂未使用
+
+     */
+    void (*on_quota_exceeded)(byte_rtc_engine_t engine, const char *message, void *extra);
+
 } byte_rtc_event_handler_t;
 
 
@@ -848,7 +879,7 @@ extern __byte_rtc_api__ int byte_rtc_fini(byte_rtc_engine_t engine);
  * @brief 销毁引擎实例,只有在收到on_fini_notify的回调之后，调用此方法才是安全的
  * @param engine 通过byte_rtc_create{@link #byte_rtc_create}创建的引擎实例
  */
-extern __byte_rtc_api__ void byte_rtc_destory(byte_rtc_engine_t engine);
+extern __byte_rtc_api__ void byte_rtc_destroy(byte_rtc_engine_t engine);
 
 
 /**

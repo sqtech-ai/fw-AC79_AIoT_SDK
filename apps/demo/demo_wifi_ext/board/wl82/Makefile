@@ -157,10 +157,10 @@ INCLUDES := \
 	-I../../../../../apps/demo/demo_wifi_ext \
 	-I../../../../../include_lib/net \
 	-I../../../../../include_lib/net/mbedtls_2_2_1 \
-	-I../../../../../include_lib/net/lwip_2_1_3/lwip/src/include \
-	-I../../../../../include_lib/net/lwip_2_1_3/lwip/src/include/lwip \
-	-I../../../../../include_lib/net/lwip_2_1_3/lwip/port \
-	-I../../../../../include_lib/net/lwip_2_1_3/lwip/app \
+	-I../../../../../include_lib/net/lwip_2_2_0/lwip/src/include \
+	-I../../../../../include_lib/net/lwip_2_2_0/lwip/src/include/lwip \
+	-I../../../../../include_lib/net/lwip_2_2_0/lwip/port \
+	-I../../../../../include_lib/net/lwip_2_2_0/lwip/app \
 	-I../../../../../apps/common/rf_fcc_tool/include \
 	-I../../../../../apps/common/usb \
 	-I../../../../../apps/common/usb/device \
@@ -316,7 +316,7 @@ LFLAGS := \
 	../../../../../cpu/wl82/liba/json.a \
 	../../../../../cpu/wl82/liba/iperf.a \
 	../../../../../cpu/wl82/liba/libmbedtls_2_2_1.a \
-	../../../../../cpu/wl82/liba/lwip_2_1_3.a \
+	../../../../../cpu/wl82/liba/lwip_2_2_0.a \
 	../../../../../cpu/wl82/liba/wl_wifi.a \
 	../../../../../cpu/wl82/liba/hsm_ext.a \
 	../../../../../cpu/wl82/liba/ext_wifi_dev.a \

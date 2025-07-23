@@ -59,6 +59,7 @@
 static tcpip_init_done_fn tcpip_init_done;
 static void *tcpip_init_done_arg;
 static sys_mbox_t tcpip_mbox;
+static tcpip_task_running = 0;
 
 #if LWIP_TCPIP_CORE_LOCKING
 /** The global semaphore to lock the stack. */
@@ -144,6 +145,10 @@ tcpip_thread(void *arg)
             LWIP_DEBUGF(TCPIP_DEBUG, ("tcpip_thread: invalid message: NULL\n"));
             LWIP_ASSERT("tcpip_thread: invalid message", 0);
             continue;
+        }
+
+        if (!tcpip_task_running) {
+            break;
         }
         tcpip_thread_handle_msg(msg);
     }
@@ -654,7 +659,7 @@ void
 tcpip_init(tcpip_init_done_fn initfunc, void *arg)
 {
     lwip_init();
-
+    tcpip_task_running = true;
     tcpip_init_done = initfunc;
     tcpip_init_done_arg = arg;
     if (sys_mbox_new(&tcpip_mbox, TCPIP_MBOX_SIZE) != ERR_OK) {
@@ -667,6 +672,13 @@ tcpip_init(tcpip_init_done_fn initfunc, void *arg)
 #endif /* LWIP_TCPIP_CORE_LOCKING */
 
     sys_thread_new(TCPIP_THREAD_NAME, tcpip_thread, NULL, TCPIP_THREAD_STACKSIZE, TCPIP_THREAD_PRIO);
+}
+
+void
+tcpip_uninit(void)
+{
+    tcpip_untimeout(NULL, NULL);
+    tcpip_task_running = false;
 }
 
 /**

@@ -182,12 +182,12 @@ INCLUDES := \
 	-I../../../../include_lib/server \
 	-I../../../../include_lib/net/wifi_module \
 	-I../../../../include_lib/net/hostapdandwpa_supplicant \
-	-I../../../../include_lib/net/lwip_2_1_3/lwip/src/include \
-	-I../../../../include_lib/net/lwip_2_1_3/lwip/src/include/lwip \
-	-I../../../../include_lib/net/lwip_2_1_3/lwip/port \
-	-I../../../../include_lib/net/lwip_2_1_3/lwip/app \
-	-I../../../../include_lib/net/lwip_2_1_3/lwip/app/ctp \
-	-I../../../../include_lib/net/lwip_2_1_3/lwip/app/cdp \
+	-I../../../../include_lib/net/lwip_2_2_0/lwip/src/include \
+	-I../../../../include_lib/net/lwip_2_2_0/lwip/src/include/lwip \
+	-I../../../../include_lib/net/lwip_2_2_0/lwip/port \
+	-I../../../../include_lib/net/lwip_2_2_0/lwip/app \
+	-I../../../../include_lib/net/lwip_2_2_0/lwip/app/ctp \
+	-I../../../../include_lib/net/lwip_2_2_0/lwip/app/cdp \
 	-I../../../../include_lib/net/lte_module \
 	-I../../../../apps/common \
 	-I../../../../include_lib/driver/device/usb \
@@ -258,6 +258,7 @@ c_SRC_FILES := \
 	../../../../apps/common/system/init.c \
 	../../../../apps/common/system/power_manage.c \
 	../../../../apps/common/system/sdram_config_save_flash.c \
+	../../../../apps/common/system/sdram_re_trim.c \
 	../../../../apps/common/system/system_reset_reason.c \
 	../../../../apps/common/system/system_vdd_clock.c \
 	../../../../apps/common/system/version.c \
@@ -444,7 +445,7 @@ LFLAGS := \
 	../../../../cpu/wl82/liba/lib_usb_syn.a \
 	../../../../cpu/wl82/liba/media_app.a \
 	../../../../cpu/wl82/liba/wl_wifi_ap.a \
-	../../../../cpu/wl82/liba/lwip_2_1_3.a \
+	../../../../cpu/wl82/liba/lwip_2_2_0.a \
 	../../../../cpu/wl82/liba/stream_media_server.a \
 	../../../../cpu/wl82/liba/libmbedtls_2_2_1.a \
 	../../../../cpu/wl82/liba/iperf.a \

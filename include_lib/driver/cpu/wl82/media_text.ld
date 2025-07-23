@@ -95,6 +95,13 @@
         *(.wtgv2dec_str)
 #endif
 
+#if defined CONFIG_OPUS_ENC_ENABLE
+        *(.opus_silk_enc.data)
+        *(.opus_silk_enc.data.bss)
+        *(.opus_silk_enc.text.cache.L2.const)
+        *(.opus_silk_enc.text.cache.L2.run)
+#endif
+
 #if defined CONFIG_MP3_DEC_ENABLE
         *(.mp3_dec_sparse_code)
         *(.mp3_dec_sparse_const)

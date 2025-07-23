@@ -103,6 +103,9 @@ struct audio_format {
     u8 wait_sem : 1;
 
     u8 read_end;
+    u8 complexity;
+    u8 frame_ms;
+    u8 format_mode;
 
     u16 vad_start_threshold;
     u16 vad_stop_threshold;

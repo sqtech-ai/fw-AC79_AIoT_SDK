@@ -209,5 +209,5 @@ uint32_t volc_pk_verify(const char *pub_key, size_t pub_key_len, const char *cre
     }
 err_out_label:
     mbedtls_pk_free(&pk);
-    return VOLC_STATUS_SUCCESS;
+    return ret;
 }

@@ -14,7 +14,7 @@ extern "C" {
 #define LWIP_NO_CTYPE_H 1
 
 //开启支持IPV6
-//#define CONFIG_LWIP_IPV6_ENABLE
+#define CONFIG_LWIP_IPV6_ENABLE
 
 #define LWIP_TIMEVAL_PRIVATE 0
 
@@ -66,8 +66,8 @@ extern "C" {
  * When LWIP_WND_SCALE is enabled but TCP_RCV_SCALE is 0, we can use a large
  * send window while having a small receive window only.
  */
-#define LWIP_WND_SCALE                  1
-#define TCP_RCV_SCALE                   2
+#define LWIP_WND_SCALE                  0
+#define TCP_RCV_SCALE                   0
 
 #define DHCPS_UNICAST_ENABLE            0
 #if DHCPS_UNICAST_ENABLE
@@ -848,7 +848,7 @@ extern void dns_set_server(unsigned int *dnsserver);
 #define AUTOIP_DEBUG                   LWIP_DBG_OFF
 #define SNMP_MSG_DEBUG                 LWIP_DBG_OFF
 #define SNMP_MIB_DEBUG                 LWIP_DBG_OFF
-#define DNS_DEBUG                      LWIP_DBG_ON
+#define DNS_DEBUG                      LWIP_DBG_OFF
 #define IP6_DEBUG                      LWIP_DBG_OFF
 #define DHCP6_DEBUG                    LWIP_DBG_OFF
 

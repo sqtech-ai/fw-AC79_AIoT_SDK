@@ -182,12 +182,12 @@ INCLUDES := \
 	-I../../../../../include_lib/server \
 	-I../../../../../include_lib/net/wifi_module \
 	-I../../../../../include_lib/net/hostapdandwpa_supplicant \
-	-I../../../../../include_lib/net/lwip_2_1_3/lwip/src/include \
-	-I../../../../../include_lib/net/lwip_2_1_3/lwip/src/include/lwip \
-	-I../../../../../include_lib/net/lwip_2_1_3/lwip/port \
-	-I../../../../../include_lib/net/lwip_2_1_3/lwip/app \
-	-I../../../../../include_lib/net/lwip_2_1_3/lwip/app/ctp \
-	-I../../../../../include_lib/net/lwip_2_1_3/lwip/app/cdp \
+	-I../../../../../include_lib/net/lwip_2_2_0/lwip/src/include \
+	-I../../../../../include_lib/net/lwip_2_2_0/lwip/src/include/lwip \
+	-I../../../../../include_lib/net/lwip_2_2_0/lwip/port \
+	-I../../../../../include_lib/net/lwip_2_2_0/lwip/app \
+	-I../../../../../include_lib/net/lwip_2_2_0/lwip/app/ctp \
+	-I../../../../../include_lib/net/lwip_2_2_0/lwip/app/cdp \
 	-I../../../../../include_lib/net/lte_module \
 	-I../../../../../apps/common \
 	-I../../../../../include_lib/driver/device/usb \

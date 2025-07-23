@@ -52,7 +52,12 @@ SECTIONS
         *startup.S.o(.text)
         *(.boot_code)
         *(.text*)
+#if defined CONFIG_DYNAMIC_SDRAM_ONOFF_ENABLE
+        *(.lwip_text)
+        *(.wifi_text)
+#endif
         *(.rodata*)
+        . = ALIGN(4);
 
         #include "system/system_lib_text.ld"
         #include "common/movable/movable_text.ld"
@@ -92,6 +97,29 @@ SECTIONS
         . = ALIGN(4);
     } > sdram
 
+
+
+    .dynamic_data ALIGN(32):
+    {
+#if defined CONFIG_DYNAMIC_SDRAM_ONOFF_ENABLE
+        *(.lwip_data)
+        *(.wifi_data)
+#endif
+        . = ALIGN(4);
+    } > sdram
+
+    .dynamic_bss ALIGN(32):
+    {
+#if defined CONFIG_DYNAMIC_SDRAM_ONOFF_ENABLE
+        *(.wifi_bss)
+        *(.lwip_bss)
+        . = ALIGN(32);
+        *(.wifi_mem_pool)
+        . = ALIGN(32);
+        *(.memp_memory_x)
+#endif
+        . = ALIGN(4);
+    } > sdram
 /********************************************/
     . =ORIGIN(ram0);
     .ram0_data ALIGN(4):
@@ -163,7 +191,6 @@ SECTIONS
         *(COMMON)
         *(.mem_heap)
 #if defined CONFIG_DYNAMIC_SDRAM_ONOFF_ENABLE
-        *(.memp_memory_x)
 #endif
 
         . = ALIGN(4);
@@ -254,13 +281,23 @@ SECTIONS
     data_size =  SIZEOF(.data);
     PROVIDE(data_size = SIZEOF(.data));
 
+    dynamic_bss_begin = ADDR(.dynamic_bss);
+    dynamic_bss_size  = SIZEOF(.dynamic_bss);
+    PROVIDE(bss_size = SIZEOF(.dynamic_bss));
+
+    dynamic_data_vma  = ADDR(.dynamic_data);
+    dynamic_data_lma =  text_begin + SIZEOF(.text) + SIZEOF(.data);
+    dynamic_data_size =  SIZEOF(.dynamic_data);
+    PROVIDE(dynamic_data_size = SIZEOF(.dynamic_data));
+
+
 /********************************************/
     _ram0_bss_vma = ADDR(.ram0_bss);
     _ram0_bss_size = SIZEOF(.ram0_bss);
     PROVIDE(ram0_bss_size = SIZEOF(.ram0_bss));
 
     _ram0_data_vma = ADDR(.ram0_data);
-    _ram0_data_lma = text_begin + SIZEOF(.text) + SIZEOF(.data);
+    _ram0_data_lma = text_begin + SIZEOF(.text) + SIZEOF(.data) + SIZEOF(.dynamic_data);
     _ram0_data_size = SIZEOF(.ram0_data);
     PROVIDE(ram0_data_size = SIZEOF(.ram0_data));
 /********************************************/
@@ -268,7 +305,8 @@ SECTIONS
     PROVIDE(cache_ram_bss_vma = ADDR(.cache_ram_bss));
     PROVIDE(cache_ram_bss_size = SIZEOF(.cache_ram_bss));
     PROVIDE(cache_ram_data_vma = ADDR(.cache_ram_data));
-    PROVIDE(cache_ram_data_lma = text_begin + SIZEOF(.text) + SIZEOF(.data) + SIZEOF(.ram0_data));
+    PROVIDE(cache_ram_data_lma = text_begin + SIZEOF(.text) +SIZEOF(.data) + SIZEOF(.dynamic_data) + SIZEOF(.ram0_data));
+
     PROVIDE(cache_ram_data_size = SIZEOF(.cache_ram_data));
 
 

@@ -187,12 +187,12 @@ INCLUDES := \
 	-I../../../../include_lib/net/wifi_module \
 	-I../../../../include_lib/utils/img_stitch \
 	-I../../../../include_lib/net/hostapdandwpa_supplicant \
-	-I../../../../include_lib/net/lwip_2_1_3/lwip/src/include \
-	-I../../../../include_lib/net/lwip_2_1_3/lwip/src/include/lwip \
-	-I../../../../include_lib/net/lwip_2_1_3/lwip/port \
-	-I../../../../include_lib/net/lwip_2_1_3/lwip/app \
-	-I../../../../include_lib/net/lwip_2_1_3/lwip/app/ctp \
-	-I../../../../include_lib/net/lwip_2_1_3/lwip/app/cdp \
+	-I../../../../include_lib/net/lwip_2_2_0/lwip/src/include \
+	-I../../../../include_lib/net/lwip_2_2_0/lwip/src/include/lwip \
+	-I../../../../include_lib/net/lwip_2_2_0/lwip/port \
+	-I../../../../include_lib/net/lwip_2_2_0/lwip/app \
+	-I../../../../include_lib/net/lwip_2_2_0/lwip/app/ctp \
+	-I../../../../include_lib/net/lwip_2_2_0/lwip/app/cdp \
 	-I../../../../apps/common/example/third_party/littlefs \
 	-I../../../../apps/common/rf_fcc_tool/include \
 	-I../../../../apps/common/usb \
@@ -214,8 +214,8 @@ INCLUDES := \
 	-I../../../../apps/common/LLM/extra \
 	-I../../../../include_lib/net/cJSON_common \
 	-I../../../../include_lib/net/curl/include \
-	-I../../../../include_lib/net/lwip_2_1_3/lwip/src/include/compat/posix \
-	-I../../../../include_lib/net/lwip_2_1_3/lwip/src/include/compat/stdc \
+	-I../../../../include_lib/net/lwip_2_2_0/lwip/src/include/compat/posix \
+	-I../../../../include_lib/net/lwip_2_2_0/lwip/src/include/compat/stdc \
 	-I../../../../include_lib/system/os \
 	-I../../../../include_lib/net/libwebsockets/include \
 	-I../../../../include_lib/net/libwebsockets/include/libwebsockets \
@@ -312,7 +312,6 @@ c_SRC_FILES := \
 	../../../../apps/common/LLM/volc/src/common/volc_string.c \
 	../../../../apps/common/LLM/volc/src/common/volc_tls.c \
 	../../../../apps/common/LLM/volc/src/platform/volc_atomic.c \
-	../../../../apps/common/LLM/volc/src/platform/volc_cond.c \
 	../../../../apps/common/LLM/volc/src/platform/volc_device.c \
 	../../../../apps/common/LLM/volc/src/platform/volc_device_finger_print.c \
 	../../../../apps/common/LLM/volc/src/platform/volc_directory.c \
@@ -653,7 +652,7 @@ LFLAGS := \
 	../../../../cpu/wl82/liba/libauth_aisp.a \
 	../../../../cpu/wl82/liba/libauth.a \
 	../../../../cpu/wl82/liba/lib_m4a_dec.a \
-	../../../../cpu/wl82/liba/lwip_2_1_3.a \
+	../../../../cpu/wl82/liba/lwip_2_2_0.a \
 	../../../../cpu/wl82/liba/wl_wifi_sta.a \
 	../../../../cpu/wl82/liba/lte_module.a \
 	../../../../cpu/wl82/liba/ai_server.a \

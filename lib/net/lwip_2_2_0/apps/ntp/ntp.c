@@ -688,11 +688,11 @@ static void update_rtc_timer(const u32 msec)
     }
 }
 
-static int ntp_client_init(void)
+int ntp_client_init(void)
 {
     return os_sem_create(&ntp_sem, 0);
 }
-early_initcall(ntp_client_init);
+/* early_initcall(ntp_client_init); */
 
 u8 ntp_client_get_time_status(void)
 {

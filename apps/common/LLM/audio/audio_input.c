@@ -332,15 +332,15 @@ static int audio_play_net_vfs_fread(VOID *file, VOID *data, unsigned int len)
 
         // }
         // if(cbuf_len >= 8*1024) {
-        if (cbuf_len >= 1280) {
-            rlen = cbuf_len > len ? len : cbuf_len;
-            c_rlen = cbuf_read(cbuf, data, rlen);
-            // printf("cbuf_len=%d , clen=%d, len=%d", cbuf_len, c_rlen, len);
-            if (c_rlen > 0) {
-                //audio_debug("c_rlen=%d rlen=%d cbuf_len=%d len=%d",c_rlen,rlen,cbuf_len,len);
-                break;
-            }
+        /* if (cbuf_len >= 1280) { */
+        rlen = cbuf_len > len ? len : cbuf_len;
+        c_rlen = cbuf_read(cbuf, data, rlen);
+        // printf("cbuf_len=%d , clen=%d, len=%d", cbuf_len, c_rlen, len);
+        if (c_rlen > 0) {
+            //audio_debug("c_rlen=%d rlen=%d cbuf_len=%d len=%d",c_rlen,rlen,cbuf_len,len);
+            break;
         }
+        /* } */
 
         //此处等待信号量是为了防止解码器因为读不到数而一直空转
         if (FALSE == g_audio_hdl.is_audio_play_open) {

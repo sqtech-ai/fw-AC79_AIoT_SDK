@@ -38,9 +38,10 @@ echo "%OBJCOPY% -O binary -j .text %ELFFILE% text.bin" >> ${PROJ_BUILD}
 echo "%OBJCOPY% -O binary -j .data %ELFFILE% data.bin" >> ${PROJ_BUILD}
 echo "%OBJCOPY% -O binary -j .ram0_data  %ELFFILE% ram0_data.bin" >> ${PROJ_BUILD}
 echo "%OBJCOPY% -O binary -j .cache_ram_data  %ELFFILE% cache_ram_data.bin" >> ${PROJ_BUILD}
+echo "%OBJCOPY% -O binary -j .dynamic_data  %ELFFILE% dynamic_data.bin" >> ${PROJ_BUILD}
 echo "%OBJDUMP% -section-headers -address-mask=0x1ffffff %ELFFILE%" >> ${PROJ_BUILD}
 echo "%OBJDUMP% -t %ELFFILE% > symbol_tbl.txt" >> ${PROJ_BUILD}
-echo "copy /b text.bin+data.bin+ram0_data.bin+cache_ram_data.bin app.bin" >> ${PROJ_BUILD}
+echo "copy /b text.bin+data.bin+dynamic_data.bin+ram0_data.bin+cache_ram_data.bin app.bin" >> ${PROJ_BUILD}
 #if defined CONFIG_UI_ENABLE
 #if defined CONFIG_UI_FILE_SAVE_IN_RESERVED_EXPAND_ZONE
 echo "packres\packres.exe -n ui -o packres/UIPACKRES ui_res" >> ${PROJ_BUILD}
@@ -106,6 +107,7 @@ echo "ufw_maker.exe -fw_to_ufw jl_isd.fw" >> ${PROJ_BUILD}
 #endif
 echo "ping /n 2 127.1>null" >> ${PROJ_BUILD}
 //echo "IF EXIST null del null" >> ${PROJ_BUILD}
+echo "del dynamic_data.bin" >> ${PROJ_BUILD}
 echo "del cache_ram_data.bin" >> ${PROJ_BUILD}
 echo "del data.bin" >> ${PROJ_BUILD}
 echo "del ram0_data.bin" >> ${PROJ_BUILD}
@@ -164,11 +166,12 @@ REM %OBJDUMP% -D -address-mask=0x1ffffff -print-dbg %ELFFILE% > sdk.lst
 %OBJCOPY% -O binary -j .data %ELFFILE% data.bin
 %OBJCOPY% -O binary -j .ram0_data  %ELFFILE% ram0_data.bin
 %OBJCOPY% -O binary -j .cache_ram_data  %ELFFILE% cache_ram_data.bin
+%OBJCOPY% -O binary -j .dynamic_data  %ELFFILE% dynamic_data.bin
 
 %OBJDUMP% -section-headers -address-mask=0x1ffffff %ELFFILE%
 %OBJDUMP% -t %ELFFILE% > symbol_tbl.txt
 
-copy /b text.bin+data.bin+ram0_data.bin+cache_ram_data.bin app.bin
+copy /b text.bin+data.bin+dynamic_data.bin+ram0_data.bin+cache_ram_data.bin app.bin
 
 #if defined CONFIG_UI_ENABLE
 #if defined CONFIG_UI_FILE_SAVE_IN_RESERVED_EXPAND_ZONE
@@ -268,6 +271,7 @@ ping /n 2 127.1>null
 IF EXIST null del null
 
 ::del app.bin
+del dynamic_data.bin
 del cache_ram_data.bin
 del data.bin
 del ram0_data.bin
