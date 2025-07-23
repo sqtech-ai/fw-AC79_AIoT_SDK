@@ -141,7 +141,7 @@ typedef struct _sdk_type_cfg_t {
 typedef struct _hid_param_cfg_t {
     u16 crc;
     u16 len;
-    u8 data[32];
+    u8 data[64];
 } hid_param_cfg_t;
 
 typedef struct _ex_cfg_t {
@@ -243,7 +243,7 @@ u32 get_ex_cfg_info(u32 offset_addr, u16 temp_data_len, u8 *data, u16 data_len)
     u16 crc = *((u16 *)temp_buf);
     u16 len = *((u16 *)(temp_buf + 2));
     u8 *cfg_data = temp_buf + 4;
-    if (crc != Crc16(cfg_data, len)) {
+    if ((u16) - 1 == crc || 0 == crc || crc != Crc16(cfg_data, len)) {
         return EX_CFG_CRC_ERR;
     }
     memset(data, 0x00, data_len);

@@ -218,12 +218,24 @@ void usb_ep_enable(const usb_dev usb_id, u32 ep, u32 is_enable);
 void *usb_get_setup_buffer(const struct usb_device_t *usb_device);
 u32 usb_root2_testing();
 
+typedef struct {
+    u16 vid;
+    u16 pid;
+    u16 version_bcd;
+    u8 Manufacturer_str[18]; //带结束符
+    u8  Product_str[18];//带结束符
+    u8  SerialNumber_str[18];//带结束符
+    u8 resv[4]; //预留
+} usb_descriptor_t;
+
 extern void usb_start();
 extern void usb_stop();
 extern void usb_pause();
 extern void usb_cdc_background_run();
 void usb_custom_hid_test();
 void hid_desc_update(u8 *parm_priv, u8 len);
+void hid_bcdDevice_update(u8 *parm_priv, u8 len);
+int hid_desc_info_get(usb_descriptor_t *desc_ptr[]);
 
 /* #define usb_add_desc_config(fn) \                                    */
 /*     const desc_config usb_desc_config##fn sec(.usb.desc_config) = fn */

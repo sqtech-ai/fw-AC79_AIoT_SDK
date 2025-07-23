@@ -45,7 +45,7 @@ static u8 sDeviceDescriptor[] = { //<Device Descriptor
     0x00, 0x01,     // bcdDevice: version 1.0
     0x01,       // iManufacturer: Index to string descriptor that contains the string <Your Name> in Unicode
     0x02,       // iProduct: Index to string descriptor that contains the string <Your Product Name> in Unicode
-    0x00,       // iSerialNumber: none
+    0x03,       // iSerialNumber: none
     0x01        // bNumConfigurations: 1
 };
 
@@ -99,6 +99,8 @@ static const u8 MANUFACTURE_STR[] = {
     0x79, 0x00, //y
 };
 
+static usb_descriptor_t g_usb_desc_modify_val;
+
 //static u8 product_string[28] = {0};
 
 //static const u8 MANUFACTURE_STR[28] = {0};
@@ -135,16 +137,41 @@ void get_language_str(u8 *ptr)
     memcpy(ptr, LANGUAGE_STR, LANGUAGE_STR[0]);
 }
 
+static void custom_str_conver(u8 *src, u8 src_size, u8 *des)
+{
+    // USB_SETUP_SIZE
+    u8 offset = 1;
+    des[offset++] = 0x03;
+    for (u8 i = 0; i < src_size && offset < USB_SETUP_SIZE && i < USB_SETUP_SIZE; i++) {
+        if (0 == src[i]) {
+            break;
+        }
+        des[offset++] = src[i];
+        des[offset++] = 0;
+    }
+    des[0] = offset;
+}
+
 void get_manufacture_str(u8 *ptr)
 {
-    memcpy(ptr, MANUFACTURE_STR, MANUFACTURE_STR[0]);
+    if (0 == g_usb_desc_modify_val.Manufacturer_str[0]) {
+        memcpy(ptr, MANUFACTURE_STR, MANUFACTURE_STR[0]);
+    } else {
+        /* memcpy(ptr, g_usb_desc_modify_val.Manufacturer_str, g_usb_desc_modify_val.Manufacturer_str[0]); */
+        custom_str_conver(g_usb_desc_modify_val.Manufacturer_str, sizeof(g_usb_desc_modify_val.Manufacturer_str), ptr);
+    }
     //memcpy(ptr, product_string, product_string[0]);
 }
 
 void get_iserialnumber_str(u8 *ptr)
 {
 #if 1//USB_ROOT2
-    memcpy(ptr, serial_string, serial_string[0]);
+    if (0 == g_usb_desc_modify_val.SerialNumber_str[0]) {
+        memcpy(ptr, serial_string, serial_string[0]);
+    } else {
+        /* memcpy(ptr, g_usb_desc_modify_val.SerialNumber_str, g_usb_desc_modify_val.SerialNumber_str[0]); */
+        custom_str_conver(g_usb_desc_modify_val.SerialNumber_str, sizeof(g_usb_desc_modify_val.SerialNumber_str), ptr);
+    }
 #else
     extern __attribute__((weak)) u8 *get_norflash_uuid(void);
     u8 flash_id[16] = {0};
@@ -190,7 +217,12 @@ void get_string_ee(u8 *ptr)
 
 void get_product_str(u8 *ptr)
 {
-    memcpy(ptr, product_string, product_string[0]);
+    if (0 == g_usb_desc_modify_val.Product_str[0]) {
+        memcpy(ptr, product_string, product_string[0]);
+    } else {
+        /* memcpy(ptr, g_usb_desc_modify_val.Product_str, g_usb_desc_modify_val.Product_str[0]); */
+        custom_str_conver(g_usb_desc_modify_val.Product_str, sizeof(g_usb_desc_modify_val.Product_str), ptr);
+    }
 }
 
 const u8 *usb_get_config_desc()
@@ -207,6 +239,11 @@ const u8 *usb_get_string_desc(u32 id)
     return NULL;
 }
 
+void hid_bcdDevice_update(u8 *parm_priv, u8 len)
+{
+    memcpy(&(sDeviceDescriptor[12]), parm_priv, 2);  //替换设备描述符的bcdDevice
+}
+
 void hid_desc_update(u8 *parm_priv, u8 len)
 {
     printf("%s,%d\n", __func__, __LINE__);
@@ -214,6 +251,12 @@ void hid_desc_update(u8 *parm_priv, u8 len)
     //memcpy(product_string, &(parm_priv[4]), parm_priv[4]);
     put_buf(sDeviceDescriptor, sizeof(sDeviceDescriptor));
     put_buf(product_string, product_string[0]);
+}
+
+int hid_desc_info_get(usb_descriptor_t *desc_ptr[])
+{
+    *desc_ptr = &g_usb_desc_modify_val;
+    return sizeof(g_usb_desc_modify_val);
 }
 
 #endif
