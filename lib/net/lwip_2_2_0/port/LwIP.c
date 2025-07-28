@@ -1021,17 +1021,15 @@ static void __lwip_renew(unsigned short parm)
         int wifi_get_mac(u8 * mac);
         wifi_get_mac(wireless_netif.hwaddr);
 
+        if (dhcp) {
 #if LWIP_NETIF_EXT_STATUS_CALLBACK
-        netif_remove_ext_callback(&netif_callback);
-        netif_add_ext_callback(&netif_callback, netif_callback_fn);
+            netif_remove_ext_callback(&netif_callback);
+            netif_add_ext_callback(&netif_callback, netif_callback_fn);
 #endif
 
 #if LWIP_IPV6
-        nd6_renew(&wireless_netif);
+            nd6_renew(&wireless_netif);
 #endif
-
-        if (dhcp) {
-
             dhcp_renew_ipaddr(&wireless_netif);
 
             tcpip_untimeout((sys_timeout_handler)network_is_dhcp_bound, &wireless_netif);
@@ -1089,15 +1087,16 @@ static void __lwip_renew(unsigned short parm)
         u8 *lte_module_get_mac_addr(void);
         memcpy(lte_netif.hwaddr, lte_module_get_mac_addr(), 6);
 
+        if (dhcp) {
+
 #if LWIP_NETIF_EXT_STATUS_CALLBACK
-        netif_remove_ext_callback(&netif_callback);
-        netif_add_ext_callback(&netif_callback, netif_callback_fn);
+            netif_remove_ext_callback(&netif_callback);
+            netif_add_ext_callback(&netif_callback, netif_callback_fn);
 #endif
 
 #if LWIP_IPV6
-        nd6_renew(&lte_netif);
+            nd6_renew(&lte_netif);
 #endif
-        if (dhcp) {
             dhcp_renew_ipaddr(&lte_netif);
 
             tcpip_untimeout((sys_timeout_handler)network_is_dhcp_bound, &lte_netif);
@@ -1672,4 +1671,5 @@ int lwip_dhcp_bound(void)
 
     return 0;
 }
+
 

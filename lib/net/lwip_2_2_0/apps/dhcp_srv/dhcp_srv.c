@@ -529,7 +529,12 @@ void dhcps_init(u8_t lwip_netif)
     IP4_ADDR(&server_address, lan_setting_info->SERVER_IPADDR1, lan_setting_info->SERVER_IPADDR2, lan_setting_info->SERVER_IPADDR3, lan_setting_info->SERVER_IPADDR4);
     IP4_ADDR(&y_address, lan_setting_info->WIRELESS_IP_ADDR0, lan_setting_info->WIRELESS_IP_ADDR1, lan_setting_info->WIRELESS_IP_ADDR2, lan_setting_info->WIRELESS_IP_ADDR3); //绑定自己的IP
 //   udp_bind(pcb_dhcps, IP_ADDR_ANY, DHCP_SERVER_PORT );
-    udp_bind(pcb_dhcps, &y_address, DHCP_SERVER_PORT);
+
+
+    ip_addr_t src_ip = IPADDR4_INIT(0x0);
+    ip4_addr_set(ip_2_ip4(&src_ip), &y_address);
+    udp_bind(pcb_dhcps, &src_ip, DHCP_SERVER_PORT);
+
     udp_recv(pcb_dhcps, handle_dhcp, NULL);
 
 //    tcpip_timeout(LEASE_TMR_INTERVAL, dhcps_lease_timer, NULL);
@@ -600,5 +605,6 @@ int dhcps_get_ipaddr(u8 hwaddr[6], struct ip4_addr *ipaddr)
     os_mutex_post(&dhcps_mtx);
     return ret;
 }
+
 
 
