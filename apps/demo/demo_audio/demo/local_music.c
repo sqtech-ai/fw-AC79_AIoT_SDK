@@ -292,9 +292,9 @@ static int local_music_dec_switch_dir(int fsel_mode)
             fscan_release(__this->fscan);
         }
 #if CONFIG_DEC_DECRYPT_ENABLE
-        __this->fscan = fscan(__this->local_path, "-r -tMP3WMAWAVM4AAMRAPEFLAAACSPXOPUDTSADPSMP -sn", 2);
+        __this->fscan = fscan(__this->local_path, "-r -tOGGMP3WMAWAVM4AAMRAPEFLAAACSPXOPUDTSADPSMP -sn", 2);
 #else
-        __this->fscan = fscan(__this->local_path, "-r -tMP3WMAWAVM4AAMRAPEFLAAACSPXOPUDTSADP -sn", 2);
+        __this->fscan = fscan(__this->local_path, "-r -tOGGMP3WMAWAVM4AAMRAPEFLAAACSPXOPUDTSADP -sn", 2);
 #endif
         if (!__this->fscan) {
             return -1;

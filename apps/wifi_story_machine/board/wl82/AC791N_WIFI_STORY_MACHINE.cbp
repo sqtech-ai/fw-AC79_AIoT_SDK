@@ -198,6 +198,7 @@
 <Add option="../../../../cpu/wl82/liba/echo_server.a" />
 <Add option="../../../../cpu/wl82/liba/led_ui_server.a" />
 <Add option="../../../../cpu/wl82/liba/lib_opus_enc.a" />
+<Add option="../../../../cpu/wl82/liba/lib_opus_stenc.a" />
 <Add option="../../../../cpu/wl82/liba/libspeex.a" />
 <Add option="../../../../cpu/wl82/liba/libvad.a" />
 <Add option="../../../../cpu/wl82/liba/lib_wma_dec.a" />

@@ -344,6 +344,7 @@ LFLAGS := \
 	../../../../../cpu/wl82/liba/lib_mp3_dec.a \
 	../../../../../cpu/wl82/liba/lib_mp3_enc.a \
 	../../../../../cpu/wl82/liba/lib_opus_enc.a \
+	../../../../../cpu/wl82/liba/lib_opus_stenc.a \
 	../../../../../cpu/wl82/liba/lib_opus_dec.a \
 	../../../../../cpu/wl82/liba/lib_wma_dec.a \
 	../../../../../cpu/wl82/liba/lib_ape_dec.a \

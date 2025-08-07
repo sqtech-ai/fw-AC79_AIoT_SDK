@@ -609,6 +609,7 @@ LFLAGS := \
 	../../../../cpu/wl82/liba/echo_server.a \
 	../../../../cpu/wl82/liba/led_ui_server.a \
 	../../../../cpu/wl82/liba/lib_opus_enc.a \
+	../../../../cpu/wl82/liba/lib_opus_stenc.a \
 	../../../../cpu/wl82/liba/libspeex.a \
 	../../../../cpu/wl82/liba/libvad.a \
 	../../../../cpu/wl82/liba/lib_wma_dec.a \

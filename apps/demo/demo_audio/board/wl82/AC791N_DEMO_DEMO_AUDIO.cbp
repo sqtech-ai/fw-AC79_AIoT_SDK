@@ -148,6 +148,7 @@
 <Add option="../../../../../cpu/wl82/liba/lib_mp3_dec.a" />
 <Add option="../../../../../cpu/wl82/liba/lib_mp3_enc.a" />
 <Add option="../../../../../cpu/wl82/liba/lib_opus_enc.a" />
+<Add option="../../../../../cpu/wl82/liba/lib_opus_stenc.a" />
 <Add option="../../../../../cpu/wl82/liba/lib_opus_dec.a" />
 <Add option="../../../../../cpu/wl82/liba/lib_wma_dec.a" />
 <Add option="../../../../../cpu/wl82/liba/lib_ape_dec.a" />

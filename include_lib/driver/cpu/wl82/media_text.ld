@@ -93,6 +93,10 @@
         *(.wtg_decv2_sparse_code)
         *(.wtgv2dec_const)
         *(.wtgv2dec_str)
+        
+        *(.ogg_opus_dec.text.cache.L2.run)
+        *(.ogg_opus_dec.text)
+        *(.ogg_opus_dec.text.cache.L2.const)
 #endif
 
 #if defined CONFIG_OPUS_ENC_ENABLE
@@ -100,6 +104,13 @@
         *(.opus_silk_enc.data.bss)
         *(.opus_silk_enc.text.cache.L2.const)
         *(.opus_silk_enc.text.cache.L2.run)
+
+        *(.opus_stenc.data.bss)
+        *(.opus_stenc.data)
+        *(.opus_stenc.text.cache.L2.const)
+        *(.opus_stenc.text.cache.L2.run)
+        *(.opus_stenc.text)
+        *(.opus_stenc.text.const)
 #endif
 
 #if defined CONFIG_MP3_DEC_ENABLE

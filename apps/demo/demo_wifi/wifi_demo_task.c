@@ -679,7 +679,7 @@ int wifi_load_to_sdram(void)
     wifi_set_store_ssid_cnt(NETWORK_SSID_INFO_CNT);
     wifi_set_event_callback(wifi_event_callback);
 
-
+    wifi_rf_on();
     wifi_on();
 
 
@@ -689,6 +689,7 @@ int wifi_unload_to_sdram(void)
 {
 
     wifi_off();
+    wifi_rf_off();
 
     flushinv_dcache(&dynamic_data_vma, &dynamic_data_size);
     flushinv_dcache(&dynamic_bss_begin, &dynamic_bss_size);

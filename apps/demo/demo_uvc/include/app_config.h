@@ -340,7 +340,13 @@
 #define TCFG_LOWPOWER_LOWPOWER_SEL			0
 #endif
 #define TCFG_LOWPOWER_VDDIOM_LEVEL			VDDIOM_VOL_32V //正常工作的内部vddio电压值，一般使用外部3.3V，内部设置需比外部3.3V小
-#define TCFG_LOWPOWER_VDDIOW_LEVEL			VDDIOW_VOL_21V //软关机或睡眠的内部vddio最低电压值
+
+#ifdef CONFIG_RTC_ENABLE
+#define TCFG_LOWPOWER_VDDIOW_LEVEL			VDDIOW_VOL_32V       //弱VDDIO电压档位。RTCVDD电压低于3.2V可能不走时，因此RTCVDD由IOVDD供电时，VDDIOW应设置为VDDIOW_VOL_32V档
+#else
+#define TCFG_LOWPOWER_VDDIOW_LEVEL			VDDIOW_VOL_21V       //弱VDDIO电压档位
+#endif
+
 #define VDC14_VOL_SEL_LEVEL					VDC14_VOL_SEL_140V //内部的1.4V默认1.4V
 #define SYSVDD_VOL_SEL_LEVEL				SYSVDD_VOL_SEL_126V //系统内核电压，默认1.26V
 
