@@ -152,6 +152,7 @@
 <Add directory="../../../../apps/common/LLM/onesdk/platform" />
 <Add directory="../../../../apps/common/LLM/onesdk" />
 <Add directory="../../../../include_lib/net/web_socket" />
+<Add directory="../../../../apps/common/LLM/ifly_aiui/include" />
 </Compiler>
 <Linker>
 <Add option="--plugin-opt=-pi32v2-always-use-itblock=false" />
@@ -299,6 +300,8 @@
 <Add option="../../../../cpu/wl82/liba/sxy_qyai.a" />
 <Add option="../../../../cpu/wl82/liba/libe2e.a" />
 <Add option="../../../../cpu/wl82/liba/websocket.a " />
+<Add option="../../../../cpu/wl82/liba/libifly_aiui_lib.a" />
+<Add option="../../../../cpu/wl82/liba/websocket.a  " />
 <Add option="-T../../../../cpu/wl82/sdk.ld" />
 <Add option="-M=../../../../cpu/wl82/tools/sdk.map" />
 <Add option="--end-group " />
@@ -327,6 +330,13 @@
 <Unit filename="../../../../apps/common/LLM/audio/audio_input.h" />
 <Unit filename="../../../../apps/common/LLM/extra/g711.c"><Option compilerVer="CC"/></Unit>
 <Unit filename="../../../../apps/common/LLM/extra/g711.h" />
+<Unit filename="../../../../apps/common/LLM/ifly_aiui/ifly_aiui_demo.c"><Option compilerVer="CC"/></Unit>
+<Unit filename="../../../../apps/common/LLM/ifly_aiui/ifly_aiui_user.c"><Option compilerVer="CC"/></Unit>
+<Unit filename="../../../../apps/common/LLM/ifly_aiui/ifly_model_parse.c"><Option compilerVer="CC"/></Unit>
+<Unit filename="../../../../apps/common/LLM/ifly_aiui/include/aiui_get_firmware_info.h" />
+<Unit filename="../../../../apps/common/LLM/ifly_aiui/include/ifly_aiui_net.h" />
+<Unit filename="../../../../apps/common/LLM/ifly_aiui/include/ifly_aiui_sdk_common.h" />
+<Unit filename="../../../../apps/common/LLM/ifly_aiui/include/oal_type.h" />
 <Unit filename="../../../../apps/common/LLM/onesdk/examples/onesdk_realtime/chat_agent/realtime_demo.c"><Option compilerVer="CC"/></Unit>
 <Unit filename="../../../../apps/common/LLM/onesdk/include/error_code.h" />
 <Unit filename="../../../../apps/common/LLM/onesdk/include/infer_inner_chat.h" />

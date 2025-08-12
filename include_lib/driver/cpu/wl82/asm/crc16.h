@@ -9,6 +9,8 @@ u32 CRC32(const u8 *frame, u32 frame_len);
 
 u16 CRC16(const void *ptr, u32 len);
 
+u16 crc16_xmodem(const void *buff, u32 len, u16 crc);
+
 u16 CRC16_with_code(const void *ptr, u32 len, u16 code);
 
 u16 crc_get_16bit(const void *src, u32 len);

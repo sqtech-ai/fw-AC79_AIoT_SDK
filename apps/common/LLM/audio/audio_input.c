@@ -25,10 +25,12 @@
 #define AUDIO_PLAY_VOICE_VOLUME   80
 #define AUDIO_RECORD_VOICE_VOLUME 100
 
-#ifdef CONFIG_VOLC_LLM_ENABLE
+#if defined CONFIG_VOLC_LLM_ENABLE
 #define AUDIO_RECORD_VOICE_UPLORD_LEN (320)
 #elif defined CONFIG_ONESDK_LLM_ENABLE
 #define AUDIO_RECORD_VOICE_UPLORD_LEN (3200)
+#elif defined CONFIG_IFLY_AIUI_ENABLE
+#define AUDIO_RECORD_VOICE_UPLORD_LEN (640)
 #else
 #define AUDIO_RECORD_VOICE_UPLORD_LEN (1280)
 #endif
@@ -144,6 +146,8 @@ int _device_get_voice_data(VOID *data, unsigned int max_len)
     static flag = 1;
 #if defined CONFIG_ONESDK_LLM_ENABLE || defined  CONFIG_VOLC_LLM_ENABLE
     mdelay(20);
+#elif defined CONFIG_IFLY_AIUI_ENABLE
+    mdelay(1);
 #else
     mdelay(30);
 #endif
@@ -165,23 +169,33 @@ int _device_get_voice_data(VOID *data, unsigned int max_len)
     return 0;
 }
 
+void _device_rbuf_clear()
+{
+    cbuf_clear(&g_audio_hdl.pcm_cbuff_r);
+}
+
+void _device_wbuf_clear()
+{
+    cbuf_clear(&g_audio_hdl.pcm_cbuff_w);
+}
 
 int _device_write_voice_data(VOID *data, unsigned int len)
 {
     cbuffer_t *cbuf = (cbuffer_t *)&g_audio_hdl.pcm_cbuff_r;
-    int  i = 0;
-
-    unsigned int write_len = cbuf_write(cbuf, data, len);
-    // printf("len=%d wite_len=%d", len, write_len);
-    if (0 == write_len) {
-        //上层buf写不进去时清空一下，避免出现声音滞后的情况
-        cbuf_clear(cbuf);
-        //audio_debug("cbuf_write full");
-    } else if (write_len != len) {
-        unsigned int rlen = cbuf_get_data_size(cbuf);
-        // audio_debug("wite_len %d len %d rlen %d", write_len, len, rlen);
+    if (len > 0) {
+        unsigned int write_len = cbuf_write(cbuf, data, len);
+        printf("len=%d wite_len=%d", len, write_len);
+        if (0 == write_len) {
+            //上层buf写不进去时清空一下，避免出现声音滞后的情况
+            cbuf_clear(cbuf);
+            //audio_debug("cbuf_write full");
+        } else if (write_len != len) {
+            unsigned int rlen = cbuf_get_data_size(cbuf);
+            // audio_debug("wite_len %d len %d rlen %d", write_len, len, rlen);
+        }
     }
 
+    os_sem_set(&g_audio_ctrl.r_sem, 0);
     os_sem_post(&g_audio_ctrl.r_sem);
     //此回调返回0录音就会自动停止
     return len;
@@ -231,8 +245,7 @@ static VOID audio_recoder_init()
 
     flag = TRUE;
 
-#if defined CONFIG_ONESDK_LLM_ENABLE || defined  CONFIG_VOLC_LLM_ENABLE
-
+#if defined CONFIG_ONESDK_LLM_ENABLE || defined  CONFIG_VOLC_LLM_ENABLE || defined CONFIG_IFLY_AIUI_ENABLE
     req.enc.frame_size = SAMPLE_RATE / 100 * 4 * CHANNEL;        //收集够多少字节PCM数据就回调一次fwrite
 #else
     req.enc.frame_size = SAMPLE_RATE / 100 * 4 * CHANNEL * 2;        //收集够多少字节PCM数据就回调一次fwrite
@@ -328,11 +341,6 @@ static int audio_play_net_vfs_fread(VOID *file, VOID *data, unsigned int len)
     cbuf = (cbuffer_t *)file;
     do {
         cbuf_len = cbuf_get_data_size(cbuf);
-        // if(cbuf_len > 1280){
-
-        // }
-        // if(cbuf_len >= 8*1024) {
-        /* if (cbuf_len >= 1280) { */
         rlen = cbuf_len > len ? len : cbuf_len;
         c_rlen = cbuf_read(cbuf, data, rlen);
         // printf("cbuf_len=%d , clen=%d, len=%d", cbuf_len, c_rlen, len);
@@ -340,7 +348,6 @@ static int audio_play_net_vfs_fread(VOID *file, VOID *data, unsigned int len)
             //audio_debug("c_rlen=%d rlen=%d cbuf_len=%d len=%d",c_rlen,rlen,cbuf_len,len);
             break;
         }
-        /* } */
 
         //此处等待信号量是为了防止解码器因为读不到数而一直空转
         if (FALSE == g_audio_hdl.is_audio_play_open) {
@@ -439,13 +446,11 @@ static VOID enc_server_event_handler(VOID *priv, int argc, int *argv)
     case AUDIO_SERVER_EVENT_END:
         break;
     case AUDIO_SERVER_EVENT_SPEAK_START:
-        /* printf("\n -[function] %s -[lnie] %d\n", __FUNCTION__, __LINE__); */
-        printf("speak start\n");
+        /* printf("speak start\n"); */
         recoder_state = 1;
         break;
     case AUDIO_SERVER_EVENT_SPEAK_STOP:
-        /* printf("\n -[function] %s -[lnie] %d\n", __FUNCTION__, __LINE__); */
-        printf("speak stop\n");
+        /* printf("speak stop\n"); */
         recoder_state = 0;
         break;
     default:
@@ -585,6 +590,9 @@ static int _audio_soft_init(VOID)
 #if defined CONFIG_ONESDK_LLM_ENABLE || defined  CONFIG_VOLC_LLM_ENABLE
     pcm_buff_r = malloc(SAMPLE_RATE * CHANNEL * 1);
     cbuf_init(&g_audio_hdl.pcm_cbuff_r, pcm_buff_r, SAMPLE_RATE * CHANNEL * 1);
+#elif defined CONFIG_IFLY_AIUI_ENABLE
+    pcm_buff_r = malloc(SAMPLE_RATE * CHANNEL * 20);
+    cbuf_init(&g_audio_hdl.pcm_cbuff_r, pcm_buff_r, SAMPLE_RATE * CHANNEL * 20);
 #else
     pcm_buff_r = malloc(SAMPLE_RATE * CHANNEL * 4);
     cbuf_init(&g_audio_hdl.pcm_cbuff_r, pcm_buff_r, SAMPLE_RATE * CHANNEL * 4);
@@ -621,7 +629,7 @@ static int _audio_soft_init(VOID)
     QS queue_size = (sizeof(_AUDIO_CTRL_MSG *) * 20 + sizeof(WORD) - 1) / sizeof(WORD);
     op_ret = os_q_create(&g_audio_ctrl.msg_que, queue_size);
 
-    thread_fork(_AUDIO_TASK_NAME, 5, 2 * 1024, 0, g_audio_ctrl.task_handle, __audio_task, NULL);
+    thread_fork(_AUDIO_TASK_NAME, 5, 1 * 1024, 0, g_audio_ctrl.task_handle, __audio_task, NULL);
 
     audio_debug("_audio_task create");
     return op_ret;

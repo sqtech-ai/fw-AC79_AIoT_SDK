@@ -231,6 +231,7 @@ INCLUDES := \
 	-I../../../../apps/common/LLM/onesdk/platform \
 	-I../../../../apps/common/LLM/onesdk \
 	-I../../../../include_lib/net/web_socket \
+	-I../../../../apps/common/LLM/ifly_aiui/include \
 
 
 # 需要编译的 .c 文件
@@ -242,6 +243,9 @@ c_SRC_FILES := \
 	../../../../apps/common/LLM/aitoye2e/e2e_demo.c \
 	../../../../apps/common/LLM/audio/audio_input.c \
 	../../../../apps/common/LLM/extra/g711.c \
+	../../../../apps/common/LLM/ifly_aiui/ifly_aiui_demo.c \
+	../../../../apps/common/LLM/ifly_aiui/ifly_aiui_user.c \
+	../../../../apps/common/LLM/ifly_aiui/ifly_model_parse.c \
 	../../../../apps/common/LLM/onesdk/examples/onesdk_realtime/chat_agent/realtime_demo.c \
 	../../../../apps/common/LLM/onesdk/platform/plat/alloc.c \
 	../../../../apps/common/LLM/onesdk/platform/plat/platform.c \
@@ -710,6 +714,8 @@ LFLAGS := \
 	../../../../cpu/wl82/liba/sxy_qyai.a \
 	../../../../cpu/wl82/liba/libe2e.a \
 	../../../../cpu/wl82/liba/websocket.a  \
+	../../../../cpu/wl82/liba/libifly_aiui_lib.a \
+	../../../../cpu/wl82/liba/websocket.a   \
 	-T../../../../cpu/wl82/sdk.ld \
 	-M=../../../../cpu/wl82/tools/sdk.map \
 	--end-group  \
