@@ -611,6 +611,8 @@ void hw_fft_wrap(fft_config_struct *ctx)
 int hw_fft_core(int cfg, const int *coef_in, int *coef_out)
 {
     hw_fft_run(cfg, coef_in, coef_out);
+
+    return 0;
 }
 #endif
 

@@ -232,6 +232,9 @@ INCLUDES := \
 	-I../../../../apps/common/LLM/onesdk \
 	-I../../../../include_lib/net/web_socket \
 	-I../../../../apps/common/LLM/ifly_aiui/include \
+	-I../../../../apps/common/LLM/duer/intelligent_duer \
+	-I../../../../apps/common/LLM/duer/my_platform \
+	-I../../../../include_lib/net/network_download \
 
 
 # 需要编译的 .c 文件
@@ -242,6 +245,18 @@ c_SRC_FILES := \
 	../../../../apps/common/LLM/QYAI/qyai_platform.c \
 	../../../../apps/common/LLM/aitoye2e/e2e_demo.c \
 	../../../../apps/common/LLM/audio/audio_input.c \
+	../../../../apps/common/LLM/duer/intelligent_duer/duer_auth_algorithm.c \
+	../../../../apps/common/LLM/duer/intelligent_duer/duer_http_req.c \
+	../../../../apps/common/LLM/duer/intelligent_duer/duer_json_parse.c \
+	../../../../apps/common/LLM/duer/intelligent_duer/duer_json_request.c \
+	../../../../apps/common/LLM/duer/intelligent_duer/duer_record.c \
+	../../../../apps/common/LLM/duer/intelligent_duer/duer_socket.c \
+	../../../../apps/common/LLM/duer/intelligent_duer/test_demo.c \
+	../../../../apps/common/LLM/duer/my_platform/my_platform_http.c \
+	../../../../apps/common/LLM/duer/my_platform/my_platform_http_api.c \
+	../../../../apps/common/LLM/duer/my_platform/my_platform_list_download.c \
+	../../../../apps/common/LLM/duer/my_platform/my_platform_record.c \
+	../../../../apps/common/LLM/duer/my_platform/my_platform_url_list.c \
 	../../../../apps/common/LLM/extra/g711.c \
 	../../../../apps/common/LLM/ifly_aiui/ifly_aiui_demo.c \
 	../../../../apps/common/LLM/ifly_aiui/ifly_aiui_user.c \
@@ -716,6 +731,7 @@ LFLAGS := \
 	../../../../cpu/wl82/liba/websocket.a  \
 	../../../../cpu/wl82/liba/libifly_aiui_lib.a \
 	../../../../cpu/wl82/liba/websocket.a   \
+	../../../../cpu/wl82/liba/cJSON.a   \
 	-T../../../../cpu/wl82/sdk.ld \
 	-M=../../../../cpu/wl82/tools/sdk.map \
 	--end-group  \

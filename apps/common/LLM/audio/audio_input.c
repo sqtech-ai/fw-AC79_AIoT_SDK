@@ -47,9 +47,9 @@
 int recoder_state = 0;
 
 typedef struct {
-    CHAR_T *play_src;
+    char *play_src;
     int   play_src_len;
-    INT_T   play_len;
+    int   play_len;
 } _AUDIO_LOCAL_MSG;
 
 typedef unsigned short WORD;
@@ -59,22 +59,22 @@ typedef struct {
     cbuffer_t pcm_cbuff_r;
     struct server *enc_server;
     struct server *dec_server;
-    UCHAR_T   status;
-    BOOL_T is_audio_play_open;
-    BOOL_T is_audio_record_open;
+    u8   status;
+    bool is_audio_play_open;
+    bool is_audio_record_open;
 } _AUDIO_HANDLE;
 
 typedef struct {
     OS_SEM    r_sem;
     OS_QUEUE msg_que;
-    BOOL_T pcm_wait_sem;
+    bool pcm_wait_sem;
     void *task_handle;
 } _AUDIO_CTRL;
 
 typedef struct {
-    unsigned int              cmd;
-    UCHAR_T                  *data;
-    unsigned int              data_len;
+    unsigned int        cmd;
+    u8                  *data;
+    unsigned int       	data_len;
 } _AUDIO_CTRL_MSG;
 
 static _AUDIO_CTRL g_audio_ctrl = {0};
@@ -90,34 +90,38 @@ static int audio_uac_retry_times = 0;
 static unsigned int audio_test_recorder_first_play_next = 0;
 static unsigned int audio_test_recorder_first_play_times = 0;
 
-
-FILE *fp = NULL;
 /***************************************audio*********************************************/
 
-static int _send_audio_msg(IN CONST unsigned int msgid, IN CONST VOID *data, IN CONST unsigned int len)
+static int _send_audio_msg(IN const unsigned int msgid, IN const void *data, IN const unsigned int len)
 {
     int op_ret = 0;
     int msg_num = 0;
+
     if (!&g_audio_ctrl.msg_que) {
         return -1;
     }
 
     _AUDIO_CTRL_MSG *msg_data;
     msg_data = malloc(sizeof(_AUDIO_CTRL_MSG) + 1);
+
     if (!msg_data) {
         return -1;
     }
+
     memset(msg_data, 0, sizeof(_AUDIO_CTRL_MSG) + 1);
     msg_data->cmd = msgid;
 
     if (data && len) {
         msg_data->data = malloc(len + 1);
+
         if (!msg_data->data) {
             if (msg_data) {
                 free(msg_data);
             }
+
             return -1;
         }
+
         memset(msg_data->data, 0, len + 1);
         memcpy(msg_data->data, data, len);
         msg_data->data_len = len;
@@ -126,20 +130,23 @@ static int _send_audio_msg(IN CONST unsigned int msgid, IN CONST VOID *data, IN 
     }
 
     op_ret = os_q_post(&g_audio_ctrl.msg_que, msg_data);
+
     if (0 != op_ret) {
         if (msg_data->data) {
             free(msg_data->data);
         }
+
         if (msg_data) {
             free(msg_data);
         }
+
         return op_ret;
     }
 
     return 0;
 }
 
-int _device_get_voice_data(VOID *data, unsigned int max_len)
+int _device_get_voice_data(void *data, unsigned int max_len)
 {
     cbuffer_t *cbuf = (cbuffer_t *)&g_audio_hdl.pcm_cbuff_w;
     unsigned int rlen;
@@ -152,6 +159,7 @@ int _device_get_voice_data(VOID *data, unsigned int max_len)
     mdelay(30);
 #endif
     rlen = cbuf_get_data_size(cbuf);
+
     if (rlen == 0) {
         //    audio_debug("device_get_voice_data no data");
         return 0;
@@ -166,6 +174,7 @@ int _device_get_voice_data(VOID *data, unsigned int max_len)
         // printf("get audio_data: %d\n", rlen);
         return rlen;
     }
+
     return 0;
 }
 
@@ -179,7 +188,7 @@ void _device_wbuf_clear()
     cbuf_clear(&g_audio_hdl.pcm_cbuff_w);
 }
 
-int _device_write_voice_data(VOID *data, unsigned int len)
+int _device_write_voice_data(void *data, unsigned int len)
 {
     cbuffer_t *cbuf = (cbuffer_t *)&g_audio_hdl.pcm_cbuff_r;
     if (len > 0) {
@@ -202,7 +211,7 @@ int _device_write_voice_data(VOID *data, unsigned int len)
 }
 
 //编码器输出PCM数据
-static int recorder_vfs_fwrite(VOID *file, VOID *data, unsigned int len)
+static int recorder_vfs_fwrite(void *file, void *data, unsigned int len)
 {
     static int cnt;
     int ret;
@@ -218,7 +227,7 @@ static int recorder_vfs_fwrite(VOID *file, VOID *data, unsigned int len)
     return len;
 }
 
-static CONST struct audio_vfs_ops recorder_vfs_ops = {
+static const struct audio_vfs_ops recorder_vfs_ops = {
     .fwrite = recorder_vfs_fwrite,
     .fopen = 0,
     .fread = 0,
@@ -236,11 +245,11 @@ static CONST struct audio_vfs_ops recorder_vfs_ops = {
  * @retval: none
  */
 
-static VOID audio_recoder_init()
+static void audio_recoder_init()
 {
     audio_debug("audio recoder init ");
     int err;
-    static BOOL_T flag = FALSE;
+    static bool flag = FALSE;
     union audio_req req = {0};
 
     flag = TRUE;
@@ -275,6 +284,7 @@ static VOID audio_recoder_init()
         req.enc.use_vad = 1;                    //打开VAD断句功能
         req.enc.vad_auto_refresh = 1;   //VAD自动刷新
     }
+
     if (req.enc.use_vad == 1) {
         req.enc.vad_start_threshold = 300;    //ms
         req.enc.vad_stop_threshold  = 0;    //ms
@@ -294,15 +304,19 @@ static VOID audio_recoder_init()
     }
 
 #if defined CONFIG_ALL_ADC_CHANNEL_OPEN_ENABLE && defined CONFIG_AISP_LINEIN_ADC_CHANNEL && defined CONFIG_AEC_LINEIN_CHANNEL_ENABLE
+
     if (req.enc.aec_enable) {
         aec_param.output_way = 1;               //1:使用硬件回采 0:使用软件回采
+
         if (aec_param.output_way) {
             req.enc.channel_bit_map |= BIT(CONFIG_AISP_LINEIN_ADC_CHANNEL);             //配置回采硬件通道
+
             if (CONFIG_AISP_LINEIN_ADC_CHANNEL < CONFIG_PHONE_CALL_ADC_CHANNEL) {
                 req.enc.ch_data_exchange = 1;     //如果回采通道使用的硬件channel比MIC通道使用的硬件channel靠前的话处理数据时需要交换一下顺序
             }
         }
     }
+
 #endif
 
     if (req.enc.sample_rate == 16000) {
@@ -312,6 +326,7 @@ static VOID audio_recoder_init()
         aec_param.wideband = 0;
         aec_param.hw_delay_offset = 75;
     }
+
 #endif
 
     err = server_request(g_audio_hdl.enc_server, AUDIO_REQ_ENC, &req);
@@ -319,7 +334,7 @@ static VOID audio_recoder_init()
 }
 
 
-static VOID _audio_recoder_stop()
+static void _audio_recoder_stop()
 {
     int err;
     union audio_req req = {0};
@@ -331,7 +346,7 @@ static VOID _audio_recoder_stop()
 
 
 //解码器读取PCM数据
-static int audio_play_net_vfs_fread(VOID *file, VOID *data, unsigned int len)
+static int audio_play_net_vfs_fread(void *file, void *data, unsigned int len)
 {
 
     cbuffer_t *cbuf = NULL;
@@ -339,10 +354,12 @@ static int audio_play_net_vfs_fread(VOID *file, VOID *data, unsigned int len)
     unsigned int rlen = 0;
     unsigned int c_rlen = 0;
     cbuf = (cbuffer_t *)file;
+
     do {
         cbuf_len = cbuf_get_data_size(cbuf);
         rlen = cbuf_len > len ? len : cbuf_len;
         c_rlen = cbuf_read(cbuf, data, rlen);
+
         // printf("cbuf_len=%d , clen=%d, len=%d", cbuf_len, c_rlen, len);
         if (c_rlen > 0) {
             //audio_debug("c_rlen=%d rlen=%d cbuf_len=%d len=%d",c_rlen,rlen,cbuf_len,len);
@@ -354,6 +371,7 @@ static int audio_play_net_vfs_fread(VOID *file, VOID *data, unsigned int len)
             rlen = 0;
             break;
         }
+
         g_audio_ctrl.pcm_wait_sem = 1;
         os_sem_pend(&g_audio_ctrl.r_sem, _AUDIO_WAIT_TIMEOUT);
         g_audio_ctrl.pcm_wait_sem = 0;
@@ -371,7 +389,7 @@ static int audio_vfs_fseek(void *file, u32 offset, int orig)
     return 0;
 }
 
-static CONST struct audio_vfs_ops audio_play_net_vfs_ops = {
+static const struct audio_vfs_ops audio_play_net_vfs_ops = {
     .fread  = audio_play_net_vfs_fread,
     .fwrite = 0,
     .fopen = 0,
@@ -387,15 +405,10 @@ static CONST struct audio_vfs_ops audio_play_net_vfs_ops = {
  * @return: none
  * @retval: none
  */
-static VOID audio_player_net_init()
+static void audio_player_net_init()
 {
-    static BOOL_T flag = FALSE;
     int err;
     union audio_req req = {0};
-    if (flag) {
-        return;
-    }
-    flag = TRUE;
 
     req.dec.cmd             = AUDIO_DEC_OPEN;
     req.dec.volume          = AUDIO_PLAY_VOICE_VOLUME;
@@ -415,10 +428,12 @@ static VOID audio_player_net_init()
     req.dec.file            = (FILE *)&g_audio_hdl.pcm_cbuff_r;
     audio_debug("audio_player_net_init ");
     err = server_request(g_audio_hdl.dec_server, AUDIO_REQ_DEC, &req);
+
     if (err) {
         audio_debug("server_request dec_server AUDIO_DEC_OPEN err %d", err);
         goto __err;
     }
+
     req.dec.cmd = AUDIO_DEC_START;
     server_request(g_audio_hdl.dec_server, AUDIO_REQ_DEC, &req);
     return;
@@ -428,7 +443,7 @@ __err :
 
 }
 
-static VOID _audio_player_stop()
+static void _audio_player_stop()
 {
     int err;
     union audio_req req = {0};
@@ -438,7 +453,7 @@ static VOID _audio_player_stop()
 
 }
 
-static VOID enc_server_event_handler(VOID *priv, int argc, int *argv)
+static void enc_server_event_handler(void *priv, int argc, int *argv)
 {
 
     switch (argv[0]) {
@@ -459,9 +474,10 @@ static VOID enc_server_event_handler(VOID *priv, int argc, int *argv)
 }
 
 //*****************************收音和播放************************
-VOID _device_net_audio(BOOL_T flag)
+void _device_net_audio(bool flag)
 {
     audio_debug("ty_device_net_audio %d", flag);
+
     if (flag) {
         //音频播放功放
         _send_audio_msg(MSG_START_NET_AUDIO_PLAY, 0, NULL);
@@ -473,9 +489,10 @@ VOID _device_net_audio(BOOL_T flag)
 
 }
 
-VOID _device_net_audio_play(BOOL_T flag)
+void _device_net_audio_play(bool flag)
 {
     audio_debug("_device_net_audio_play %d", flag);
+
     if (flag) {
         //音频播放功放
         _send_audio_msg(MSG_START_NET_AUDIO_PLAY, 0, NULL);
@@ -485,9 +502,10 @@ VOID _device_net_audio_play(BOOL_T flag)
 
 }
 
-VOID _device_net_audio_recorder(BOOL_T flag)
+void _device_net_audio_recorder(bool flag)
 {
     audio_debug("_device_net_audio_recorder %d", flag);
+
     if (flag) {
         //音频播放功放
         _send_audio_msg(MSG_START_AUDIO_RECORDER, 0, NULL);
@@ -497,32 +515,39 @@ VOID _device_net_audio_recorder(BOOL_T flag)
 
 }
 //***************************************************************
-BOOL_T is_audio_play_open(VOID)
+bool is_audio_play_open(void)
 {
     return g_audio_hdl.is_audio_play_open;
 }
 
-static VOID __audio_task(void *pArg)
+static void __audio_task(void *pArg)
 {
     int op_ret = 0;
     _AUDIO_CTRL_MSG *msg_data;
     int msg[16] = {0,};
+
     while (1) {
         //阻塞等待消息
         op_ret = os_q_pend(&g_audio_ctrl.msg_que, 0, msg);
+
         if (op_ret != 0) {
             if (op_ret != -1) {
                 audio_debug("tal_queue_fetch op_ret:%d", op_ret);
             }
+
             continue;
         }
+
         msg_data = (_AUDIO_CTRL_MSG *)msg[0];
+
         switch (msg_data->cmd) {
         case MSG_START_NET_AUDIO_PLAY: {
             cbuf_clear(&g_audio_hdl.pcm_cbuff_r);
+
             if (g_audio_hdl.is_audio_play_open) {
                 _audio_player_stop();
             }
+
             g_audio_hdl.is_audio_play_open = TRUE;
             audio_player_net_init();
         }
@@ -537,9 +562,11 @@ static VOID __audio_task(void *pArg)
 
         case MSG_START_AUDIO_RECORDER: {
             cbuf_clear(&g_audio_hdl.pcm_cbuff_w);
+
             if (g_audio_hdl.is_audio_record_open) {
                 _audio_recoder_stop();
             }
+
             g_audio_hdl.is_audio_record_open = true;
             audio_recoder_init();
         }
@@ -553,10 +580,12 @@ static VOID __audio_task(void *pArg)
         break;
 
         }
+
         if (msg_data) {
             if (msg_data->data) {
                 free(msg_data->data);
             }
+
             free(msg_data);
             msg_data = NULL;
         }
@@ -567,9 +596,11 @@ int audio_cfg_init(_AUDIO_PARAM *audio_param)
 {
     audio_debug("into audio cfg init");
     int op_ret = -1;
+
     if (audio_param->sample_rate > 8000) {
         voice_buf_size = AUDIO_RECORD_VOICE_UPLORD_LEN;
     }
+
     audio_debug("audio param:%d %d %d %d", audio_param->sample_rate, audio_param->bit_dept, audio_param->channel_num, audio_param->audio_power_off);
 
     SAMPLE_RATE = audio_param->sample_rate;
@@ -579,7 +610,7 @@ int audio_cfg_init(_AUDIO_PARAM *audio_param)
     return 0;
 }
 
-static int _audio_soft_init(VOID)
+static int _audio_soft_init(void)
 {
     int op_ret;
     u8 *pcm_buff_w = NULL;
@@ -600,27 +631,32 @@ static int _audio_soft_init(VOID)
 
     if (!g_audio_hdl.enc_server) {
         g_audio_hdl.enc_server = server_open("audio_server", "enc");
+
         if (!g_audio_hdl.enc_server) {
             op_ret = -1;
             audio_debug("server_open err:%d", op_ret);
             return op_ret;
         }
+
         audio_debug("enc server_open succ!");
         server_register_event_handler_to_task(g_audio_hdl.enc_server, NULL, enc_server_event_handler, "app_core");
     }
 
     if (!g_audio_hdl.dec_server) {
         g_audio_hdl.dec_server = server_open("audio_server", "dec");
+
         if (!g_audio_hdl.dec_server) {
             op_ret = -1;
             audio_debug("server_open err:%d", op_ret);
             return op_ret;
         }
+
         audio_debug("dec server_open succ!");
         audio_debug("enc_server 0x%x dec_server 0x%x", g_audio_hdl.enc_server, g_audio_hdl.dec_server);
     }
 
     op_ret = os_sem_create(&g_audio_ctrl.r_sem, 0);
+
     if (op_ret != 0) {
         audio_debug("_hal_semaphore_create_init create semphore err:%d", op_ret);
         return op_ret;
@@ -635,12 +671,13 @@ static int _audio_soft_init(VOID)
     return op_ret;
 }
 
-VOID _audio_init(_AUDIO_PARAM *audio_param)
+void _audio_init(_AUDIO_PARAM *audio_param)
 {
     audio_debug("into volc audio inti!");
     static char init = 0;
 
     audio_cfg_init(audio_param);
+
     if (!init) {
         _audio_soft_init();
     }

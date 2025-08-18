@@ -435,7 +435,10 @@
                 "${workspaceFolder}/apps/common/LLM/onesdk/platform",
                 "${workspaceFolder}/apps/common/LLM/onesdk",
                 "${workspaceFolder}/include_lib/net/web_socket",
-                "${workspaceFolder}/apps/common/LLM/ifly_aiui/include"
+                "${workspaceFolder}/apps/common/LLM/ifly_aiui/include",
+                "${workspaceFolder}/apps/common/LLM/duer/intelligent_duer",
+                "${workspaceFolder}/apps/common/LLM/duer/my_platform",
+                "${workspaceFolder}/include_lib/net/network_download"
             ],
             "intelliSenseMode": "clang-x86",
             "name": "AC791N_WIFI_STORY_MACHINE"

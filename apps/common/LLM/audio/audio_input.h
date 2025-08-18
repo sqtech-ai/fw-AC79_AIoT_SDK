@@ -59,8 +59,8 @@ typedef struct {
 } _AUDIO_PARAM;
 
 
-int _device_write_voice_data(VOID *data, unsigned int len);
-int _device_get_voice_data(VOID *data, unsigned int max_len);
+int _device_write_voice_data(void *data, unsigned int len);
+int _device_get_voice_data(void *data, unsigned int max_len);
 void audio_stream_init(int sample_rate, int bit_dept, int channel_num);
 void start_audio_stream(void);
 void stop_audio_stream(void);

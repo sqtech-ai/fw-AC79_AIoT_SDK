@@ -153,6 +153,9 @@
 <Add directory="../../../../apps/common/LLM/onesdk" />
 <Add directory="../../../../include_lib/net/web_socket" />
 <Add directory="../../../../apps/common/LLM/ifly_aiui/include" />
+<Add directory="../../../../apps/common/LLM/duer/intelligent_duer" />
+<Add directory="../../../../apps/common/LLM/duer/my_platform" />
+<Add directory="../../../../include_lib/net/network_download" />
 </Compiler>
 <Linker>
 <Add option="--plugin-opt=-pi32v2-always-use-itblock=false" />
@@ -302,6 +305,7 @@
 <Add option="../../../../cpu/wl82/liba/websocket.a " />
 <Add option="../../../../cpu/wl82/liba/libifly_aiui_lib.a" />
 <Add option="../../../../cpu/wl82/liba/websocket.a  " />
+<Add option="../../../../cpu/wl82/liba/cJSON.a  " />
 <Add option="-T../../../../cpu/wl82/sdk.ld" />
 <Add option="-M=../../../../cpu/wl82/tools/sdk.map" />
 <Add option="--end-group " />
@@ -328,6 +332,32 @@
 <Unit filename="../../../../apps/common/LLM/aitoye2e/e2e_demo.c"><Option compilerVer="CC"/></Unit>
 <Unit filename="../../../../apps/common/LLM/audio/audio_input.c"><Option compilerVer="CC"/></Unit>
 <Unit filename="../../../../apps/common/LLM/audio/audio_input.h" />
+<Unit filename="../../../../apps/common/LLM/duer/intelligent_duer/duer_auth_algorithm.c"><Option compilerVer="CC"/></Unit>
+<Unit filename="../../../../apps/common/LLM/duer/intelligent_duer/duer_auth_algorithm.h" />
+<Unit filename="../../../../apps/common/LLM/duer/intelligent_duer/duer_common.h" />
+<Unit filename="../../../../apps/common/LLM/duer/intelligent_duer/duer_http_req.c"><Option compilerVer="CC"/></Unit>
+<Unit filename="../../../../apps/common/LLM/duer/intelligent_duer/duer_http_req.h" />
+<Unit filename="../../../../apps/common/LLM/duer/intelligent_duer/duer_json_parse.c"><Option compilerVer="CC"/></Unit>
+<Unit filename="../../../../apps/common/LLM/duer/intelligent_duer/duer_json_parse.h" />
+<Unit filename="../../../../apps/common/LLM/duer/intelligent_duer/duer_json_request.c"><Option compilerVer="CC"/></Unit>
+<Unit filename="../../../../apps/common/LLM/duer/intelligent_duer/duer_json_request.h" />
+<Unit filename="../../../../apps/common/LLM/duer/intelligent_duer/duer_record.c"><Option compilerVer="CC"/></Unit>
+<Unit filename="../../../../apps/common/LLM/duer/intelligent_duer/duer_record.h" />
+<Unit filename="../../../../apps/common/LLM/duer/intelligent_duer/duer_socket.c"><Option compilerVer="CC"/></Unit>
+<Unit filename="../../../../apps/common/LLM/duer/intelligent_duer/test_demo.c"><Option compilerVer="CC"/></Unit>
+<Unit filename="../../../../apps/common/LLM/duer/my_platform/my_platform_common.h" />
+<Unit filename="../../../../apps/common/LLM/duer/my_platform/my_platform_http.c"><Option compilerVer="CC"/></Unit>
+<Unit filename="../../../../apps/common/LLM/duer/my_platform/my_platform_http.h" />
+<Unit filename="../../../../apps/common/LLM/duer/my_platform/my_platform_http_api.c"><Option compilerVer="CC"/></Unit>
+<Unit filename="../../../../apps/common/LLM/duer/my_platform/my_platform_http_api.h" />
+<Unit filename="../../../../apps/common/LLM/duer/my_platform/my_platform_list_download.c"><Option compilerVer="CC"/></Unit>
+<Unit filename="../../../../apps/common/LLM/duer/my_platform/my_platform_list_download.h" />
+<Unit filename="../../../../apps/common/LLM/duer/my_platform/my_platform_log.h" />
+<Unit filename="../../../../apps/common/LLM/duer/my_platform/my_platform_record.c"><Option compilerVer="CC"/></Unit>
+<Unit filename="../../../../apps/common/LLM/duer/my_platform/my_platform_record.h" />
+<Unit filename="../../../../apps/common/LLM/duer/my_platform/my_platform_time.h" />
+<Unit filename="../../../../apps/common/LLM/duer/my_platform/my_platform_url_list.c"><Option compilerVer="CC"/></Unit>
+<Unit filename="../../../../apps/common/LLM/duer/my_platform/my_platform_url_list.h" />
 <Unit filename="../../../../apps/common/LLM/extra/g711.c"><Option compilerVer="CC"/></Unit>
 <Unit filename="../../../../apps/common/LLM/extra/g711.h" />
 <Unit filename="../../../../apps/common/LLM/ifly_aiui/ifly_aiui_demo.c"><Option compilerVer="CC"/></Unit>
