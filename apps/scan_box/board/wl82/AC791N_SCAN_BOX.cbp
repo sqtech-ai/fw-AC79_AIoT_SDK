@@ -305,6 +305,8 @@
 <Unit filename="../../../../apps/common/usb/host/usb_ctrl_transfer.h" />
 <Unit filename="../../../../apps/common/usb/host/usb_hid_keys.h" />
 <Unit filename="../../../../apps/common/usb/host/usb_host.c"><Option compilerVer="CC"/></Unit>
+<Unit filename="../../../../apps/common/usb/host/usb_host_cdc.c"><Option compilerVer="CC"/></Unit>
+<Unit filename="../../../../apps/common/usb/host/usb_host_cdc.h" />
 <Unit filename="../../../../apps/common/usb/host/usb_storage.c"><Option compilerVer="CC"/></Unit>
 <Unit filename="../../../../apps/common/usb/host/usb_storage.h" />
 <Unit filename="../../../../apps/common/usb/host/usb_video.c"><Option compilerVer="CC"/></Unit>

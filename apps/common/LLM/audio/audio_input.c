@@ -193,7 +193,7 @@ int _device_write_voice_data(void *data, unsigned int len)
     cbuffer_t *cbuf = (cbuffer_t *)&g_audio_hdl.pcm_cbuff_r;
     if (len > 0) {
         unsigned int write_len = cbuf_write(cbuf, data, len);
-        printf("len=%d wite_len=%d", len, write_len);
+        /* printf("len=%d wite_len=%d", len, write_len); */
         if (0 == write_len) {
             //上层buf写不进去时清空一下，避免出现声音滞后的情况
             cbuf_clear(cbuf);

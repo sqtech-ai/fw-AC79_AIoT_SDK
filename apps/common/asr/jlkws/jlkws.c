@@ -505,9 +505,12 @@ void aisp_resume(void)
         aec_param.hw_delay_offset = 75;
     }
 
+#if CONFIG_AEC_USE_PLAY_MUSIC_ENABLE
     if (aec_param.output_way == 0) {
         aec_param.dac_ref_sr = 48000; //aec软件回采dac参考采样率
     }
+#endif
+
 #endif
 #endif
 #if (defined CONFIG_SXY_QYAI_ENABLE)

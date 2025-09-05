@@ -11,6 +11,7 @@
 #include "otg.h"
 #include "usb_host.h"
 #include "usb_storage.h"
+#include "usb_host_cdc.h"
 #endif
 #ifdef CONFIG_UI_ENABLE
 #include "ui/include/lcd_drive.h"
@@ -87,6 +88,9 @@ SD0_PLATFORM_DATA_BEGIN(sd0_data)
 #endif
 #if defined CONFIG_OVERCLOCKING_ENABLE
     .hd_enable              = 3,
+#endif
+#if 1//TCFG_SD_POWER_ENABLE
+    .power                  = sd_set_power,
 #endif
 SD0_PLATFORM_DATA_END()
 
@@ -638,6 +642,15 @@ static const struct otg_dev_data otg_data = {
     .detect_time_interval = 50,
 };
 
+#if TCFG_HOST_CDC_ENABLE
+USB_CDC_PLATFORM_DATA_BEGIN(cdc_data)
+    .baud_rate = 460800,
+    .stop_bits = 0,
+    .parity = 0,
+    .data_bits = 8,
+USB_CDC_PLATFORM_DATA_END()
+#endif
+
 #if TCFG_VIR_UDISK_ENABLE
 extern const struct device_operations ram_disk_dev_ops;
 #endif
@@ -782,6 +795,11 @@ REGISTER_DEVICES(device_table) = {
 #ifdef CONFIG_LTE_PHY_ENABLE
     { "lte",  &lte_module_dev_ops, (void *)&lte_module_data},
 #endif
+#if TCFG_HOST_CDC_ENABLE
+    { "cdc0", &usb_cdc_ops, (void *)&cdc_data },
+    { "cdc1", &usb_cdc_ops, (void *)&cdc_data },
+#endif
+
 #ifdef TCFG_EXTFLASH_ENABLE
     { "extflash",  &extflash_dev_ops, NULL},
 #endif

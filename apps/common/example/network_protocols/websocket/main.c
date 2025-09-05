@@ -176,10 +176,10 @@ exit_ws:
     }
 #else
     if (websockets_info->ping_thread_id) {
-        thread_kill(&websockets_info->ping_thread_id, KILL_REQ);
+        thread_kill(&websockets_info->ping_thread_id, KILL_WAIT);
     }
     if (websockets_info->ping_thread_id) {
-        thread_kill(&websockets_info->recv_thread_id, KILL_REQ);
+        thread_kill(&websockets_info->recv_thread_id, KILL_WAIT);
     }
 #endif
     websockets_client_exit(websockets_info);

@@ -5,10 +5,20 @@
 
 #if defined CONFIG_SDRAM_RE_TRIM_ENABLE && !defined CONFIG_NO_SDRAM_ENABLE
 
+#pragma const_seg(".sdram_re_trim_code")
+#pragma code_seg(".sdram_re_trim_code")
+#pragma str_literal_override(".sdram_re_trim_code")
+
+#define __SDRAM_RE_TRIM_SEC__  SEC(.sdram_re_trim_code)
+
+
+#define SDRAM_FREE_SPACE_SIZE  ((u32)&HEAP_END - (u32)&HEAP_BEGIN - 0x120)
+extern void flushinv_dcache(void *ptr, int len);
+extern u32 HEAP_END, HEAP_BEGIN;
 
 // sdram_cfg_info参数需要与sdk生成的ini中的配置一致
-SEC(.boot_code)
-static const struct sdram_cfg_info_t sdram_cfg_info = {
+__SDRAM_RE_TRIM_SEC__
+static struct sdram_cfg_info_t sdram_cfg_info = {
     .sdram_size = __SDRAM_SIZE__,
     .sdram_test_size = 4 * 1024,
     .sdram_config_val = -1,
@@ -51,7 +61,7 @@ static const struct sdram_cfg_info_t sdram_cfg_info = {
 
 #if 1  //开关调试打印
 
-SEC(.boot_code)
+__SDRAM_RE_TRIM_SEC__
 static void putbyte_init(char *tx_pin)
 {
     JL_PORT_FLASH_TypeDef *gpio_regs[] = {
@@ -78,7 +88,7 @@ static void putbyte_init(char *tx_pin)
     }
 }
 
-SEC(.boot_code)
+__SDRAM_RE_TRIM_SEC__
 static void putbyte_deinit(char *tx_pin)
 {
     JL_PORT_FLASH_TypeDef *gpio_regs[] = {
@@ -105,7 +115,7 @@ static void putbyte_deinit(char *tx_pin)
     }
 }
 
-SEC(.boot_code)
+__SDRAM_RE_TRIM_SEC__
 static void putbyte_tmp(char c)
 {
     int i = 0;
@@ -120,7 +130,7 @@ static void putbyte_tmp(char c)
     UART_BUF = c;
 }
 
-SEC(.boot_code)
+__SDRAM_RE_TRIM_SEC__
 static void put_u4hex_tmp(u8 dat)
 {
     dat = 0xf & dat;
@@ -131,7 +141,7 @@ static void put_u4hex_tmp(u8 dat)
     }
 }
 
-SEC(.boot_code)
+__SDRAM_RE_TRIM_SEC__
 u32 power(u8 x, u8 n)
 {
     double result = 1.0;
@@ -142,7 +152,7 @@ u32 power(u8 x, u8 n)
 }
 
 
-SEC(.boot_code)
+__SDRAM_RE_TRIM_SEC__
 void printf_tmp(char *str, u32 value)
 {
     while (*str != 0) {
@@ -188,16 +198,13 @@ void printf_tmp(char *str, u32 value)
     }
 }
 
-SEC(.boot_code)
+__SDRAM_RE_TRIM_SEC__
 void putbuf_tmp(u8 *buf, u32 len)
 {
     u32 tmp = len;
     while (len--) {
-        for (u8 i = 0; i < 2; i++) {
-            u8 tmp = 4 * i;
-            u8 dat = (*buf & 0xf << tmp) >> tmp;
-            put_u4hex_tmp(dat);
-        }
+        put_u4hex_tmp((*buf >> 4) & 0xf);
+        put_u4hex_tmp(*buf & 0xf);
         putbyte_tmp(' ');
         buf++;
 
@@ -215,6 +222,19 @@ void putbuf_tmp(u8 *buf, u32 len)
 #define putbuf_tmp(x)
 
 #endif
+
+__SDRAM_RE_TRIM_SEC__
+void *memset_tmp(void *dest, u8 value, u32 count)
+{
+    u8 *ptr = (u8 *)dest;
+    u8 byte_value = (u8)value;
+
+    for (u32 i = 0; i < count; i++) {
+        ptr[i] = byte_value;
+    }
+
+    return dest;
+}
 
 
 /******************************************************************
@@ -235,7 +255,10 @@ struct sdram_test_cfg {
     u8 k: 4;
     u8 m: 3;
     u8 wr: 1;//标记写
-} sdram_cfg_ok;
+};
+
+__SDRAM_RE_TRIM_SEC__
+struct sdram_test_cfg sdram_cfg_ok = {0};
 
 struct sdram_cfg {
     u8 sdram_size;
@@ -266,17 +289,26 @@ struct sdram_cfg {
 #define __SDRAM_ADDR        ((u8*)0x4000000)
 #define SDRAM_ADDR(addr)    ((void*)(__SDRAM_ADDR+(addr)))
 
-SEC(.boot_code)
-static char sdram_test(u32 test_size)
+// mode 0:以u8、u16、u32方式，校验test_size长度
+// mode 1:以u32方式校验整块sdram
+__SDRAM_RE_TRIM_SEC__
+static char sdram_test(u32 test_size, u8 mode)
 {
     u32 i, checksum ;
-    u32 *ptr_u32 = (u32 *)SDRAM_ADDR(0 * 1024 * 1024);
+    u32 *ptr_u32 = (u32 *)&HEAP_BEGIN;
     u16 *ptr_u16 = (u16 *)ptr_u32;
     u8 *ptr_u8 = (u8 *)ptr_u16;
 #define CHECK_RAND_EN	0
 
+    /* printf_tmp("test_size = %dK\n", test_size / 1024); */
+    /* printf_tmp("ptr_u8 = 0x%x\n", ptr_u8); */
+
     // CLOSE_WDT();
     // p33_tx_1byte(P3_WDT_CON, 0);
+
+    if (mode) {
+        goto __sdram_u32_check;
+    }
 
     checksum = 0;
 
@@ -328,6 +360,8 @@ static char sdram_test(u32 test_size)
     }
 
 ///////////////////////////////////////////////////////////////////////////////////////
+__sdram_u32_check:
+
     checksum = 0;
 
     for (i = 0 ; i < test_size / 4 ; i++) {
@@ -356,25 +390,29 @@ static char sdram_test(u32 test_size)
     return 0;
 }
 
-SEC(.boot_code)
+__SDRAM_RE_TRIM_SEC__
 static void sdram_test_ijkm_save(u8 pass_list[][T(I)][T(K)][T(M)], u8 i, u8 j, u8 k, u8 m)
 {
     pass_list[j - J_MIN_2][i - I_MIN_2][k - K_MIN_2][m - M_MIN_2] = 1;
 }
 
-SEC(.boot_code)
-static char sdram_test_ijkm_find(u8 pass_list[][T(I)][T(K)][T(M)])
+
+struct continue_group_tag {
+    u8 start_j;   ///< 当前group的起始组合的J值
+    u8 start_i;   ///< 当前group的起始组合的I值
+    u8 start_k;   ///< 当前group的起始组合的K值
+    u8 start_m;   ///< 当前group的起始组合的M值
+    u8 cnt;       ///< 当前group的组合数量
+};
+
+__SDRAM_RE_TRIM_SEC__
+struct continue_group_tag group[T(J) * T(I) * T(K) * T(M) / 2] = {0};  ///< group数量不会超过所有组合数的1/2
+
+__SDRAM_RE_TRIM_SEC__
+static u8 sdram_test_ijkm_find(u8 pass_list[][T(I)][T(K)][T(M)])
 {
     u8 i, j, k, m;
     u8 start_i, start_j, start_k, start_m;
-
-    struct continue_group_tag {
-        u8 start_j;   ///< 当前group的起始组合的J值
-        u8 start_i;   ///< 当前group的起始组合的I值
-        u8 start_k;   ///< 当前group的起始组合的K值
-        u8 start_m;   ///< 当前group的起始组合的M值
-        u8 cnt;       ///< 当前group的组合数量
-    } group[T(J) * T(I) * T(K) * T(M) / 2] = {0};  ///< group数量不会超过所有组合数的1/2
 
     u8 last_para_pass_flag = 0; ///< 记录遍历过程中，上一组参数是否pass，以便找到连续pass的组
     u8 continue_cnt = 0;        ///< 记录连续pass的组的个数(即某group中的成员数)
@@ -524,9 +562,10 @@ __find_end:
         /* 11-8  -> ddr_phy cl_cnt      */ ( 0<< 8) | \
         /* 7-0   -> rfc_conf            */ ( 18<< 0))
 
-SEC(.boot_code)
+__SDRAM_RE_TRIM_SEC__
 static void sdram_set_para(int i, int j, int k, int m, u32 sdr_con0, u32 dq_dly)
 {
+#if  0
     JL_CLOCK->CLK_CON1 &= ~(BIT(21) | BIT(20));
     SFR(JL_CLOCK->CLK_CON1, 25, 2, j);//OCK相位p0...p3
     SFR(JL_CLOCK->CLK_CON1, 30, 2, k);//QCK相位p0...p3
@@ -553,10 +592,17 @@ static void sdram_set_para(int i, int j, int k, int m, u32 sdr_con0, u32 dq_dly)
     /* JL_SDR->CON1 = sdr_con1_init | (1<<0);        //adjust tREFI */
     JL_SDR->CON3 = sdr_con3_init | (i << 28) | (m << 8);
     delay(DELAY_CNT);
+#else
+    SFR(JL_CLOCK->CLK_CON1, 25, 2, j);//OCK相位p0...p3
+    SFR(JL_CLOCK->CLK_CON1, 30, 2, k);//QCK相位p0...p3
+    delay(DELAY_CNT);                              // >= 200us after clk stable
+    JL_SDR->CON3 = sdr_con3_init | (i << 28) | (m << 8);
+    delay(DELAY_CNT);
+#endif
 }
 
-SEC(.boot_code)
-void sdram_re_trim(struct sdram_cfg_info_t *sdram_info)
+__SDRAM_RE_TRIM_SEC__
+void sdram_re_trim_main(struct sdram_cfg_info_t *sdram_info)
 {
     u8 sdram_test_pass_list[T(J)][T(I)][T(K)][T(M)]; ///< jikm排列组合测试，pass时对应组会置1
     struct sdram_cfg sdram_cfg_table[] = {
@@ -598,7 +644,7 @@ void sdram_re_trim(struct sdram_cfg_info_t *sdram_info)
     }
 
     // sdram_test_ijkm_init();
-    memset(&sdram_test_pass_list, 0, sizeof(sdram_test_pass_list));
+    memset_tmp(&sdram_test_pass_list, 0, sizeof(sdram_test_pass_list));
 
     /*i = 6, j = 1, k = 0, m = 1;*/
     test_ok_phase = 0;
@@ -614,7 +660,7 @@ void sdram_re_trim(struct sdram_cfg_info_t *sdram_info)
             test_ok_phase = 1;
         } else {
             sdram_ijkm = 0;
-            sdram_test_len = sdram_info->sdram_size;
+            sdram_test_len = SDRAM_FREE_SPACE_SIZE;
         }
     } else if (sdram_info->sdram_config_val == (u32) - 1) {
         sdram_test_len = (sdram_info->sdram_test_size ? sdram_info->sdram_test_size : 4096);
@@ -635,14 +681,14 @@ void sdram_re_trim(struct sdram_cfg_info_t *sdram_info)
 retry:
     retry_cnt++;
     // sdram_test_ijkm_init();
-    memset(&sdram_test_pass_list, 0, sizeof(sdram_test_pass_list));
+    memset_tmp(&sdram_test_pass_list, 0, sizeof(sdram_test_pass_list));
     if (find_cfg_ok) {//查找出最后频率最高最优参数
         i = sdram_cfg_ok.i;
         j = sdram_cfg_ok.j;
         k = sdram_cfg_ok.k;
         m = sdram_cfg_ok.m;
         if (save_flash) {
-            sdram_test_len = sdram_info->sdram_size;//查找出最后频率最高最优参数后测试要测试整个sdram大小
+            sdram_test_len = SDRAM_FREE_SPACE_SIZE;
         } else {
             sdram_test_len = (sdram_info->sdram_test_size ? sdram_info->sdram_test_size : 4096);
         }
@@ -670,10 +716,11 @@ SDRAM_PHASE:
                     printf_tmp("i = %d, ", i);
                     printf_tmp("k = %d, ", k);
                     printf_tmp("m = %d ", m);
-                    if (0 == sdram_test(sdram_test_len)) {
+                    u8 sdram_check_mode = find_cfg_ok ? 1 : 0;
+                    if (0 == sdram_test(sdram_test_len, sdram_check_mode)) {
                         printf_tmp("pass!!!\n", 0);
                         if (!find_cfg_ok) {
-                            sdram_test_ijkm_save(&sdram_test_pass_list, i, j, k, m);//存储ijkm到四维数组
+                            sdram_test_ijkm_save(sdram_test_pass_list, i, j, k, m);//存储ijkm到四维数组
                         }
                         if (sdram_info->sdram_config_val == (u32) - 1 && test_ok_phase) {
                             // i:0-3, j:4-7; k:8-11; m:12-15
@@ -693,7 +740,7 @@ SDRAM_PHASE:
     }
 
 
-    find_cfg_ok = sdram_test_ijkm_find(&sdram_test_pass_list);//查找最优参数因子
+    find_cfg_ok = sdram_test_ijkm_find(sdram_test_pass_list);//查找最优参数因子
 
     if (retry_cnt < 3) {
         printf_tmp("sdram_4phase retry\n", 0);
@@ -706,14 +753,14 @@ SDRAM_PHASE:
 SDRAM_USE_8PAHSE:
     retry_cnt++;
     // sdram_test_ijkm_init();
-    memset(&sdram_test_pass_list, 0, sizeof(sdram_test_pass_list));
+    memset_tmp(&sdram_test_pass_list, 0, sizeof(sdram_test_pass_list));
     if (find_cfg_ok) {//查找出最后频率最高最优参数
         i = sdram_cfg_ok.i;
         j = sdram_cfg_ok.j;
         k = sdram_cfg_ok.k;
         m = sdram_cfg_ok.m;
         if (save_flash) {
-            sdram_test_len = sdram_info->sdram_size;//查找出最后频率最高最优参数后测试要测试整个sdram大小
+            sdram_test_len = SDRAM_FREE_SPACE_SIZE;
         } else {
             sdram_test_len = (sdram_info->sdram_test_size ? sdram_info->sdram_test_size : 4096);
         }
@@ -762,10 +809,11 @@ SDRAM_8PHASE:
                         /* printf_tmp("no test sdram_8phase: i=%d,j=%d,k=%d,m=%d\n", i, j, k, m); */
                         return;
                     }
-                    if (0 == sdram_test(sdram_test_len)) {
+                    u8 sdram_check_mode = find_cfg_ok ? 1 : 0;
+                    if (0 == sdram_test(sdram_test_len, sdram_check_mode)) {
                         /*printf_tmp("i=%d,j=%d,k=%d,m=%d;\r\n", i, j, k, m);*/
                         if (!find_cfg_ok) {
-                            sdram_test_ijkm_save(&sdram_test_pass_list, i, j, k, m);//存储ijkm到四维数组
+                            sdram_test_ijkm_save(sdram_test_pass_list, i, j, k, m);//存储ijkm到四维数组
                         }
                         if (sdram_info->sdram_config_val == (u32) - 1 && test_ok_phase) {
                             sdram_info->sdram_config_val = i | (j << 4) | (k << 8) | (m << 12) | ((sdram_info->sdram_cl & 0xF) << 24);//i:0-3, j:4-7; k:8-11; m:12-15;
@@ -780,7 +828,7 @@ SDRAM_8PHASE:
             }
         }
     }
-    find_cfg_ok = sdram_test_ijkm_find(&sdram_test_pass_list);//查找最优参数因子
+    find_cfg_ok = sdram_test_ijkm_find(sdram_test_pass_list);//查找最优参数因子
     if (retry_cnt < 3) {
         printf_tmp("sdram_8phase retry\n", 0);
         goto SDRAM_USE_8PAHSE;
@@ -789,13 +837,18 @@ SDRAM_8PHASE:
     cpu_reset();
 }
 
-
-SEC(.boot_code)
-void startup_boot_hook(void)
+__SDRAM_RE_TRIM_SEC__
+void startup_boot_hook_after_ram_ready(void)
 {
     putbyte_init(UART_IO_TX);
-    printf_tmp("=======sdram re-trim =======\n", 0);
-    sdram_re_trim(&sdram_cfg_info);
+
+    printf_tmp("=======sdram re-trim(code in ram0)=======\n", 0);
+    printf_tmp("HEAP_BEGIN = 0x%x\n", &HEAP_BEGIN);
+    printf_tmp("HEAP_END = 0x%x\n", &HEAP_END);
+    printf_tmp("SDRAM_FREE_SPACE_SIZE = 0x%x\n", SDRAM_FREE_SPACE_SIZE);
+
+    sdram_re_trim_main(&sdram_cfg_info);
+
     putbyte_deinit(UART_IO_TX);
 }
 

@@ -10,6 +10,8 @@ typedef struct {
 
 #define VOLC_UNUSED(x) ((void)x)
 
+typedef int64_t intmax_t;
+
 #define PRINTF_DISABLE_SUPPORT_FLOAT   0
 // 'ntoa' conversion buffer size, this must be big enough to hold one converted
 // numeric number including padded zeros (dynamically created on stack)

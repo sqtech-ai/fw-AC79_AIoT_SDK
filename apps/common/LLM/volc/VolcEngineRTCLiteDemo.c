@@ -182,7 +182,7 @@ static void on_subtitle_message_received(byte_rtc_engine_t engine, const cJSON *
             cJSON *user_id_obj = cJSON_GetObjectItem(obji, "userId");
             cJSON *text_obj = cJSON_GetObjectItem(obji, "text");
             if (user_id_obj && text_obj) {
-                printf("subtitle:%s:%s \n", cJSON_GetStringValue(user_id_obj), cJSON_GetStringValue(text_obj));
+                printf("subtitle:%s:%s", cJSON_GetStringValue(user_id_obj), cJSON_GetStringValue(text_obj));
             }
         }
     }
@@ -229,7 +229,6 @@ static void byte_rtc_on_message_received(byte_rtc_engine_t engine, const char *r
 
 int VolcEngineRTCDemo()
 {
-    printf("\n -[function] %s -[lnie] %d\n", __FUNCTION__, __LINE__);
     static u8 pcma[160];
     memset(&g_byte_rtc_data, 0, sizeof(g_byte_rtc_data));
     rtc_room_info_t *room_info = malloc(sizeof(rtc_room_info_t));
@@ -294,7 +293,7 @@ int VolcEngineRTCDemo()
 
     byte_rtc_join_room(engine, room_info->room_id, room_info->uid, room_info->token, &options);  //加入房间
     while (!g_byte_rtc_data.channel_joined) {
-        mdelay(10);
+        mdelay(100);
     };
     /* mdelay(5 * 1000); //等待房间连接成功 */
 // #ifdef AUDIO_TYPE_G711A
@@ -334,7 +333,7 @@ err:
     byte_rtc_leave_room(engine, room_info->room_id);
     byte_rtc_fini(engine);
     while (!g_byte_rtc_data.fini_notifyed) {
-        mdelay(10);
+        mdelay(1000);
     };
     byte_rtc_destroy(engine);
     stop_voice_chat(room_info);

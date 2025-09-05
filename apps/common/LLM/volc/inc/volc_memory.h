@@ -41,19 +41,6 @@ __byte_rtc_api__ void *volc_malloc(size_t size);
  * @locale zh
  * @type api
  * @list 方法
- * @brief 申请指定对齐方式的内存块
- * @param size 申请内存大小，单位: 字节
- * @param alignment 所需对齐的字节数
- * @return 方法调用结果：<br>
- *         - 成功: 内存首地址 <br>
- *         - 失败: NULL
- */
-__byte_rtc_api__ void *volc_align_alloc(size_t size, size_t alignment);
-
-/**
- * @locale zh
- * @type api
- * @list 方法
  * @brief 申请内存，并初始化分配的内存块为零
  * @param num 要分配的元素数量
  * @param size 申请内存大小，单位: 字节

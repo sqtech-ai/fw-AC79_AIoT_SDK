@@ -172,6 +172,8 @@ SECTIONS
         . = ALIGN(4);
         _SPI_CODE_END = . ;
 
+        *(.sdram_re_trim_code)
+
         *(.flushinv_icache)
         *(.volatile_ram_code)
 #if !defined CONFIG_VIDEO_ENABLE

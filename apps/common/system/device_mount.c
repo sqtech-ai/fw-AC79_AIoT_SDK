@@ -18,6 +18,7 @@
 #include "hid.h"
 #include "adb.h"
 #include "usbnet.h"
+#include "usb_host_cdc.h"
 #endif
 
 #ifdef CONFIG_JLFAT_ENABLE
@@ -370,7 +371,7 @@ static void otg_event_handler(struct device_event *event)
         if (((const char *)event->value)[0] == 'h') {
             int usb_id = ((const char *)event->value)[2] - '0';
             log_i("usb%d connect, host mode\n", usb_id);
-#if TCFG_UDISK_ENABLE || TCFG_HOST_AUDIO_ENABLE || TCFG_HOST_UVC_ENABLE || TCFG_HOST_WIRELESS_ENABLE || TCFG_HID_HOST_ENABLE || TCFG_ADB_ENABLE
+#if TCFG_USB_HOST_ENABLE
             usb_host_mount(usb_id, MOUNT_RETRY, MOUNT_RESET, MOUNT_TIMEOUT);
 #endif
         } else if (((const char *)event->value)[0] == 'c') {
@@ -381,7 +382,7 @@ static void otg_event_handler(struct device_event *event)
         if (((const char *)event->value)[0] == 'h') {
             int usb_id = ((const char *)event->value)[2] - '0';
             log_i("usb%d disconnect, host mode\n", usb_id);
-#if TCFG_UDISK_ENABLE || TCFG_HOST_AUDIO_ENABLE || TCFG_HOST_UVC_ENABLE || TCFG_HOST_WIRELESS_ENABLE || TCFG_HID_HOST_ENABLE || TCFG_ADB_ENABLE
+#if TCFG_USB_HOST_ENABLE
             usb_host_unmount(usb_id);
 #endif
         } else if (((const char *)event->value)[0] == 'c') {
@@ -421,6 +422,12 @@ static void usb_host_event_handler(struct device_event *event)
             hid_process(usb_id);
         }
 #endif
+#if TCFG_HOST_CDC_ENABLE
+        if (!strncmp((const char *)event->value, "cdc", 3)) {
+            usb_cdc_init(usb_id);
+            //host_cdc_send_demo(usb_id);
+        }
+#endif
     } else if (event->event == DEVICE_EVENT_OUT) {
         usb_id = ((const char *)event->arg)[8] - '0';
         log_i("usb host%d unmount\n", usb_id);
@@ -456,6 +463,11 @@ static void usb_host_event_handler(struct device_event *event)
         }
         if (!strncmp((const char *)event->value, "at_port", 7)) {
             usb_net_at_port_stop_process(usb_id);
+        }
+#endif
+#if TCFG_HOST_CDC_ENABLE
+        if (!strncmp((const char *)event->value, "cdc", 3)) {
+            usb_cdc_exit(usb_id);
         }
 #endif
     }

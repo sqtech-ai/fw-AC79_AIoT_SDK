@@ -13,7 +13,6 @@
 #define LLM_APP_ID 	 ""
 #define RTC_APP_ID   ""
 #define RTC_APP_KEY  ""
-
 #define BOT_ID       ""
 
 typedef struct {
@@ -324,7 +323,7 @@ char *start_voice_chat_json(const char *app_id, const char *room_id, const char 
     cJSON_AddStringToObject(body, "TaskId", "task1");
 
     cJSON *config = cJSON_CreateObject();
-    cJSON_AddNumberToObject(config, "InterruptMode", 1);
+    cJSON_AddNumberToObject(config, "InterruptMode", 0);
     cJSON *asrConfig = cJSON_CreateObject();
     cJSON_AddStringToObject(asrConfig, "Provider", "volcano");
     cJSON *ProviderParams = cJSON_CreateObject();
@@ -353,6 +352,7 @@ char *start_voice_chat_json(const char *app_id, const char *room_id, const char 
     cJSON *LLMConfig = cJSON_CreateObject();
     cJSON_AddStringToObject(LLMConfig, "Mode", "ArkV3");
     cJSON_AddStringToObject(LLMConfig, "EndPointId", LLM_APP_ID);
+    /* cJSON_AddStringToObject(LLMConfig, "BotId", BOT_ID); */
     cJSON_AddItemToObject(config, "LLMConfig", LLMConfig);
     cJSON_AddItemToObject(body, "Config", config);
 
@@ -391,14 +391,12 @@ char *update_voice_chat_json(const char *app_id, const char *room_id, const char
     cJSON *body = cJSON_CreateObject();
     cJSON_AddStringToObject(body, "AppId", app_id);
     cJSON_AddStringToObject(body, "RoomId", room_id);
-    cJSON_AddStringToObject(body, "UserId", user_id);
     cJSON_AddStringToObject(body, "TaskId", "task1");
-    // cJSON_AddStringToObject(body, "Text", text);
+    cJSON_AddStringToObject(body, "Command", "interrupt");
     char *json = cJSON_PrintUnformatted(body);
     cJSON_Delete(body);
     return json;
 }
-
 
 char *generate_random_string(int length)
 {
@@ -427,24 +425,17 @@ char *generate_random_string(int length)
 
 int start_voice_chat(rtc_room_info_t *room_info)
 {
-    printf("\n -[function] %s -[lnie] %d\n", __FUNCTION__, __LINE__);
     char *temp = generate_random_string(10);
     char room_id[100];
     char user_id[100];
     snprintf(room_id, sizeof(room_id), "G711A%s", temp);
-    /* snprintf(room_id, sizeof(room_id), "G711ATEST123"); */
     snprintf(user_id, sizeof(user_id), "user%s", temp);
-    /* snprintf(user_id, sizeof(user_id), "user89080"); */
     char *json_body = start_voice_chat_json(RTC_APP_ID, room_id, user_id);
     char query_string[50];
-    printf("\n -[function] %s -[lnie] %d\n", __FUNCTION__, __LINE__);
     snprintf(query_string, sizeof(query_string), "Action=%s&Version=%s", "StartVoiceChat", "2024-12-01");
-    printf("\n -[function] %s -[lnie] %d\n", __FUNCTION__, __LINE__);
     int ret = request_rtc_api("rtc.volcengineapi.com", "POST", "/", query_string, NULL, json_body, AK, SK);
-    printf("\n -[function] %s -[lnie] %d\n", __FUNCTION__, __LINE__);
     /* int ret = 0; */
     char *token = get_token(RTC_APP_ID, RTC_APP_KEY, room_id, user_id);
-    printf("\n -[function] %s -[lnie] %d\n", __FUNCTION__, __LINE__);
     strcpy(room_info->app_id, RTC_APP_ID);
     strcpy(room_info->uid, user_id);
     strcpy(room_info->room_id, room_id);

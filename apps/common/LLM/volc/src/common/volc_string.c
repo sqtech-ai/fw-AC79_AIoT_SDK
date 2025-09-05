@@ -134,7 +134,7 @@ uint32_t volc_string_snprintf(volc_string_t *str, int32_t length, const char *fo
     volc_vsnprintf(str->buffer, len + 1, format, arg);
     va_end(arg);
 
-    if (len <= length) {
+    if (len > length) {
         return VOLC_FAILED;
     }
     str->length = len;
@@ -166,7 +166,7 @@ uint32_t volc_string_generate_json_safe_string(volc_string_t *str, int len)
     }
 
     for (int i = 0; i < len; i++) {
-        str->buffer[i] = VOLC_VALID_CHAR_SET_FOR_JSON[rand() % VOLC_ARRAY_SIZE(VOLC_VALID_CHAR_SET_FOR_JSON) - 1];
+        str->buffer[i] = VOLC_VALID_CHAR_SET_FOR_JSON[rand() % (VOLC_ARRAY_SIZE(VOLC_VALID_CHAR_SET_FOR_JSON) - 1)];
     }
     str->length = len;
     str->buffer[len] = 0;

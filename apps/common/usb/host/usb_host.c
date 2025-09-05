@@ -15,6 +15,7 @@
 #include "hid.h"
 #include "audio.h"
 #include "usbnet.h"
+#include "usb_host_cdc.h"
 
 #if TCFG_USB_APPLE_DOCK_EN
 #include "apple_dock/iAP.h"
@@ -218,6 +219,15 @@ static int _usb_wireless_at_port_parser(struct usb_host_device *host_dev, u8 int
     return USB_DT_INTERFACE_SIZE;
 #endif
 }
+static int _usb_cdc_parser(struct usb_host_device *host_dev, u8 interface_num, const u8 *pBuf)
+{
+    log_info("find cdc @ interface %d", interface_num);
+#if TCFG_HOST_CDC_ENABLE
+    return usb_cdc_parser(host_dev, interface_num, pBuf);
+#else
+    return USB_DT_INTERFACE_SIZE;
+#endif
+}
 
 static int usb_descriptor_parser(struct usb_host_device *host_dev, const u8 *pBuf, u32 total_len, struct usb_device_descriptor *device_desc)
 {
@@ -382,6 +392,17 @@ static int usb_descriptor_parser(struct usb_host_device *host_dev, const u8 *pBu
                     pBuf += i;
                 }
                 have_find_valid_class = true;
+            } else if (interface->bInterfaceClass == USB_CLASS_COMM) {
+                i = _usb_cdc_parser(host_dev, interface_num, pBuf);
+                if (i < 0) {
+                    log_error("---%s %d---, i = %d", __func__, __LINE__, i);
+                    len = total_len;
+                } else {
+                    interface_num += 2;
+                    len += i;
+                    pBuf += i;
+                }
+                have_find_valid_class = true;
             } else {
                 log_info("find unsupport [class %x subClass %x] @ interface %d",
                          interface->bInterfaceClass,
@@ -503,7 +524,7 @@ static int _usb_host_mount(const usb_dev usb_id, u32 retry, u32 reset_delay, u32
 #endif
         check_usb_mount(ret);
 
-        for (int itf = 0; itf < MAX_INTERFACE_NUM; itf++) {
+        for (int itf = 0; itf < MAX_HOST_INTERFACE; itf++) {
             if (host_dev->interface_info[itf]) {
                 host_dev->interface_info[itf]->ctrl->set_power(host_dev, 1);
             }
@@ -677,6 +698,21 @@ static int usb_event_notify(const struct usb_host_device *host_dev, u32 ev)
                 bmUsbEvent[id] |= BIT(8);
                 break;
 #endif
+#if TCFG_HOST_CDC_ENABLE
+            case USB_CLASS_COMM:
+                if (have_post_event & BIT(9)) {
+                    no_send_event = 1;
+                } else {
+                    have_post_event |= BIT(9);
+                }
+                if (id == 0) {
+                    event.value = (int)"cdc0";
+                } else {
+                    event.value = (int)"cdc1";
+                }
+                bmUsbEvent[id] |= BIT(9);
+                break;
+#endif
             }
 
             if (!no_send_event && event.value) {
@@ -771,6 +807,15 @@ __usb_event_out:
                         event.value = (int)"adbmtp0";
                     } else {
                         event.value = (int)"adbmtp1";
+                    }
+                    break;
+#endif
+#if TCFG_HOST_CDC_ENABLE
+                case 9:
+                    if (id == 0) {
+                        event.value = (int)"cdc0";
+                    } else {
+                        event.value = (int)"cdc1";
                     }
                     break;
 #endif

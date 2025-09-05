@@ -193,6 +193,10 @@
 //#define TCFG_ADB_ENABLE						1//手机USB_4G网络共享使能
 #endif
 
+#ifndef TCFG_HOST_CDC_ENABLE
+#define TCFG_HOST_CDC_ENABLE                0     //打开USB CDC主机
+#endif
+
 #if (TCFG_HOST_UVC_ENABLE && TCFG_USB_SLAVE_ENABLE)
 #error "no support USB HOST_MODE and USB SLAVE_MODE"
 #endif

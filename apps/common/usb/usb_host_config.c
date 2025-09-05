@@ -15,22 +15,10 @@
 
 #define     SET_INTERRUPT   ___interrupt
 
-#if TCFG_UDISK_ENABLE || TCFG_HID_HOST_ENABLE || TCFG_AOA_ENABLE || TCFG_ADB_ENABLE || TCFG_HOST_AUDIO_ENABLE || \
-	TCFG_HOST_UVC_ENABLE || TCFG_HOST_WIRELESS_ENABLE
+#if TCFG_USB_HOST_ENABLE
 
-#if TCFG_HOST_UVC_ENABLE
 #define     MAX_HOST_EP_RX  5
 #define     MAX_HOST_EP_TX  5
-#elif TCFG_HID_HOST_ENABLE || TCFG_HOST_AUDIO_ENABLE
-#define     MAX_HOST_EP_RX  4
-#define     MAX_HOST_EP_TX  4
-#elif TCFG_HOST_WIRELESS_ENABLE
-#define     MAX_HOST_EP_RX  3
-#define     MAX_HOST_EP_TX  3
-#else
-#define     MAX_HOST_EP_RX  2
-#define     MAX_HOST_EP_TX  2   //ep0 & ep1(msd)
-#endif
 
 struct host_var_t {
     struct usb_ep_addr_t host_ep_addr;

@@ -535,6 +535,9 @@
 #define TCFG_HOST_WIRELESS_ENABLE           1
 #define TCFG_ADB_ENABLE                     1     //usb虚拟网卡
 #endif
+#ifndef TCFG_HOST_CDC_ENABLE
+#define TCFG_HOST_CDC_ENABLE                0     //打开USB CDC主机
+#endif
 
 #include "usb_std_class_def.h"
 #include "usb_common_def.h"

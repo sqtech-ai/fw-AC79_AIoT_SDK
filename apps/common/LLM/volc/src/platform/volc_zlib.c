@@ -3,12 +3,7 @@
 void *_zcalloc(voidpf opaque, unsigned items, unsigned size)
 {
     (void)opaque;
-
-    // printf("zip malloc %d .....................................\n",items * size);
-    void *ret = malloc(items * size);
-    // printf("zip malloc %d .%p \n",items * size, ret);
-    return ret;
-    // return malloc((items * size));
+    return malloc((items * size));
 
 //    return malloc((size_t)(items * size));
 //    return ret;
