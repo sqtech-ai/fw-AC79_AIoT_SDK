@@ -26,11 +26,26 @@ fi
 
 cat $2_${PLATFORM}.bin > $2.bin
 #/opt/utils/ota_loader 0x1C22000 edr_ota2.bin compression ram 0x1C22000 uart_update.bin nocompression ram 0x1C22000 ble_ota.bin compression ram 0x1C22000 ble_app_ota.bin compression ram
-/opt/utils/ota_loader 0x1C0A800 uart_update.bin compression ram 0x1C0A800 sd_update2.bin compression ram 0x1C0A800 usb_update2.bin compression ram 0x1C0A800 net_ota.bin compression ram 0x1C0A800 usb_hid_ota.bin compression ram 0x1C0A800 uart_user.bin compression ram
+/opt/utils/ota_loader \
+    0x1C0A800 uart_update.bin compression ram \
+    0x1C0A800 sd_update2.bin compression ram \
+    0x1C0A800 usb_update2.bin compression ram \
+    0x1C0A800 net_ota.bin compression ram \
+    0x1C0A800 usb_hid_ota.bin compression ram \
+    0x1C0A800 uart_user.bin compression ram \
+    0x1C0A800 lcflash_ota.bin compression ram \
 
 cat ota.bin > ota_temp.bin
 #cat ota_temp.bin edr_ota2_ver.bin uart_update_ver.bin ble_ota_ver.bin ble_app_ota_ver.bin > ota.bin
-cat ota_temp.bin uart_update_ver.bin sd_update2_ver.bin usb_update2_ver.bin net_ota_ver.bin usb_hid_ota_ver.bin uart_user_ver.bin> ota.bin
+cat ota_temp.bin \
+    uart_update_ver.bin \
+    sd_update2_ver.bin \
+    usb_update2_ver.bin \
+    net_ota_ver.bin \
+    usb_hid_ota_ver.bin \
+    uart_user_ver.bin \
+    lcflash_ota_ver.bin \
+    > ota.bin
 
 if [ $3 = y ]; then
 host-client -project ${PLATFORM}_file -f ota.bin $2.bin
