@@ -33,6 +33,9 @@ typedef enum {
     NORFLASH_UPDATA,
     //NOTE:以上的定义不要调整,新升级方式在此下面定义;
     USER_NORFLASH_UFW_UPDATA,
+    USER_LC_FLASH_UFW_UPDATA,
+    USB_HID_UPDATA,
+    DEV_NORFLASH_UFW_UPDATA,
     NET_UFW_UPDATA,
 
     NON_DEV = 0xFFFF,

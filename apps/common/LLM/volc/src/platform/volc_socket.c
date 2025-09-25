@@ -331,7 +331,7 @@ int volc_read(int __fd, void *data, size_t size)
 
 int volc_sockopt_set_buffer_size(int __fd, bool _is_send_buffer, int buffer_size)
 {
-    int len = SIZEOF(buffer_size);
+    int len = sizeof(buffer_size);
     int opt_name = SO_SNDBUF;
     if (!_is_send_buffer) {
         opt_name = SO_RCVBUF;
@@ -346,7 +346,7 @@ int volc_sockopt_get_buffer_size(int __fd, bool _is_send_buffer)
         opt_name = SO_RCVBUF;
     }
     int buffer_size = 0;
-    int len = SIZEOF(buffer_size);
+    int len = sizeof(buffer_size);
     return getsockopt(__fd, SOL_SOCKET, opt_name, &buffer_size, &len);
 } ;
 

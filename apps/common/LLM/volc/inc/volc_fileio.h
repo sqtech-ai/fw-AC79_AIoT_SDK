@@ -99,3 +99,4 @@ __byte_rtc_api__ uint32_t volc_file_delete(const char *path);
 }
 #endif
 #endif /* __HAL_VOLC_FILEIO_H__ */
+

@@ -180,6 +180,7 @@
 <Add option="../../../../../cpu/wl82/liba/update.a" />
 <Add option="../../../../../cpu/wl82/liba/lib_spectrum_show.a" />
 <Add option="../../../../../cpu/wl82/liba/lib_ogg_vorbis_dec.a" />
+<Add option="../../../../../cpu/wl82/liba/lib_midi_dec.a" />
 <Add option="../../../../../cpu/wl82/liba/libcompressor.a" />
 <Add option="../../../../../cpu/wl82/liba/lib_crossover_coff.a" />
 <Add option="../../../../../cpu/wl82/liba/libdrc.a" />
@@ -188,9 +189,10 @@
 <Add option="../../../../../cpu/wl82/liba/wl_wifi_sta_sfc.a" />
 <Add option="../../../../../cpu/wl82/liba/profile.a" />
 <Add option="../../../../../cpu/wl82/liba/wpasupplicant.a" />
-<Add option="../../../../../cpu/wl82/liba/libmbedtls_2_2_1.a" />
+<Add option="../../../../../cpu/wl82/liba/libmbedtls_3_4_0.a" />
 <Add option="../../../../../cpu/wl82/liba/hsm.a" />
 <Add option="../../../../../cpu/wl82/liba/http_cli.a" />
+<Add option="../../../../../cpu/wl82/liba/https_cli.a" />
 <Add option="../../../../../cpu/wl82/liba/network_download.a" />
 <Add option="../../../../../cpu/wl82/liba/libmpeg.a" />
 <Add option="../../../../../cpu/wl82/liba/libdlna.a" />
@@ -222,6 +224,7 @@
 <Unit filename="../../../../../apps/common/audio_music/audio_eff_default_parm.c"><Option compilerVer="CC"/></Unit>
 <Unit filename="../../../../../apps/common/audio_music/effects_adj.c"><Option compilerVer="CC"/></Unit>
 <Unit filename="../../../../../apps/common/audio_music/eq_config_new.c"><Option compilerVer="CC"/></Unit>
+<Unit filename="../../../../../apps/common/audio_music/midi/audio_dec_midi_ctrl.c"><Option compilerVer="CC"/></Unit>
 <Unit filename="../../../../../apps/common/audio_music/music_decrypt.c"><Option compilerVer="CC"/></Unit>
 <Unit filename="../../../../../apps/common/audio_music/usb_audio_api.c"><Option compilerVer="CC"/></Unit>
 <Unit filename="../../../../../apps/common/config/log_config/app_config.c"><Option compilerVer="CC"/></Unit>
@@ -446,6 +449,8 @@
 <Unit filename="../../../../../include_lib/driver/device/video/video_ppbuf.h" />
 <Unit filename="../../../../../include_lib/driver/device/video/videobuf.h" />
 <Unit filename="../../../../../include_lib/driver/version.z.S" />
+<Unit filename="../../../../../include_lib/media/MIDI_CTRL_API.h" />
+<Unit filename="../../../../../include_lib/media/MIDI_DEC_API.h" />
 <Unit filename="../../../../../include_lib/media/audio_eff_default_parm.h" />
 <Unit filename="../../../../../include_lib/media/drc/audio_drc.h" />
 <Unit filename="../../../../../include_lib/media/drc/drc_api.h" />

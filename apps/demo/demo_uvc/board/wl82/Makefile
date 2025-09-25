@@ -177,7 +177,7 @@ INCLUDES := \
 	-I../../../../../apps/demo/demo_uvc/board/wl82 \
 	-I../../../../../apps/common/net \
 	-I../../../../../include_lib/net \
-	-I../../../../../include_lib/net/mbedtls_2_2_1 \
+	-I../../../../../include_lib/net/mbedtls_3_4_0 \
 	-I../../../../../include_lib/net/server \
 	-I../../../../../include_lib/server \
 	-I../../../../../include_lib/net/wifi_module \

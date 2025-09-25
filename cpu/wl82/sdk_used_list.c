@@ -112,6 +112,9 @@ subdev_cvsd_enc
 cvsd_package_ops
 #endif
 
+#ifdef CONFIG_MIDI_CTRL_DEC_ENABLE
+midi_ctrl_decoder
+#endif
 #ifdef CONFIG_MP3_DEC_ENABLE
 mp3_decoder
 #endif

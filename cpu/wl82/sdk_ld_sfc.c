@@ -351,6 +351,7 @@ EXTERN(
     lib_wifi_version
     lib_wl82_rf_version
     lib_httpcli_version
+    lib_httpscli_version
     lib_airplay_version
     lib_aliyun_version
     lib_cjson_version

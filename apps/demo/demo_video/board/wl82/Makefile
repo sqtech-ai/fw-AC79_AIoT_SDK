@@ -160,7 +160,7 @@ INCLUDES := \
 	-I../../../../../apps/demo/demo_video \
 	-I../../../../../apps/demo/demo_video/include \
 	-I../../../../../include_lib/net \
-	-I../../../../../include_lib/net/mbedtls_2_2_1 \
+	-I../../../../../include_lib/net/mbedtls_3_4_0 \
 	-I../../../../../include_lib/net/server \
 	-I../../../../../include_lib/server \
 	-I../../../../../include_lib/net/lwip_2_2_0/lwip/src/include \

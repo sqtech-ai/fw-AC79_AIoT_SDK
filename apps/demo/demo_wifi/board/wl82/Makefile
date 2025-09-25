@@ -157,7 +157,7 @@ INCLUDES := \
 	-I../../../../../apps/common/include \
 	-I../../../../../apps/demo/demo_wifi \
 	-I../../../../../include_lib/net \
-	-I../../../../../include_lib/net/mbedtls_2_2_1 \
+	-I../../../../../include_lib/net/mbedtls_3_4_0 \
 	-I../../../../../include_lib/net/lwip_2_2_0/lwip/src/include \
 	-I../../../../../include_lib/net/lwip_2_2_0/lwip/src/include/lwip \
 	-I../../../../../include_lib/net/lwip_2_2_0/lwip/port \
@@ -273,9 +273,10 @@ LFLAGS := \
 	../../../../../cpu/wl82/liba/hsm.a \
 	../../../../../cpu/wl82/liba/wpasupplicant.a \
 	../../../../../cpu/wl82/liba/http_cli.a \
+	../../../../../cpu/wl82/liba/https_cli.a \
 	../../../../../cpu/wl82/liba/json.a \
 	../../../../../cpu/wl82/liba/iperf.a \
-	../../../../../cpu/wl82/liba/libmbedtls_2_2_1.a \
+	../../../../../cpu/wl82/liba/libmbedtls_3_4_0.a \
 	../../../../../cpu/wl82/liba/lwip_2_2_0_sfc.a \
 	../../../../../cpu/wl82/liba/wl_wifi_sfc.a \
 	--end-group \

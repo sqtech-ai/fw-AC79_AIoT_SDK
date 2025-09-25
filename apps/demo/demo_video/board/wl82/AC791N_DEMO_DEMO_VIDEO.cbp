@@ -84,7 +84,7 @@
 <Add directory="../../../../../apps/demo/demo_video" />
 <Add directory="../../../../../apps/demo/demo_video/include" />
 <Add directory="../../../../../include_lib/net" />
-<Add directory="../../../../../include_lib/net/mbedtls_2_2_1" />
+<Add directory="../../../../../include_lib/net/mbedtls_3_4_0" />
 <Add directory="../../../../../include_lib/net/server" />
 <Add directory="../../../../../include_lib/server" />
 <Add directory="../../../../../include_lib/net/lwip_2_2_0/lwip/src/include" />

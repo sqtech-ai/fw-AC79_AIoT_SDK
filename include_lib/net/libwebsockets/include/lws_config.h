@@ -74,11 +74,7 @@
 #define LWS_HAVE_mbedtls_ssl_set_hs_ca_chain
 #define LWS_HAVE_mbedtls_ssl_set_hs_own_cert
 #define LWS_HAVE_mbedtls_ssl_set_hs_authmode
-#if MBEDTLS_VERSION_MAJOR == 3 && \
-	MBEDTLS_VERSION_MINOR == 4 && \
-	MBEDTLS_VERSION_PATCH == 0
-#define LWS_HAVE_mbedtls_ssl_set_verify
-#endif
+// #define LWS_HAVE_mbedtls_ssl_set_verify
 /* #undef LWS_HAVE_mbedtls_x509_crt_parse_file */
 /* #undef LWS_HAVE_MBEDTLS_NET_SOCKETS */
 #if MBEDTLS_VERSION_MAJOR == 3 && \

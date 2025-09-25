@@ -117,7 +117,6 @@ typedef struct httpcli_ctx {
     unsigned char mode;
     unsigned char wait_content_length;
     unsigned char wait_all;
-    unsigned char force_range;
 #ifdef HTTP_POST_MORE_DATA
     int *more_data;
     int *more_data_len;

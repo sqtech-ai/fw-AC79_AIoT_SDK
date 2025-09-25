@@ -35,6 +35,8 @@ extern "C" {
 // #define socklen_t int
 // #endif
 
+#define VOLC_POLL_MAX_NFDS 64
+
 typedef enum {
     VOLC_OP_CONNECT = 0,
     VOLC_OP_READ    = 1,

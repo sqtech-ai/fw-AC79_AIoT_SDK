@@ -101,7 +101,7 @@
 <Add directory="../../../../../apps/demo/demo_uvc/board/wl82" />
 <Add directory="../../../../../apps/common/net" />
 <Add directory="../../../../../include_lib/net" />
-<Add directory="../../../../../include_lib/net/mbedtls_2_2_1" />
+<Add directory="../../../../../include_lib/net/mbedtls_3_4_0" />
 <Add directory="../../../../../include_lib/net/server" />
 <Add directory="../../../../../include_lib/server" />
 <Add directory="../../../../../include_lib/net/wifi_module" />
@@ -565,7 +565,11 @@
 <Unit filename="../../../../../include_lib/net/lwip_2_2_0/lwip/src/include/lwip/stats.h" />
 <Unit filename="../../../../../include_lib/net/lwip_2_2_0/lwip/src/include/lwip/tcp.h" />
 <Unit filename="../../../../../include_lib/net/lwip_2_2_0/lwip/src/include/lwip/tcpbase.h" />
-<Unit filename="../../../../../include_lib/net/mbedtls_2_2_1/mbedtls/base64.h" />
+<Unit filename="../../../../../include_lib/net/mbedtls_3_4_0/mbedtls/base64.h" />
+<Unit filename="../../../../../include_lib/net/mbedtls_3_4_0/mbedtls/build_info.h" />
+<Unit filename="../../../../../include_lib/net/mbedtls_3_4_0/mbedtls/check_config.h" />
+<Unit filename="../../../../../include_lib/net/mbedtls_3_4_0/mbedtls/config_psa.h" />
+<Unit filename="../../../../../include_lib/net/mbedtls_3_4_0/mbedtls/mbedtls_config.h" />
 <Unit filename="../../../../../include_lib/net/qrcode/qrcode.h" />
 <Unit filename="../../../../../include_lib/net/server/ctp_server.h" />
 <Unit filename="../../../../../include_lib/net/server/net_server.h" />

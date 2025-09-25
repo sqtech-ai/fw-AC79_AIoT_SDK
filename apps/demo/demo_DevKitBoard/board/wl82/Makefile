@@ -202,7 +202,7 @@ INCLUDES := \
 	-I../../../../../include_lib/btstack \
 	-I../../../../../include_lib/net \
 	-I../../../../../include_lib/net/server \
-	-I../../../../../include_lib/net/mbedtls_2_2_1 \
+	-I../../../../../include_lib/net/mbedtls_3_4_0 \
 	-I../../../../../include_lib/net/wifi_module \
 	-I../../../../../include_lib/net/wifie \
 	-I../../../../../include_lib/net/lwip_2_2_0/lwip/src/include \
@@ -951,6 +951,7 @@ c_SRC_FILES := \
 	../../../../../apps/common/example/update/ftp_upgrade/main.c \
 	../../../../../apps/common/example/update/http_upgrade/example1/main.c \
 	../../../../../apps/common/example/update/http_upgrade/example2/main.c \
+	../../../../../apps/common/example/update/lc_flash_upgrade/lc_flash_upgrade_test.c \
 	../../../../../apps/common/example/update/sd_udisk_upgrade/main.c \
 	../../../../../apps/common/example/video/camera/dvp/main.c \
 	../../../../../apps/common/example/video/camera/spi/main.c \
@@ -1019,6 +1020,7 @@ c_SRC_FILES := \
 	../../../../../apps/common/ui/touch_panel/gt911.c \
 	../../../../../apps/common/ui/ui_action_video.c \
 	../../../../../apps/common/ui/ui_driver/interface/ui_platform.c \
+	../../../../../apps/common/update/lc_flash_ufw_update.c \
 	../../../../../apps/common/update/net_update.c \
 	../../../../../apps/common/update/update.c \
 	../../../../../apps/common/usb/device/cdc.c \
@@ -1240,6 +1242,7 @@ LFLAGS := \
 	../../../../../cpu/wl82/liba/hsm.a \
 	../../../../../cpu/wl82/liba/wpasupplicant.a \
 	../../../../../cpu/wl82/liba/http_cli.a \
+	../../../../../cpu/wl82/liba/https_cli.a \
 	../../../../../cpu/wl82/liba/http_server.a \
 	../../../../../cpu/wl82/liba/ftpserver.a \
 	../../../../../cpu/wl82/liba/websocket.a \
@@ -1249,12 +1252,11 @@ LFLAGS := \
 	../../../../../cpu/wl82/liba/iperf.a \
 	../../../../../cpu/wl82/liba/kcp.a \
 	../../../../../cpu/wl82/liba/profile.a \
-	../../../../../cpu/wl82/liba/libmbedtls_2_2_1.a \
+	../../../../../cpu/wl82/liba/libmbedtls_3_4_0.a \
 	../../../../../cpu/wl82/liba/network_download.a \
 	../../../../../cpu/wl82/liba/libmpeg.a \
 	../../../../../cpu/wl82/liba/libdlna.a \
 	../../../../../cpu/wl82/liba/ai_server.a \
-	../../../../../cpu/wl82/liba/libmbedtls_2_2_1.a  \
 	../../../../../cpu/wl82/liba/lwip_2_2_0.a \
 	../../../../../cpu/wl82/liba/wl_wifi.a \
 	--end-group \

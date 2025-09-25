@@ -179,7 +179,7 @@ INCLUDES := \
 	-I../../../../apps/common/net \
 	-I../../../../include_lib/net \
 	-I../../../../include_lib/net/tutk \
-	-I../../../../include_lib/net/mbedtls_2_2_1 \
+	-I../../../../include_lib/net/mbedtls_3_4_0 \
 	-I../../../../include_lib/net/server \
 	-I../../../../include_lib/server \
 	-I../../../../include_lib/net/wifi_module \
@@ -435,10 +435,11 @@ LFLAGS := \
 	../../../../cpu/wl82/liba/wpasupplicant.a \
 	../../../../cpu/wl82/liba/lwip_2_2_0.a \
 	../../../../cpu/wl82/liba/stream_media_server.a \
-	../../../../cpu/wl82/liba/libmbedtls_2_2_1.a \
+	../../../../cpu/wl82/liba/libmbedtls_3_4_0.a \
 	../../../../cpu/wl82/liba/iperf.a \
 	../../../../cpu/wl82/liba/hsm.a \
 	../../../../cpu/wl82/liba/http_cli.a \
+	../../../../cpu/wl82/liba/https_cli.a \
 	../../../../cpu/wl82/liba/http_server.a \
 	../../../../cpu/wl82/liba/json.a \
 	../../../../cpu/wl82/liba/ftpserver.a \

@@ -16,6 +16,7 @@ static void iperf_test_thread(void *priv)
     argv[++argc] = "-i";
     argv[++argc] = "1";
     argv[++argc] = "-s";
+    argv[++argc] = "-4";
     argv[++argc] = "-p";
     argv[++argc] = (char *)priv;
 //    argv[++argc] = "-V";

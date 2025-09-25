@@ -1358,10 +1358,13 @@ void Unint_LwIP(u8_t id)
         return;
     }
 
+    void sys_timeouts_uninit(void);
+    sys_timeouts_uninit();
     netif_set_down(netif);
     netif_remove(netif);
     void tcpip_uninit(void);
     tcpip_uninit();
+    memset(netif, 0x0, sizeof(struct netif));
     lwip_inited = 0;
 
 }
@@ -1671,5 +1674,4 @@ int lwip_dhcp_bound(void)
 
     return 0;
 }
-
 

@@ -70,6 +70,16 @@ const int MP3_SEARCH_MAX = 20;
 const int MP3_TGF_POSPLAY_EN = 1;
 #endif
 
+#ifdef CONFIG_MIDI_DEC_ADDR
+const int MIDI_TONE_MODE = 0;   //音色访问方式  0为地址访问(仅支持在内置flash)，1为文件访问(内置、外挂flash,sd,u盘均可)
+#else
+const int MIDI_TONE_MODE = 1;
+#endif
+const int MAINTRACK_USE_CHN = 1; // 主旋律配置方式  1为设置通道为主旋律 0 为设置轨道为主旋律
+const int MAX_DEC_PLAYER_CNT = 18; //midi解码支持同时发声的key数
+const int MAX_CTRL_PLAYER_CNT = 18; //midi 琴支持同时发声的key数
+const int MIDI_DEC_SR = 44100;     //输出采样率配置
+
 #ifdef CONFIG_OPUS_DEC_ENABLE
 const int silk_fsN_enable = 1;  //支持8-12k采样率
 const int silk_fsW_enable = 1;  //支持16-24k采样率

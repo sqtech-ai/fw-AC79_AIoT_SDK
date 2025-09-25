@@ -89,6 +89,10 @@ struct websocket_req_head {
     u8 version[8];
 };
 
+struct websocket_session_info {
+    mbedtls_ssl_session saved_session;
+    int session_is_saved;
+};
 typedef struct websocket_struct {
     void *sk_fd;
     void *lst_fd;
@@ -127,6 +131,7 @@ typedef struct websocket_struct {
     int (*_send)(struct websocket_struct *websocket_info, u8 *buf, int len, char type);
     void (*_recv_cb)(u8 *buf, u32 len, u8 type);
     int (*_exit_notify)(struct websocket_struct *websocket_info);
+    struct websocket_session_info *(*_get_session)();
 } WEBSOCKET_INFO;
 
 typedef enum {

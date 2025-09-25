@@ -4,4 +4,4 @@
 
 include_lib_media_version:
 
-.asciz "INCLUDE_MEDIA-$dde503d"
+.asciz "INCLUDE_MEDIA-$fd9c6f4"

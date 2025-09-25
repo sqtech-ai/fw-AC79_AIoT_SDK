@@ -186,6 +186,7 @@ c_SRC_FILES := \
 	../../../../../apps/common/audio_music/audio_eff_default_parm.c \
 	../../../../../apps/common/audio_music/effects_adj.c \
 	../../../../../apps/common/audio_music/eq_config_new.c \
+	../../../../../apps/common/audio_music/midi/audio_dec_midi_ctrl.c \
 	../../../../../apps/common/audio_music/music_decrypt.c \
 	../../../../../apps/common/audio_music/usb_audio_api.c \
 	../../../../../apps/common/config/log_config/app_config.c \
@@ -377,6 +378,7 @@ LFLAGS := \
 	../../../../../cpu/wl82/liba/update.a \
 	../../../../../cpu/wl82/liba/lib_spectrum_show.a \
 	../../../../../cpu/wl82/liba/lib_ogg_vorbis_dec.a \
+	../../../../../cpu/wl82/liba/lib_midi_dec.a \
 	../../../../../cpu/wl82/liba/libcompressor.a \
 	../../../../../cpu/wl82/liba/lib_crossover_coff.a \
 	../../../../../cpu/wl82/liba/libdrc.a \
@@ -385,9 +387,10 @@ LFLAGS := \
 	../../../../../cpu/wl82/liba/wl_wifi_sta_sfc.a \
 	../../../../../cpu/wl82/liba/profile.a \
 	../../../../../cpu/wl82/liba/wpasupplicant.a \
-	../../../../../cpu/wl82/liba/libmbedtls_2_2_1.a \
+	../../../../../cpu/wl82/liba/libmbedtls_3_4_0.a \
 	../../../../../cpu/wl82/liba/hsm.a \
 	../../../../../cpu/wl82/liba/http_cli.a \
+	../../../../../cpu/wl82/liba/https_cli.a \
 	../../../../../cpu/wl82/liba/network_download.a \
 	../../../../../cpu/wl82/liba/libmpeg.a \
 	../../../../../cpu/wl82/liba/libdlna.a \

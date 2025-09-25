@@ -182,7 +182,7 @@ INCLUDES := \
 	-I../../../../include_lib/utils/ui \
 	-I../../../../include_lib/driver/device/video \
 	-I../../../../include_lib/net \
-	-I../../../../include_lib/net/mbedtls_2_2_1 \
+	-I../../../../include_lib/net/mbedtls_3_4_0 \
 	-I../../../../include_lib/net/server \
 	-I../../../../include_lib/net/wifi_module \
 	-I../../../../include_lib/utils/img_stitch \
@@ -354,6 +354,7 @@ c_SRC_FILES := \
 	../../../../apps/common/audio_music/effects_adj.c \
 	../../../../apps/common/audio_music/eq_config_new.c \
 	../../../../apps/common/audio_music/http_recorder.c \
+	../../../../apps/common/audio_music/midi/audio_dec_midi_ctrl.c \
 	../../../../apps/common/audio_music/music_decrypt.c \
 	../../../../apps/common/audio_music/pcm_play_api.c \
 	../../../../apps/common/audio_music/usb_audio_api.c \
@@ -662,6 +663,7 @@ LFLAGS := \
 	../../../../cpu/wl82/liba/lib_spectrum_show.a \
 	../../../../cpu/wl82/liba/img_stitch.a \
 	../../../../cpu/wl82/liba/lib_ogg_vorbis_dec.a \
+	../../../../cpu/wl82/liba/lib_midi_dec.a \
 	../../../../cpu/wl82/liba/media_app.a \
 	../../../../cpu/wl82/liba/libcompressor.a \
 	../../../../cpu/wl82/liba/lib_crossover_coff.a \
@@ -680,11 +682,11 @@ LFLAGS := \
 	../../../../cpu/wl82/liba/zliblite.a \
 	../../../../cpu/wl82/liba/profile.a \
 	../../../../cpu/wl82/liba/stream_media_server.a \
-	../../../../cpu/wl82/liba/libmbedtls_2_2_1.a \
-	../../../../cpu/wl82/liba/wolfssl.a \
+	../../../../cpu/wl82/liba/libmbedtls_3_4_0.a \
 	../../../../cpu/wl82/liba/wpasupplicant.a \
 	../../../../cpu/wl82/liba/hsm.a \
 	../../../../cpu/wl82/liba/http_cli.a \
+	../../../../cpu/wl82/liba/https_cli.a \
 	../../../../cpu/wl82/liba/http_server.a \
 	../../../../cpu/wl82/liba/json.a \
 	../../../../cpu/wl82/liba/libduer-device.a \
@@ -726,7 +728,7 @@ LFLAGS := \
 	../../../../cpu/wl82/liba/libcurl.a \
 	../../../../cpu/wl82/liba/libwebsockets.a \
 	../../../../cpu/wl82/liba/cJSON.a  \
-	../../../../cpu/wl82/liba/libmbedtls_2_2_1.a  \
+	../../../../cpu/wl82/liba/libmbedtls_3_4_0.a  \
 	../../../../cpu/wl82/liba/sxy_qyai.a \
 	../../../../cpu/wl82/liba/libe2e.a \
 	../../../../cpu/wl82/liba/websocket.a  \

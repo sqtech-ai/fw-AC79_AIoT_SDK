@@ -80,7 +80,7 @@
 <Add directory="../../../../../apps/common/include" />
 <Add directory="../../../../../apps/demo/demo_wifi_ext" />
 <Add directory="../../../../../include_lib/net" />
-<Add directory="../../../../../include_lib/net/mbedtls_2_2_1" />
+<Add directory="../../../../../include_lib/net/mbedtls_3_4_0" />
 <Add directory="../../../../../include_lib/net/lwip_2_2_0/lwip/src/include" />
 <Add directory="../../../../../include_lib/net/lwip_2_2_0/lwip/src/include/lwip" />
 <Add directory="../../../../../include_lib/net/lwip_2_2_0/lwip/port" />
@@ -137,9 +137,10 @@
 <Add option="../../../../../cpu/wl82/liba/wl_rf_common.a" />
 <Add option="../../../../../cpu/wl82/liba/hsm.a" />
 <Add option="../../../../../cpu/wl82/liba/http_cli.a" />
+<Add option="../../../../../cpu/wl82/liba/https_cli.a" />
 <Add option="../../../../../cpu/wl82/liba/json.a" />
 <Add option="../../../../../cpu/wl82/liba/iperf.a" />
-<Add option="../../../../../cpu/wl82/liba/libmbedtls_2_2_1.a" />
+<Add option="../../../../../cpu/wl82/liba/libmbedtls_3_4_0.a" />
 <Add option="../../../../../cpu/wl82/liba/lwip_2_2_0.a" />
 <Add option="../../../../../cpu/wl82/liba/wl_wifi.a" />
 <Add option="../../../../../cpu/wl82/liba/hsm_ext.a" />

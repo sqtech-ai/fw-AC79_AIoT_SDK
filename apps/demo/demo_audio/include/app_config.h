@@ -76,6 +76,7 @@
 #define CONFIG_DNS_ENC_ENABLE
 #define CONFIG_AAC_ENC_ENABLE
 #define CONFIG_OGG_DEC_ENABLE
+#define CONFIG_MIDI_CTRL_DEC_ENABLE
 
 #define CONFIG_REVERB_MODE_ENABLE            //打开混响功能
 #define CONFIG_AUDIO_MIX_ENABLE              //打开叠音功能

@@ -4,4 +4,4 @@
 
 include_lib_update_version:
 
-.asciz "INCLUDE_UPDATE-$679350b"
+.asciz "INCLUDE_UPDATE-$feda79e"

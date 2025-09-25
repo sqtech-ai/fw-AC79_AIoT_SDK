@@ -607,4 +607,3 @@ int dhcps_get_ipaddr(u8 hwaddr[6], struct ip4_addr *ipaddr)
 }
 
 
-
