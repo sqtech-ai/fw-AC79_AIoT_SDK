@@ -333,7 +333,6 @@
 
 //#define CONFIG_VIRTUAL_BASS_ENABLE             //虚拟低音
 // #define CONFIG_SPECTRUM_FFT_EFFECT_ENABLE    //频谱运算
-// #define CONFIG_REVERB_MODE_ENABLE            //打开混响功能
 #define CONFIG_AUDIO_MIX_ENABLE              //打开叠音功能
 #define CONFIG_AUDIO_PS_ENABLE               //打开变调变速功能
 #endif
