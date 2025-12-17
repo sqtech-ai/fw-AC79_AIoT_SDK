@@ -202,6 +202,9 @@ subdev_dns_dual_enc
 
 #ifdef CONFIG_AEC_ENC_ENABLE
 subdev_aec_enc
+#ifdef CONFIG_AEC_USE_SMS_TDE
+subdev_aec_enc_tde
+#endif
 #endif
 
 #ifdef CONFIG_SPECTRUM_FFT_EFFECT_ENABLE

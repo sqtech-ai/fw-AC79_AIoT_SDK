@@ -218,6 +218,44 @@ static void bt_read_remote_name(u8 status, u8 *addr, u8 *name)
 #endif
 }
 
+/*----------------------------------------------------------------------------*/
+/**@brief    蓝牙歌词信息获取回调
+   @param
+   @return
+   @note
+   const u8 more_avctp_cmd_support = 1;置上1
+   需要在void bredr_handle_register()注册回调函数
+   要动态获取播放时间的，可以发送USER_CTRL_AVCTP_OPID_GET_PLAY_TIME命令就可以了
+   要半秒或者1秒获取就做个定时发这个命令
+*/
+/*----------------------------------------------------------------------------*/
+u8 music_id_8[255] = {0};
+static void user_get_bt_music_info(u8 type, u32 time, u8 *info, u16 len)
+{
+    //profile define type: 1-title 2-artist name 3-album names 4-track number 5-total number of tracks 6-genre  7-playing time
+    //JL define 0x10-total time , 0x11 current play position
+    u8  min, sec;
+    //printf("type %d\n", type );
+    if ((info != NULL) && (len != 0)) {
+        if (type == 8) {
+            if (memcmp(music_id_8, info, len) != 0) {
+                printf(">>>>>>>>>>>>>>>>>>>>>>>>>get image\n");
+                music_id_8[len] = '\0';
+                /* user_send_cmd_prepare(USER_CTRL_BIP_GET_IMAGE, 0, NULL); */
+                void bip_get_image(u8 * image_id);
+                bip_get_image(music_id_8);
+            }
+            memcpy(music_id_8, info, len);
+        }
+        printf(" %s \n", info);
+    }
+    if (time != 0) {
+        min = time / 1000 / 60;
+        sec = time / 1000 - (min * 60);
+        printf(" time %d %d\n ", min, sec);
+    }
+}
+
 static int bt_get_battery_value()
 {
     //取消默认蓝牙定时发送电量给手机，需要更新电量给手机使用USER_CTRL_HFP_CMD_UPDATE_BATTARY命令
@@ -256,7 +294,7 @@ static void bredr_handle_register(void)
     read_remote_name_handle_register(bt_read_remote_name);
 
     ////获取歌曲信息回调
-    /* bt_music_info_handle_register(user_get_bt_music_info); */
+    bt_music_info_handle_register(user_get_bt_music_info);
 
 #if TCFG_USER_EMITTER_ENABLE
     ////发射器设置回调等
@@ -1206,5 +1244,235 @@ int bt_music_key_event_handler(struct key_event *key)
 
     return false;
 }
+
+#if USER_SUPPORT_PROFILE_HCRP
+const char Service_name[] = "Hardcopy Cable Replacement";
+const char Ieee_1284id[] = "MFG:Jieli;CMD:PT-CBP;MDL:JL-001;CLS:PRINTER;CID:Jieli MobilePrinter TypeA1";
+const char Device_name[] = "JL-001";
+const char Friendly_name[] = "Jieli Bluetooth Printer";
+
+//用于将打印机状态返回给协议栈，应答给远端
+u16 printer_port_status()
+{
+    u16 printrt_status_bit = 0x108;
+    return printrt_status_bit;
+}
+
+//用于将接收buffer剩余大小返回给协议栈，应答给远端
+int printer_rx_buffer()
+{
+    int printer_rx_buffer_size = 0xcac;
+    return printer_rx_buffer_size;
+}
+
+//用于厂商自定义命令解析
+u8 hcrp_user_cmd(const u8 *packet, int size, u8 *send_cmd)
+{
+    log_i("no cmd\n");
+    put_buf(packet, size);
+    return strlen(send_cmd);
+}
+
+//接收到的数据
+void hcrp_rx_data_packet(u8 *packet, u16 size)
+{
+    log_i("%s\n", __func__);
+    put_buf(packet, size);
+}
+#endif
+
+#if (USER_SUPPORT_PROFILE_OPP==1)
+//opp传输文件demo
+static FILE *fp = NULL;
+__attribute__((weak))
+int opp_continue_handle(u8 *packet, u8 event, u32 send_read_len)
+{
+    u8 data[] = "storage/sd0/C/23333.txt";
+    u8 data_name[] = "23333.txt";
+    switch (event) {
+    case 0xa0://将name数据填入packet；将文件总长度返回
+        fp = fopen(data, "r");
+        memcpy(packet, data_name, strlen(data_name));
+        if (fp == NULL) {
+            printf("检查tf卡，或者name错误\n");
+            return -1;
+        }
+        u32 fp_len = flen(fp);
+        return fp_len;
+    case 0x90://上一包文件数据发送完成，填入下一包
+        /* r_printf(">> send_read_len = %d\n",send_read_len); */
+        if (fp == NULL) {
+            printf("检查tf卡，或者name错误\n");
+            return -1;
+        }
+        u32 read_len = fread(packet, 1, send_read_len, fp);
+        /* r_printf(">> read_len = %d\n",read_len); */
+        if (read_len < send_read_len) {
+            fclose(fp);
+        }
+        return read_len;
+    case 0xC3://结束事件
+        if (fp) {
+            r_printf(">>fclose(fp) \n");
+            fclose(fp);
+        }
+        break;
+    }
+    return -1; //错误返回-1
+
+}
+//opp接收文件demo
+__attribute__((weak))
+int opp_rx_data(u8 *packet, u32 packet_len, u8 event)
+{
+    /* put_buf(packet+3, packet_len); */
+    switch (event) {
+    case 0x01: //收到name数据
+        u8 sd_root_path[255] = "storage/sd0/C/\\U";
+        u8 sd_root_path_len = strlen(sd_root_path);
+        for (int i = 0; i < packet_len - 2; i += 2) {
+            sd_root_path[sd_root_path_len + i] = packet[1 + i];        //高低位交换
+            sd_root_path[sd_root_path_len + i + 1] = packet[i];
+        }
+        printf("name: %s", sd_root_path);
+        put_buf(sd_root_path, sd_root_path_len + packet_len);
+#if 0
+        fp = fopen(sd_root_path, "w+");
+        if (fp == NULL) {
+            printf("检查tf卡，或者name错误\n");
+            return -1;
+        }
+#endif
+        break;
+    case 0x02: //收到文件数据
+        putchar('W');
+#if 0
+        if (fp == NULL) {
+            printf("检查tf卡，或者name错误\n");
+            return -1;
+        }
+        fwrite(packet, 1, packet_len, fp);
+#endif
+        break;
+    case 0x03: //收到结束命令
+        putchar('F');
+        if (fp) {
+            fclose(fp);
+            fp = NULL;
+        }
+        break;
+    }
+    return 1;
+}
+#endif
+
+#if (USER_SUPPORT_PROFILE_BIP == 1)
+//			avrcp传输音乐图片
+/*************************************************************************/
+//配置
+#define BIP_FILE_PATH  	"storage/sd0/C/musicbgp.jpg"//存储到sd卡
+/* #define BIP_FILE_PATH  			"storage/virfat_flash/C/musicbgp.jpg"//存储到flash的ui资源区 */
+#define BIP_FILE_PATH_TMP		"storage/virfat_flash/C/mbgtmp.jpg"
+#define BIP_FILE_NAME			"musicbgp.jpg"
+enum {
+    BIP_DATA_STATUS_START = 0X01,	//开始包
+    BIP_DATA_STATUS_CONTINUE,		//继续包(中间包)
+    BIP_DATA_STATUS_STOP,			//结束包
+    BIP_DATA_STATUS_ERR,			//错误包，可能是不支持，或者音乐软件未打开
+};
+enum {
+    BIP_FILE_STATUS_ERR,			//文件不存在
+    BIP_FILE_STATUS_OK,				//文件存在
+    BIP_FILE_STATUS_UPDATE,			//文件更新中
+};
+struct bip_file_info {
+    FILE *fp; 						//文件句柄
+    /* u8 en;							//是否使能 */
+    volatile s8 file_status;		//文件状态
+    void(*callback)(void);			//回调
+};
+volatile struct bip_file_info bip_file;
+#define __bip_info (&bip_file)
+u8 *bip_file_path_get()
+{
+    return 	BIP_FILE_PATH;
+}
+u8 *bip_file_tmp_path_get()
+{
+    return 	BIP_FILE_PATH_TMP;
+}
+u8 *bip_file_name_get()
+{
+    return BIP_FILE_NAME;
+}
+u8 bip_file_status_get()
+{
+    return __bip_info->file_status;
+}
+void bip_file_set_callback(void (*callback)(void))
+{
+    __bip_info->callback = callback;
+}
+
+/* ------------------------------------------------------------------------------------*/
+/**
+ * @brief bip_rx_data_handle	音乐图片数据回调
+ *
+ * @param packet	数据包内容
+ * @param body_len	数据包长度
+ * @param length	整个图片大小,只有ios支持在第一包返回
+ * @param bip_data_status	数据状态
+ */
+/* ------------------------------------------------------------------------------------*/
+void bip_rx_data_handle(u8 *packet, u16 body_len, u32 length, u8 bip_data_status)
+{
+    printf("<%s>status:%d\n", __func__, bip_data_status);
+    switch (bip_data_status) {
+    case BIP_DATA_STATUS_START: //收到第一包数据
+        u8 *bit_file_path  = bip_file_path_get();
+        printf("bip_file_path: %s\n", bit_file_path);
+        //删除旧文件
+        /* __bip_info->fp = fopen(bit_file_path, "r"); */
+        if (__bip_info->fp) {
+            __bip_info->file_status = BIP_FILE_STATUS_ERR;
+            /* fdelete(__bip_info->fp); */
+            __bip_info->fp = NULL;
+        }
+        //新增文件
+        __bip_info->fp = fopen(bit_file_path, "w+");
+        if (__bip_info->fp) {
+            __bip_info->file_status = BIP_FILE_STATUS_UPDATE;
+            /* fwrite(__bip_info->fp, packet, body_len); */
+        } else {
+            printf("bip file open err\n");
+        }
+        break;
+    case BIP_DATA_STATUS_CONTINUE: //收到文件数据
+        if (__bip_info->fp) {
+            /* fwrite(__bip_info->fp, packet, body_len); */
+        } else {
+            printf("bip file open err\n");
+        }
+        break;
+    case BIP_DATA_STATUS_STOP: //收到结束命令
+        if (__bip_info->fp) {
+            /* fwrite(__bip_info->fp, packet, body_len); */
+            /* fclose(__bip_info->fp); */
+            __bip_info->fp = NULL;
+            __bip_info->file_status = BIP_FILE_STATUS_OK;
+        } else {
+            printf("bip file open err\n");
+        }
+        if (__bip_info->callback) {
+            __bip_info->callback();
+        }
+        break;
+    case BIP_DATA_STATUS_ERR:
+        printf("BIP_DATA_STATUS_ERR");
+        break;
+    }
+}
+#endif
+
 
 #endif

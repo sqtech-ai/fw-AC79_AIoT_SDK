@@ -821,14 +821,19 @@ int phone_eq_parm_analyze(EFF_ONLINE_PACKET *packet, u8 id, u8 sq)
         log_info("idx:%d, iir:%d, frq:%d, gain:0x%x, q:0x%x \n", seg->index, seg->iir_type, seg->freq, *(int *)&seg->gain, *(int *)&seg->q);
 #endif
         memcpy(tar_seg, seg, sizeof(struct eq_seg_info));
+        //不局限于蓝牙通话场景
+#if 0
         if (!bt_phone_dec_is_running()) {
             return 0;
         }
+#endif
         cur_eq_set_update(eq_name, tar_seg, get_eq_nsection(eq_name), 0);
     } else {
+#if 0
         if (!bt_phone_dec_is_running()) {
             return 0;
         }
+#endif
         cur_eq_set_global_gain(eq_name, global_gain);
     }
 #endif

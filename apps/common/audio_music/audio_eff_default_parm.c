@@ -47,9 +47,17 @@ const struct eq_seg_info phone_eq_tab_normal[] = {
  * */
 #if defined(TCFG_EQ_ENABLE) && TCFG_EQ_ENABLE && TCFG_AEC_UL_EQ_ENABLE
 const struct eq_seg_info ul_eq_tab_normal[] = {
-    {0, EQ_IIR_TYPE_HIGH_PASS, 200,   0, 0.7f},
-    {1, EQ_IIR_TYPE_BAND_PASS, 300,   0, 0.7f},
-    {2, EQ_IIR_TYPE_BAND_PASS, 400,   0, 0.7f},
+    {0, EQ_IIR_TYPE_BAND_PASS, 25,    0, 0.7f},
+    {1, EQ_IIR_TYPE_BAND_PASS, 53,    0, 0.7f},
+    {2, EQ_IIR_TYPE_BAND_PASS, 113,   0, 0.7f},
+    {3, EQ_IIR_TYPE_BAND_PASS, 240,   0, 0.7f},
+    {4, EQ_IIR_TYPE_BAND_PASS, 509,   0, 0.7f},
+    {5, EQ_IIR_TYPE_BAND_PASS, 1082,  0, 0.7f},
+    {6, EQ_IIR_TYPE_BAND_PASS, 2299,  0, 0.7f},
+    {7, EQ_IIR_TYPE_BAND_PASS, 4885,  0, 0.7f},
+    {8, EQ_IIR_TYPE_BAND_PASS, 10378,  0, 0.7f},
+    {9, EQ_IIR_TYPE_BAND_PASS, 22000, 0, 0.7f},
+
 };
 #endif
 
@@ -117,6 +125,27 @@ struct audio_eq *music_eq_front_open(u32 sample_rate, u8 out_32bit_enable)
     return eq;
 }
 
+struct phone_parm_tool_set phone_mode[4];//通话上下行模式 0:下行宽 1：下行窄  2：上行宽  3:上行窄
+
+struct audio_eq *enc_ul_eq_open(u32 sample_rate, u8 ch_num)
+{
+    u8 mode = 2;
+    if (sample_rate == 8000) {
+        mode = 3;
+    }
+    struct audio_eq_param ul_eq_param = {0};
+    ul_eq_param.sr = sample_rate;
+    ul_eq_param.channels = ch_num;
+    ul_eq_param.max_nsection = phone_mode[mode].eq_parm.seg_num;
+    ul_eq_param.nsection = phone_mode[mode].eq_parm.seg_num;
+    ul_eq_param.seg = phone_mode[mode].eq_parm.seg;
+    ul_eq_param.global_gain = phone_mode[mode].eq_parm.global_gain;
+    ul_eq_param.cb = eq_get_filter_info;
+    ul_eq_param.eq_name = AEID_ESCO_UL_EQ;
+    struct audio_eq *eq = audio_dec_eq_open(&ul_eq_param);
+    ASSERT(eq);
+    return eq;
+}
 
 #if defined(TCFG_EQ_DIVIDE_ENABLE) && TCFG_EQ_DIVIDE_ENABLE
 struct music_eq_tool rl_eq_parm[mode_add];	//rl eq

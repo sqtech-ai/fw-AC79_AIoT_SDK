@@ -2168,6 +2168,7 @@
 <Unit filename="../../../../../include_lib/net/web_socket/websocket_intlib.h" />
 <Unit filename="../../../../../include_lib/net/web_socket/websocket_sha_1.h" />
 <Unit filename="../../../../../include_lib/net/wifi/wifi_connect.h" />
+<Unit filename="../../../../../include_lib/net/wifi/wifi_def.h" />
 <Unit filename="../../../../../include_lib/newlib/include/_ansi.h" />
 <Unit filename="../../../../../include_lib/newlib/include/assert.h" />
 <Unit filename="../../../../../include_lib/newlib/include/machine/_default_types.h" />

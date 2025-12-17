@@ -225,13 +225,6 @@ void close_avi_test(void *priv)
 
 }
 
-int fputc(int c, void *stream)   // should be FILE *stream
-{
-    printf("Need to make sure \"fputc\" runs OK!");
-    return -1;
-}
-
-
 #if 0
 // entry point
 void lfs_test(void)

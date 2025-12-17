@@ -1358,9 +1358,11 @@ void Unint_LwIP(u8_t id)
         return;
     }
 
-    void sys_timeouts_uninit(void);
-    sys_timeouts_uninit();
     netif_set_down(netif);
+    dns_local_removehost(NULL, NULL); //free all host entry
+    void sys_timeouts_uninit(void);
+    sys_timeouts_uninit(); //stop all cyclic timers
+
     netif_remove(netif);
     void tcpip_uninit(void);
     tcpip_uninit();

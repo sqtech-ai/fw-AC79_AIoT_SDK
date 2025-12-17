@@ -331,6 +331,7 @@
 <Unit filename="../../../../../include_lib/net/server/net_server.h" />
 <Unit filename="../../../../../include_lib/net/version.z.S" />
 <Unit filename="../../../../../include_lib/net/wifi/wifi_connect.h" />
+<Unit filename="../../../../../include_lib/net/wifi/wifi_def.h" />
 <Unit filename="../../../../../include_lib/newlib/include/machine/time.h" />
 <Unit filename="../../../../../include_lib/newlib/include/machine/types.h" />
 <Unit filename="../../../../../include_lib/newlib/include/strings.h" />

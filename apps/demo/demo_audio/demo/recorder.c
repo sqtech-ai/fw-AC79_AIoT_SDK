@@ -11,6 +11,7 @@
 #include <time.h>
 #include "system/timer.h"
 #include "media/spectrum/SpectrumShow_api.h"
+#include "network_download/net_audio_buf.h"
 
 #ifdef CONFIG_RECORDER_MODE_ENABLE
 
@@ -26,6 +27,7 @@ struct recorder_hdl {
     struct server *enc_server;
     struct server *dec_server;
     void *cache_buf;
+    void *net_buf;
     cbuffer_t save_cbuf;
     OS_SEM w_sem;
     OS_SEM r_sem;
@@ -157,6 +159,44 @@ static const struct audio_vfs_ops recorder_vfs_ops = {
     .flen   = recorder_vfs_flen,
 };
 
+#ifdef CONFIG_NET_ENABLE
+//编码器输出带格式的数据，除了PCM格式以外，其他格式都要必须实现fseek接口
+static int recorder_vfs_with_format_fwrite(void *file, void *data, u32 len)
+{
+    return net_buf_write((u8 *)data, len, file);
+}
+
+//解码器读取带格式的数据
+static int recorder_vfs_with_format_fread(void *file, void *data, u32 len)
+{
+    return net_buf_read(data, len, file);
+}
+
+static int recorder_vfs_with_format_seek(void *file, u32 offset, int orig)
+{
+    return net_buf_seek(offset, orig, file);
+}
+
+static int recorder_vfs_with_format_fclose(void *file)
+{
+    return 0;
+}
+
+static int recorder_vfs_with_format_flen(void *file)
+{
+    return -1;
+}
+
+static const struct audio_vfs_ops recorder_vfs_with_format_ops = {
+    .fwrite = recorder_vfs_with_format_fwrite,
+    .fread  = recorder_vfs_with_format_fread,
+    .fseek  = recorder_vfs_with_format_seek,
+    .fclose = recorder_vfs_with_format_fclose,
+    .flen   = recorder_vfs_with_format_flen,
+};
+
+#endif
+
 static int recorder_close(void)
 {
     union audio_req req = {0};
@@ -177,6 +217,13 @@ static int recorder_close(void)
         server_request(__this->enc_server, AUDIO_REQ_ENC, &req);
     }
 
+#ifdef CONFIG_NET_ENABLE
+    if (__this->net_buf) {
+        net_buf_set_file_end(__this->net_buf);
+        /* net_buf_inactive(__this->net_buf); */
+    }
+#endif
+
     if (__this->dec_server) {
         req.dec.cmd = AUDIO_DEC_STOP;
         server_request(__this->dec_server, AUDIO_REQ_DEC, &req);
@@ -186,6 +233,13 @@ static int recorder_close(void)
         free(__this->cache_buf);
         __this->cache_buf = NULL;
     }
+
+#ifdef CONFIG_NET_ENABLE
+    if (__this->net_buf) {
+        net_buf_uninit(__this->net_buf);
+        __this->net_buf = NULL;
+    }
+#endif
 
     if (__this->fp) {
         fclose(__this->fp);
@@ -223,6 +277,9 @@ static void enc_server_event_handler(void *priv, int argc, int *argv)
     case AUDIO_SERVER_EVENT_SPEAK_STOP:
         log_i("speak stop ! \n");
         break;
+    case AUDIO_SERVER_EVENT_CURR_TIME:
+        log_i("enc time : %d", argv[1]);
+        break;
     default:
         break;
     }
@@ -231,7 +288,7 @@ static void enc_server_event_handler(void *priv, int argc, int *argv)
 //将MIC的数字信号采集后推到DAC播放
 //注意：如果需要播放两路MIC，DAC分别对应的是DACL和DACR，要留意芯片封装是否有DACR引脚出来，
 //      而且要使能DAC的双通道输出，DAC如果采用差分输出方式也只会听到第一路MIC的声音
-static int recorder_play_to_dac(int sample_rate, u8 channel)
+static int recorder_play_to_dac(int sample_rate, u8 channel, const char *format)
 {
     int err;
     union audio_req req = {0};
@@ -241,6 +298,103 @@ static int recorder_play_to_dac(int sample_rate, u8 channel)
     if (channel > 2) {
         channel = 2;
     }
+
+#ifdef CONFIG_NET_ENABLE
+    if (!strcmp(format, "pcm")) {
+        goto __pcm;
+    }
+
+    __this->run_flag = 1;
+
+    //带格式的自编自解
+    u32 bufsize = 32 * 1024;
+    __this->net_buf = net_buf_init(&bufsize, NULL);
+    if (!__this->net_buf) {
+        return -1;
+    }
+    net_buf_active(__this->net_buf);
+    net_buf_set_time_out(0, __this->net_buf);
+
+    //BIT(x)用来区分上层需要获取哪个通道的数据
+    if (channel == 2) {
+        req.enc.channel_bit_map = BIT(CONFIG_AUDIO_ADC_CHANNEL_L) | BIT(CONFIG_AUDIO_ADC_CHANNEL_R);
+    } else {
+        req.enc.channel_bit_map = BIT(CONFIG_AUDIO_ADC_CHANNEL_L);
+    }
+    req.enc.frame_size = sample_rate / 100 * 4 * channel;	//收集够多少字节PCM数据就回调一次fwrite
+    req.enc.output_buf_len = req.enc.frame_size * 3; //底层缓冲buf至少设成3倍frame_size
+    req.enc.cmd = AUDIO_ENC_OPEN;
+    req.enc.channel = channel;
+    req.enc.volume = __this->gain;
+    req.enc.sample_rate = sample_rate;
+    req.enc.format = format;
+    req.enc.sample_source = __this->sample_source;
+    req.enc.vfs_ops = &recorder_vfs_with_format_ops;
+    req.enc.file = (FILE *)__this->net_buf;
+    if (channel == 1 && !strcmp(__this->sample_source, "mic") && (sample_rate == 8000 || sample_rate == 16000)) {
+        req.enc.use_vad = 1; //打开VAD断句功能
+        req.enc.dns_enable = 1; //打开降噪功能
+        req.enc.vad_auto_refresh = 1; //VAD自动刷新
+    }
+    if (!strcmp(format, "mp3")) {
+        req.enc.bitrate = sample_rate * 2;
+    } else if (!strcmp(format, "aac")) {
+        req.enc.bitrate = sample_rate * 4;
+        req.enc.no_header = 1;
+    } else if (!strcmp(format, "jla")) {
+        req.enc.bitrate = sample_rate * 4;
+    } else if (!strcmp(format, "speex")) {
+        req.enc.bitrate = 5;    //1-9
+    }
+
+#if TCFG_EQ_ENABLE && defined EQ_CORE_V1
+    req.enc.attr |= AUDIO_ATTR_EQ_EN;
+#endif
+
+    err = server_request(__this->enc_server, AUDIO_REQ_ENC, &req);
+    if (err) {
+        goto __err;
+    }
+
+    memset(&req, 0, sizeof(union audio_req));
+
+    /****************打开解码器*******************/
+    req.dec.cmd             = AUDIO_DEC_OPEN;
+    req.dec.volume          = __this->volume;
+    req.dec.output_buf_len  = 4 * 1024;
+    req.dec.vfs_ops         = &recorder_vfs_with_format_ops;
+    req.dec.dec_type        = format;
+    req.dec.sample_source   = CONFIG_AUDIO_DEC_PLAY_SOURCE;
+    req.dec.file            = (FILE *)__this->net_buf;
+    /* req.dec.attr            = AUDIO_ATTR_LR_ADD; */          //左右声道数据合在一起,封装只有DACL但需要测试两个MIC时可以打开此功能
+    if (!strcmp(format, "jla")) {
+        //头部信息没有采样率和通道数的格式需要手动设置以下信息
+        req.dec.sample_rate = sample_rate;
+        req.dec.channel     = channel;
+    }
+
+#if TCFG_EQ_ENABLE && defined EQ_CORE_V1
+    req.dec.attr |= AUDIO_ATTR_EQ_EN;
+#if TCFG_LIMITER_ENABLE
+    req.dec.attr |= AUDIO_ATTR_EQ32BIT_EN;
+#endif
+#if TCFG_DRC_ENABLE
+    req.dec.attr |= AUDIO_ATTR_DRC_EN;
+#endif
+#endif
+
+    err = server_request(__this->dec_server, AUDIO_REQ_DEC, &req);
+    if (err) {
+        goto __err;
+    }
+
+    req.dec.cmd = AUDIO_DEC_START;
+    req.dec.attr = AUDIO_ATTR_NO_WAIT_READY;
+    return server_request(__this->dec_server, AUDIO_REQ_DEC, &req);
+
+__pcm:
+#endif
+    //不带格式的自编自解
     __this->cache_buf = malloc(sample_rate * channel); //上层缓冲buf缓冲0.5秒的数据，缓冲太大听感上会有延迟
     if (__this->cache_buf == NULL) {
         return -1;
@@ -263,6 +417,17 @@ static int recorder_play_to_dac(int sample_rate, u8 channel)
     req.dec.sample_source   = CONFIG_AUDIO_DEC_PLAY_SOURCE;
     req.dec.file            = (FILE *)&__this->save_cbuf;
     /* req.dec.attr            = AUDIO_ATTR_LR_ADD; */          //左右声道数据合在一起,封装只有DACL但需要测试两个MIC时可以打开此功能
+
+
+#if TCFG_EQ_ENABLE && defined EQ_CORE_V1
+    req.dec.attr |= AUDIO_ATTR_EQ_EN;
+#if TCFG_LIMITER_ENABLE
+    req.dec.attr |= AUDIO_ATTR_EQ32BIT_EN;
+#endif
+#if TCFG_DRC_ENABLE
+    req.dec.attr |= AUDIO_ATTR_DRC_EN;
+#endif
+#endif
 
     err = server_request(__this->dec_server, AUDIO_REQ_DEC, &req);
     if (err) {
@@ -318,6 +483,10 @@ static int recorder_play_to_dac(int sample_rate, u8 channel)
         req.enc.vad_auto_refresh = 1; //VAD自动刷新
     }
 
+#if TCFG_EQ_ENABLE && defined EQ_CORE_V1
+    req.enc.attr |= AUDIO_ATTR_EQ_EN;
+#endif
+
     err = server_request(__this->enc_server, AUDIO_REQ_ENC, &req);
     if (err) {
         goto __err1;
@@ -334,6 +503,13 @@ __err:
         free(__this->cache_buf);
         __this->cache_buf = NULL;
     }
+#ifdef CONFIG_NET_ENABLE
+    if (__this->net_buf) {
+        net_buf_inactive(__this->net_buf);
+        net_buf_uninit(__this->net_buf);
+        __this->net_buf = NULL;
+    }
+#endif
 
     __this->run_flag = 0;
 
@@ -534,7 +710,7 @@ static int recorder_mode_init(void)
 
     __this->dec_server = server_open("audio_server", "dec");
 
-    return recorder_play_to_dac(__this->sample_rate, __this->channel);
+    return recorder_play_to_dac(__this->sample_rate, __this->channel, CONFIG_AUDIO_RECORDER_PLAY_FORMAT);
 }
 
 static void recorder_mode_exit(void)
@@ -587,7 +763,7 @@ static int recorder_key_long(struct key_event *key)
     case KEY_OK:
         recorder_close();
         if (__this->direct) {
-            recorder_play_to_dac(__this->sample_rate, __this->channel);
+            recorder_play_to_dac(__this->sample_rate, __this->channel, CONFIG_AUDIO_RECORDER_PLAY_FORMAT);
         } else {
             audio_adc_analog_direct_to_dac(__this->sample_rate, __this->channel);
         }

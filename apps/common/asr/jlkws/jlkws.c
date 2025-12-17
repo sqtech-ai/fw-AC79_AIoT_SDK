@@ -474,7 +474,11 @@ void aisp_resume(void)
     req.enc.aec_enable = 0;
     aec_param.output_way = 0;	 //1:使用硬件回采 0:使用软件回采
 #else
+#ifndef CONFIG_AEC_USE_SMS_TDE
     req.enc.aec_enable = 1;
+#else
+    req.enc.aec_enable = 2;
+#endif
 
     extern void get_cfg_file_aec_config(struct aec_s_attr * aec_param);
     get_cfg_file_aec_config(&aec_param);

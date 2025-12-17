@@ -147,7 +147,11 @@ int usb_host_video_init(const usb_dev usb_id, const u8 sub_id)
     }
     maxpsize = (uvc->wMaxPacketSize & 0x7ff) * (((uvc->wMaxPacketSize >> 11) & 0x3) + 1);
     if (uvc->xfer_type == USB_ENDPOINT_XFER_ISOC) {
-        hdl->buffer = malloc(maxpsize);
+        if (usb_id == 0) {
+            hdl->buffer = malloc(maxpsize);
+        } else if (usb_id == 1) {
+            hdl->buffer = malloc(maxpsize * ISO_INTR_CNT);
+        }
         if (!hdl->buffer) {
             log_error("err no mem in hdl->buffer");
             ret = -DEV_ERR_INVALID_BUF;
@@ -159,7 +163,11 @@ int usb_host_video_init(const usb_dev usb_id, const u8 sub_id)
             ret = -DEV_ERR_INUSE;
             goto __exit_fail;
         }
-        uvc->ep_buffer = usb_h_alloc_ep_buffer(usb_id, uvc->host_ep | USB_DIR_IN, maxpsize);
+        if (usb_id == 0) {
+            uvc->ep_buffer = usb_h_alloc_ep_buffer(usb_id, uvc->host_ep | USB_DIR_IN, maxpsize);
+        } else if (usb_id == 1) {
+            uvc->ep_buffer = usb_h_alloc_ep_buffer(usb_id, uvc->host_ep | USB_DIR_IN, maxpsize * ISO_INTR_CNT);
+        }
         if (!uvc->ep_buffer) {
             log_error("uvc alloc ep buffer fail");
             ret = -DEV_ERR_INVALID_BUF;
@@ -761,6 +769,8 @@ static void vs_iso_handler(struct usb_host_device *host_dev, u32 ep)
             trans_err_cnt[usb_id] = 0;
             usb_host_force_reset(usb_id);
         }
+    } else {
+        trans_err_cnt[usb_id] = 0;
     }
     usb_h_ep_read_async(usb_id, uvc->host_ep, uvc->ep, NULL, 0, USB_ENDPOINT_XFER_ISOC, 1);
     start_addr = hdl->buffer;
@@ -817,6 +827,132 @@ static void vs_iso_handler(struct usb_host_device *host_dev, u32 ep)
     }
     hdl->in_irq = 0;
 }
+static void vs_iso_burst_handler(struct usb_host_device *host_dev, u32 ep)
+{
+    usb_dev usb_id;
+    int rx_len;
+    int total_rx_len;
+    u8 *start_addr;
+    u8 error_flag;
+    u8 stream_state = 0;
+    u32 maxpsize;
+    u32 rlen_table[8];
+    u32 uvc_pos = 0;
+    u32 valid_cnt = 0;
+    static u32 trans_err_cnt[USB_MAX_HW_NUM] = {0};
+    struct device *device;
+    struct usb_uvc *uvc;
+
+    if (!host_dev) {
+        return;
+    }
+    usb_id = host_device2id(host_dev);
+    struct usb_video_manager *hdl = &uvc_manager[usb_id];
+    device = &hdl->dev;
+    if (!device) {
+        return;
+    }
+    uvc = device_to_uvc(device);
+    if (!host_dev) {
+        return;
+    }
+    hdl->in_irq = 1;
+    maxpsize = (uvc->wMaxPacketSize & 0x7ff) * (((uvc->wMaxPacketSize >> 11) & 0x3) + 1);
+    total_rx_len = usb_h_ep_burst_read_async(usb_id, uvc->host_ep, uvc->ep, ISO_INTR_CNT, rlen_table, hdl->buffer, maxpsize * ISO_INTR_CNT, USB_ENDPOINT_XFER_ISOC, 0);
+    if (total_rx_len < 0) {
+        uvc->error_frame = 1;
+        if (uvc->stream_out) {
+            uvc->stream_out(uvc->priv, -1, NULL, STREAM_ERR);
+        }
+        trans_err_cnt[usb_id]++;
+        if (trans_err_cnt[usb_id] >= 1000) {
+            trans_err_cnt[usb_id] = 0;
+            usb_host_force_reset(usb_id);
+        }
+    } else {
+        trans_err_cnt[usb_id] = 0;
+        /* printf("total_len %d\n", total_rx_len); */
+        /* printf_buf(hdl->buffer, total_rx_len); */
+    }
+    //触发下一次接收
+    usb_h_ep_burst_read_async(usb_id, uvc->host_ep, uvc->ep, 0, NULL, NULL, 0, USB_ENDPOINT_XFER_ISOC, 1);
+    start_addr = hdl->buffer;
+    struct uvc_stream_list *uvc_list = uvc_global_l[usb_id];
+    if (total_rx_len > 0) {
+        for (int i = 0; i < ISO_INTR_CNT; i++) {
+            rx_len = rlen_table[i];
+            /* printf("r %d\n", rx_len); */
+            /* printf_buf(start_addr, rx_len); */
+            if (rx_len > start_addr[0]) {
+                rx_len -= start_addr[0];
+            } else {
+                start_addr += rx_len;
+                continue;
+            }
+            error_flag = start_addr[1];
+            if (!uvc->error_frame) {
+                uvc_list[uvc_pos + valid_cnt].addr = start_addr + start_addr[0];
+                uvc_list[uvc_pos + valid_cnt].length = rx_len;
+                valid_cnt++;
+            }
+            if (start_addr[0] != 0x0c && start_addr[0] != 0x02) {
+                log_error("start_addr = %x", start_addr[0]);
+                uvc->error_frame = 1;
+                valid_cnt = 0;
+                if (uvc->stream_out) {
+                    uvc->stream_out(uvc->priv, -1, NULL, STREAM_ERR);
+                }
+            }
+            //BFH[0] [7:0]={EOH,ERR,STI,RES,SCR,PTS,EOF,FID}
+            if ((error_flag & BIT(6)) && uvc->error_frame == 0) {
+                log_error("stream_err");
+                uvc->error_frame = 1;
+                valid_cnt = 0;
+                //send_error_info
+                if (uvc->stream_out) {
+                    uvc->stream_out(uvc->priv, -1, NULL, STREAM_ERR);
+                    stream_state = STREAM_ERR;
+                }
+            }
+            if (error_flag & BIT(1)) { //endof frame
+                if (!uvc->error_frame) {
+                    if (uvc->stream_out) {
+                        uvc->stream_out(uvc->priv, valid_cnt, &uvc_list[uvc_pos], STREAM_EOF);
+                        stream_state = STREAM_EOF;
+                        hdl->frame_cnt++;
+                        uvc_pos += valid_cnt;
+                    }
+                }
+                valid_cnt = 0;
+                uvc->error_frame = 0;//clear error_frame pending
+            }
+            if (uvc->bfh != (error_flag & BIT(0))) { //new frame
+                uvc->bfh = error_flag & BIT(0);//clear error_frame pending
+                if (!uvc->error_frame) {
+                    uvc_pos += (valid_cnt - 1);
+                    valid_cnt = 1;
+                } else {
+                    uvc_pos += valid_cnt;
+                    valid_cnt = 0;
+                }
+                if (uvc->stream_out) {
+                    uvc->stream_out(uvc->priv, -1, NULL, STREAM_SOF);
+                    stream_state = STREAM_SOF;
+                }
+                uvc->error_frame = 0;//clear error_frame pending
+            }
+
+            start_addr += rx_len + start_addr[0];
+        }
+        if (!uvc->error_frame && valid_cnt) {
+            if (uvc->stream_out) {
+                uvc->stream_out(uvc->priv, valid_cnt, &uvc_list[uvc_pos], STREAM_NO_ERR);
+                stream_state = STREAM_NO_ERR;
+            }
+        }
+    }
+    hdl->in_irq = 0;
+}
 static void vs_bulk_handler(struct usb_host_device *host_dev, u32 ep)
 {
     usb_dev usb_id;
@@ -858,6 +994,8 @@ static void vs_bulk_handler(struct usb_host_device *host_dev, u32 ep)
             trans_err_cnt[usb_id] = 0;
             usb_host_force_reset(usb_id);
         }
+    } else {
+        trans_err_cnt[usb_id] = 0;
     }
     usb_h_ep_read_async(usb_id, uvc->host_ep, uvc->ep, NULL, 0, USB_ENDPOINT_XFER_BULK, 1);//请求下个数据包
     start_addr = hdl->buffer;
@@ -1006,6 +1144,8 @@ static void vs_bulk_handler2(struct usb_host_device *host_dev, u32 ep)
             trans_err_cnt[usb_id] = 0;
             usb_host_force_reset(usb_id);
         }
+    } else {
+        trans_err_cnt[usb_id] = 0;
     }
     usb_h_ep_read_async(usb_id, uvc->host_ep, uvc->ep, NULL, 0, USB_ENDPOINT_XFER_BULK, 1);//请求下个数据包
     start_addr = hdl->buffer;
@@ -1106,12 +1246,15 @@ static void vs_bulk_handler2(struct usb_host_device *host_dev, u32 ep)
 static void usb_intr_config(struct device *device, u8 ep, u8 enable)
 {
     u8 id = usbpriv_to_usbid(usbdev_to_usbpriv(device_to_usbdev(device)));
+    struct usb_host_device *host_dev = device_to_usbdev(device);
     if (enable) {
         usb_set_intr_rxe(id, ep);
     } else {
+        usb_h_set_ep_isr(host_dev, ep, NULL, NULL);
         usb_clr_intr_rxe(id, ep);
         usb_write_rxcsr(id, ep, RXCSRH_ClrDataTog | RXCSRH_FlushFIFO);
         usb_write_rxinterval(id, ep, 0);
+        usb_write_fifosize(id, ep, 0);
     }
 }
 static void iso_ep_rx_init(struct device *device)
@@ -1122,9 +1265,22 @@ static void iso_ep_rx_init(struct device *device)
     u8 devnum = host_dev->private_data.devnum;
 
     usb_write_rxfuncaddr(usb_id, uvc->host_ep, devnum);
-    usb_h_set_ep_isr(host_dev, uvc->host_ep | USB_DIR_IN, vs_iso_handler, host_dev);
-    usb_h_ep_config(usb_id, uvc->host_ep | USB_DIR_IN, USB_ENDPOINT_XFER_ISOC, 1, uvc->interval, uvc->ep_buffer, uvc->wMaxPacketSize);
-    usb_h_ep_read_async(usb_id, uvc->host_ep, uvc->ep, NULL, 0, USB_ENDPOINT_XFER_ISOC, 1);
+    if (usb_id == 0) {
+        usb_h_set_ep_isr(host_dev, uvc->host_ep | USB_DIR_IN, vs_iso_handler, host_dev);
+        usb_h_ep_config(usb_id, uvc->host_ep | USB_DIR_IN, USB_ENDPOINT_XFER_ISOC, 1, uvc->interval, uvc->ep_buffer, uvc->wMaxPacketSize);
+        usb_h_ep_read_async(usb_id, uvc->host_ep, uvc->ep, NULL, 0, USB_ENDPOINT_XFER_ISOC, 1);
+    } else if (usb_id == 1) {
+#if ISO_INTR_MODE == 2
+        usb_h_set_ep_isr(host_dev, uvc->host_ep | USB_DIR_IN, vs_iso_burst_handler, host_dev);
+        usb_write_fifosize(usb_id, uvc->host_ep, BIT(5) | BIT(4) | BIT(3) | (ISO_INTR_CNT - 1));
+        usb_h_ep_config(usb_id, uvc->host_ep | USB_DIR_IN, USB_ENDPOINT_XFER_ISOC, 1, uvc->interval, uvc->ep_buffer, uvc->wMaxPacketSize);
+        usb_h_ep_burst_read_async(usb_id, uvc->host_ep, uvc->ep, 0, NULL, NULL, 0, USB_ENDPOINT_XFER_ISOC, 1);
+#else
+        usb_h_set_ep_isr(host_dev, uvc->host_ep | USB_DIR_IN, vs_iso_handler, host_dev);
+        usb_h_ep_config(usb_id, uvc->host_ep | USB_DIR_IN, USB_ENDPOINT_XFER_ISOC, 1, uvc->interval, uvc->ep_buffer, uvc->wMaxPacketSize);
+        usb_h_ep_read_async(usb_id, uvc->host_ep, uvc->ep, NULL, 0, USB_ENDPOINT_XFER_ISOC, 1);
+#endif
+    }
 }
 static void bulk_ep_rx_init(struct device *device)
 {
@@ -1201,13 +1357,6 @@ int uvc_host_close_camera(void *fd)
             uvc->stream_out = uvc_dummy_stream_out;
 #endif
 #if CAMERA_CLOSE_BY_IRQ
-#if ISO_INTR_MODE == 2
-            //TODO
-#elif ISO_INTR_MODE == 1
-            //TODO
-#else
-            //TODO
-#endif
             while (hdl->in_irq) {
                 if (time_out(jiffies, timeout)) {
                     log_error("wait uvc exiting isr timeout");

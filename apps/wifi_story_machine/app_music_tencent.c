@@ -2717,6 +2717,12 @@ static void app_music_net_config(void)
             __this->coexistence_timer = 0;
             switch_rf_coexistence_config_unlock();
         }
+#ifdef CONFIG_REVERB_MODE_ENABLE
+        if (__this->reverb_enable) {
+            echo_reverb_uninit();
+            __this->reverb_enable = 0;
+        }
+#endif
 #ifdef CONFIG_BT_ENABLE
         if (__this->bt_music_enable) {
             __this->bt_emitter_enable = 0;
@@ -4119,6 +4125,15 @@ static int app_music_bt_event_handler_pretreatment(struct bt_event *event)
 
         if (BT_STATUS_SCO_STATUS_CHANGE == event->event) {
             __this->call_flag = event->value == 0xff ? 0 : 1;
+#ifdef CONFIG_REVERB_MODE_ENABLE
+            if (__this->reverb_enable) {
+                if (__this->call_flag) {
+                    echo_deal_pause();
+                } else {
+                    echo_deal_start();
+                }
+            }
+#endif
 #ifdef CONFIG_ASR_ALGORITHM
             if (__this->wakeup_support) {
                 if (__this->call_flag) {

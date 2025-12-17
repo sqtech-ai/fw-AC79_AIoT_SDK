@@ -769,7 +769,7 @@ bool aws_byte_cursor_eq_ignore_case(const struct aws_byte_cursor *a, const struc
     return rv;
 }
 
-long HAL_FileSize(void *fp)
+static long HAL_FileSize(void *fp)
 {
     long size = 0;
 

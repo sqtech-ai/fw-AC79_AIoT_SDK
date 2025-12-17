@@ -95,13 +95,13 @@ struct audio_format {
     u8 vir_data_wait : 1;
     u8 ch_detached : 1;
 
-    u8 aec_enable : 1;
+    u8 aec_enable : 2;
     u8 ch_data_exchange : 1;
     u8 no_header : 1;
-    u8 sample_depth : 3;
     u8 dns_enable : 1;
     u8 wait_sem : 1;
 
+    u8 sample_depth;
     u8 read_end;
     u8 complexity;
     u8 frame_ms;
@@ -119,6 +119,9 @@ struct audio_format {
     int(*read_input)(u8 *buf, u32 len);
     struct aec_s_attr *aec_attr;
     OS_SEM *sem;
+    u8 enc_eq_enable;
+    void *eq_enc_priv;
+    void (*enc_do_eq_handler)(void *priv, u8 *data, int len);
 };
 
 struct audio_subdevice_ops {

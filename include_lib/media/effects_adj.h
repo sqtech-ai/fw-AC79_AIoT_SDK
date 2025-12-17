@@ -372,7 +372,7 @@ typedef struct _DynamicEQParam_TOOL_SET {
     int detect_mode;			//检测模式
 } DynamicEQParam_TOOL_SET; //实际发送这个结构体
 
-#define OTHER_SECTION_MAX (5)
+#define OTHER_SECTION_MAX (10)//(5)
 struct eq_tool {
     float global_gain;
     int seg_num;          //eq效果文件存储的段数

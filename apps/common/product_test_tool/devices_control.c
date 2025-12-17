@@ -823,6 +823,7 @@ static u8 wifi_control_handler(u8 id, cmd, json_object *args_obj)
 
         asprintf(&__THIS->args_str, "%s", json_object_to_json_string(array_obj));
         wifi_clear_scan_result();
+        json_object_put(array_obj);
         free(info);
         break;
 

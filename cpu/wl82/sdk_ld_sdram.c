@@ -174,6 +174,20 @@ SECTIONS
 
         *(.sdram_re_trim_code)
 
+#ifdef CONFIG_AEC_USE_SMS_TDE
+	*(.sms_data)
+        *(.smsvf_data)
+        *(.sms_const)
+        *(.sms_code)
+        *(.sms_sparse_code)
+        *(.smsvf_const)
+        *(.smsvf_code)
+        *(.smsvf_sparse_code)
+        *(.fft_const)
+        *(.fft_code)
+        *(.fft_sparse_code)
+#endif
+
         *(.flushinv_icache)
         *(.volatile_ram_code)
 #if !defined CONFIG_VIDEO_ENABLE
@@ -236,6 +250,12 @@ SECTIONS
         *(.the_debug_isr_stack_c1)
         *(.stack_magic)
         *(.stack_magic0)
+
+#ifdef CONFIG_AEC_USE_SMS_TDE
+        *(.sms_bss)
+        *(.smsvf_bss)
+        *(.fft_bss)
+#endif
 
         . = ALIGN(4);
         _stack_info_begin = .;
@@ -386,9 +406,8 @@ EXTERN(
     lib_coap_version
     lib_duer_version
     lib_mpeg_version
-    lib_lwip_2_0_3_version
-    lib_lwip_2_1_2_version
     lib_lwip_2_1_3_version
+    lib_lwip_2_2_0_version
     lib_mbedtls_2_2_1_version
     lib_mbedtls_2_26_0_version
     lib_mdns_version

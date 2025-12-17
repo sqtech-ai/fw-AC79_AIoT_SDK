@@ -41,8 +41,8 @@ struct _midi_obj {
 //midi文件播放时，对应的音色文件路径(用户可修改路径)
 #ifndef CONFIG_MIDI_DEC_ADDR
 //音色文件支持在外部存储卡或者外挂flash,sdk默认使用本方式
-#define MIDI_FILE_PATH  "storage/sd0/C/MIDI.mda"
-/* #define MIDI_FILE_PATH  "mnt/sdfile/res/cfg/MIDI.mda" */
+#define MIDI_FILE_PATH  "storage/sd0/C/MIDI.mdb"
+/* #define MIDI_FILE_PATH  "mnt/sdfile/res/cfg/MIDI.mdb" */
 #else
 #define MIDI_FILE_PATH  CONFIG_MUSIC_PATH_FLASH"MIDI.mdb"
 #endif
@@ -138,8 +138,12 @@ int midi_ctrl_init(void *info)
     parm->cfg_parm.spi_pos = (unsigned int)cache_addr;
     parm->cfg_parm.fread = midi_fread_api;
     parm->cfg_parm.fseek = midi_fseek;
+    parm->cfg_parm.bitwidth = 16;  //输出pcm数据位宽  16 或者24
+    parm->cfg_parm.out_channel = 2;        //输出通道
+    parm->cfg_parm.OutdataBit = 0;//输出数据位宽  0->16bit  1->32bit
 
     printf("midi_ctrl_init :%d,%x\n", __LINE__, parm->cfg_parm.spi_pos); //算法要求spi_pos要求两字节对齐
+    ASSERT(((u32)parm->cfg_parm.spi_pos & 0x01) == 0); //算法要求spi_pos要求两字节对齐
     for (int i = 0; i < ARRAY_SIZE(midi_samplerate_tab); i++) {
         if (parm->sample_rate == midi_samplerate_tab[i]) {
             parm->cfg_parm.sample_rate = i;

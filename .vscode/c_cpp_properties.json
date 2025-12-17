@@ -347,6 +347,8 @@
                 "CONFIG_LMP_CONN_SUSPEND_ENABLE",
                 "CONFIG_LMP_REFRESH_ENCRYPTION_KEY_ENABLE",
                 "CONFIG_ITEM_FORMAT_VM",
+                "JIELI_RTOS",
+                "JIELI_791N_RTOS",
                 "_XOPEN_SOURCE=700",
                 "_GNU_SOURCE",
                 "__ELF__",
@@ -438,7 +440,9 @@
                 "${workspaceFolder}/apps/common/LLM/ifly_aiui/include",
                 "${workspaceFolder}/apps/common/LLM/duer/intelligent_duer",
                 "${workspaceFolder}/apps/common/LLM/duer/my_platform",
-                "${workspaceFolder}/include_lib/net/network_download"
+                "${workspaceFolder}/include_lib/net/network_download",
+                "${workspaceFolder}/apps/common/LLM/tc_iot_twetalk/qcloud_iot_explorer_sdk/inc",
+                "${workspaceFolder}/apps/common/LLM/tc_iot_twetalk/twetalk_ws"
             ],
             "intelliSenseMode": "clang-x86",
             "name": "AC791N_WIFI_STORY_MACHINE"

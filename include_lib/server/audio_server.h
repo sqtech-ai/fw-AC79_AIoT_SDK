@@ -303,16 +303,16 @@ struct audio_enc_req {
     u8 vad_auto_refresh : 1;                  /*!< 是否自动刷新VAD状态，赋值1表示SPEAK_START->SPEAK_STOP- >SPEAK_START->SPEAK_STOP->....循环 */
     u8 direct2dac : 1;                        /*!< AUDIO_AD直通DAC功能 */
     u8 high_gain : 1;                         /*!< 直通DAC时是否打开模拟增益调整 */
-    u8 amr_src : 1;                           /*!< amr编码时的强制16k变采样为8kpcm数据，因为amr编码器暂时只支持8k编码 */
-    u8 aec_enable : 1;                        /*!< AEC回声消除功能开关，常用于蓝牙通话 */
+    u8 aec_enable : 2;                        /*!< AEC回声消除功能开关，常用于蓝牙通话 */
     u8 ch_data_exchange : 1;                  /*!< 用于AEC差分回采时和MIC的通道数据交换  */
 
     u8 no_header : 1;                         /*!< 用于opus编码时是否需要添加头部格式 */
     u8 vir_data_wait : 1;                     /*!< 虚拟编码时是否允许丢失数据 */
     u8 no_auto_start : 1;                     /*!< 请求AUDIO_ENC_OPEN时不自动运行编码器，需要主动调用AUDIO_ENC_START */
-    u8 sample_depth : 3;                      /*!< 采样深度16bit或者24bit */
+    u8 amr_src : 1;                           /*!< amr编码时的强制16k变采样为8kpcm数据，因为amr编码器暂时只支持8k编码 */
     u8 dns_enable : 1;                        /*!< dns降噪算法 0:不使用 1:使用 */
     u8 wait_sem : 1;                          /*!< 编码器数据输出时如果缓存已满即等待信号量 */
+    u8 sample_depth;                          /*!< 采样深度16bit或者24bit */
     u8 format_mode;                           /*!< 编码模式设置 opus: 0:百度无头. 1:酷狗_eng+range. 2:ogg封装,pc软件可播放. 3:size+rangeFinal. 源码可兼容版本. */
     u8 complexity;                            /*!< 编码复杂度 opus-ogg  0.1.2.3. 3质量最好.速度要求最高*/
     u8 frame_ms;                              /*!< opus-ogg编码帧时 20|40|60|80|100ms*/
@@ -325,6 +325,7 @@ struct audio_enc_req {
     u32 output_buf_len;                       /*!< 编码buffer大小 */
     u32 sample_rate;                          /*!< 编码采样率 */
     u32 msec;                                 /*!< 编码时长，填0表示一直编码，单位ms，编码结束会回调AUDIO_SERVER_EVENT_END消息 */
+    u32 attr;                                 /*!< 编码附加属性,用于使能eq */
     FILE *file;                               /*!< 编码输出文件句柄 */
     u8 *output_buf;                           /*!< 编码buffer，默认填NULL，由编码器自动分配和释放资源 */
     const char *format;                       /*!< 编码格式 */

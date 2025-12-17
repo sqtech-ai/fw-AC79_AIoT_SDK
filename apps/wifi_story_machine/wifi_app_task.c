@@ -476,6 +476,7 @@ static int wifi_event_callback(void *network_ctx, enum WIFI_EVENT event)
         info.mode = NONE_MODE;
         wifi_get_mode_cur_info(&info);
         if (info.mode == SMP_CFG_MODE) {
+            wifi_set_smp_cfg_just_monitor_mode(1);
             net.arg = "net";
             net.event = NET_EVENT_SMP_CFG_FIRST;
             net_event_notify(NET_EVENT_FROM_USER, &net);
@@ -655,6 +656,12 @@ static int wifi_event_callback(void *network_ctx, enum WIFI_EVENT event)
 #ifdef CONFIG_ONESDK_LLM_ENABLE
         int realtime_demo();
         thread_fork("realtime_demo", 4, 5 * 1024, 0, 0, realtime_demo, NULL);
+#endif
+
+#ifdef CONFIG_TWETALK_ENABLE
+        // 联网成功后 初始化twetlak
+        extern int start_tc_iot_twetalk(void);
+        start_tc_iot_twetalk();
 #endif
 
         wifi_set_sta_connect_best_ssid(0);

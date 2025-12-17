@@ -31,6 +31,8 @@
 #define AUDIO_RECORD_VOICE_UPLORD_LEN (3200)
 #elif defined CONFIG_IFLY_AIUI_ENABLE
 #define AUDIO_RECORD_VOICE_UPLORD_LEN (640)
+#elif defined CONFIG_TWETALK_ENABLE
+#define AUDIO_RECORD_VOICE_UPLORD_LEN (180)
 #else
 #define AUDIO_RECORD_VOICE_UPLORD_LEN (1280)
 #endif
@@ -155,6 +157,8 @@ int _device_get_voice_data(void *data, unsigned int max_len)
     mdelay(20);
 #elif defined CONFIG_IFLY_AIUI_ENABLE
     mdelay(1);
+#elif defined CONFIG_TWETALK_ENABLE
+    mdelay(60);
 #else
     mdelay(30);
 #endif
@@ -275,6 +279,12 @@ static void audio_recoder_init()
     req.enc.format = "opus";
 #endif
 
+#ifdef CONFIG_TWETALK_ENABLE
+    req.enc.format      = "opus";
+    req.enc.bitrate     = 24000;
+    req.enc.format_mode = 0;
+    req.enc.frame_ms    = 60;
+#endif
     req.enc.sample_source = "mic";
     req.enc.vfs_ops = &recorder_vfs_ops;
     req.enc.file = (FILE *)&g_audio_hdl.pcm_cbuff_w;
@@ -384,8 +394,7 @@ static int audio_play_net_vfs_fread(void *file, void *data, unsigned int len)
 
 static int audio_vfs_fseek(void *file, u32 offset, int orig)
 {
-    printf("audio_vfs_fseek %d", offset);
-    // __this->audio_data_offset = offset;
+    /* printf("audio_vfs_fseek %d", offset); */
     return 0;
 }
 
@@ -393,7 +402,7 @@ static const struct audio_vfs_ops audio_play_net_vfs_ops = {
     .fread  = audio_play_net_vfs_fread,
     .fwrite = 0,
     .fopen = 0,
-    .fseek = 0, //audio_vfs_fseek,
+    .fseek = audio_vfs_fseek,
     .ftell = 0,
     .flen = 0,
     .fclose = 0,
@@ -423,6 +432,14 @@ static void audio_player_net_init()
     req.dec.dec_type 		= "aac";
 #elif defined(AUDIO_TYPE_OPUS)
     req.dec.dec_type 		= "opus";
+#endif
+
+#ifdef CONFIG_TWETALK_ENABLE
+    req.dec.dec_type        = "opus";
+    req.dec.channel         = 0;
+    req.dec.sample_rate     = 0;
+    req.dec.attr |= AUDIO_ATTR_OPUS_CBR_PKTLEN_TYPE;
+    req.dec.opus_cbr_pktlen = 180;
 #endif
     req.dec.sample_source   = "dac";
     req.dec.file            = (FILE *)&g_audio_hdl.pcm_cbuff_r;
@@ -624,6 +641,9 @@ static int _audio_soft_init(void)
 #elif defined CONFIG_IFLY_AIUI_ENABLE
     pcm_buff_r = malloc(SAMPLE_RATE * CHANNEL * 20);
     cbuf_init(&g_audio_hdl.pcm_cbuff_r, pcm_buff_r, SAMPLE_RATE * CHANNEL * 20);
+#elif defined CONFIG_TWETALK_ENABLE
+    pcm_buff_r = malloc(SAMPLE_RATE * CHANNEL * 1);
+    cbuf_init(&g_audio_hdl.pcm_cbuff_r, pcm_buff_r, SAMPLE_RATE * CHANNEL * 1);
 #else
     pcm_buff_r = malloc(SAMPLE_RATE * CHANNEL * 4);
     cbuf_init(&g_audio_hdl.pcm_cbuff_r, pcm_buff_r, SAMPLE_RATE * CHANNEL * 4);

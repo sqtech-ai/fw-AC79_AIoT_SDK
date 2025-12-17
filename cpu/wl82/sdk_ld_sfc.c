@@ -372,9 +372,8 @@ EXTERN(
     lib_coap_version
     lib_duer_version
     lib_mpeg_version
-    lib_lwip_2_0_3_version
-    lib_lwip_2_1_2_version
     lib_lwip_2_1_3_version
+    lib_lwip_2_2_0_version
     lib_mbedtls_2_2_1_version
     lib_mbedtls_2_26_0_version
     lib_mdns_version

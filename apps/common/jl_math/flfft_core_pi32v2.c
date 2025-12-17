@@ -5,6 +5,8 @@
 // #pragma const_seg(".fft_const")
 // #endif
 
+#include "app_config.h"
+
 #ifndef NOINLINE
 #define NOINLINE
 #endif
@@ -126,6 +128,7 @@ static inline float gen_pow_2(int power)
     return tmp32_1;
 }
 
+#ifndef CONFIG_AEC_USE_SMS_TDE
 AT_RAM_CODE
 __attribute__((noinline)) void flrfft(fifft_config *fc, const float *in, float *out)
 {
@@ -162,4 +165,5 @@ __attribute__((noinline)) void flrifft(fifft_config *fc, const float *in, float 
         i2f((int *)in, (float *)in, fc->N + 2, down_offset);
     }
 }
+#endif
 

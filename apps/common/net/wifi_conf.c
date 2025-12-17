@@ -120,6 +120,35 @@ u16 wl_default_listen_interval = 3;	// 默认监听间隔是 3，防止没有 se
 u8 wl_transmit_keep_awake_time = 12;	// 默认收发包时等待 12 * 100ms 的清醒时间，该期间内系统不会休眠。单位 100ms，最小可设置为 1，即只等待 100ms
 /*--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 
+void wifi_password_wrong_notify(const u8 *ssid, const u8 *passphrase)
+{
+#if 0
+    if (ssid) {
+        printf("wrong password info, ssid[%s]\n", ssid);
+
+        u8 wifi_ssid_cnt = wifi_get_store_ssid_cnt();
+        if (wifi_ssid_cnt > 1) {
+            struct wifi_stored_sta_info sta_info_read[wifi_ssid_cnt];
+            memset(&sta_info_read, 0, sizeof(sta_info_read));
+
+            for (int k = 0; k < wifi_ssid_cnt; k++) {
+                if (syscfg_read(WIFI_STA_INFO_IDX_START + k, (char *)&sta_info_read[k], sizeof(struct wifi_stored_sta_info)) < 0) {
+                    break;
+                }
+
+                if (!strcmp((const char *)sta_info_read[k].ssid, ssid)) {
+                    printf("Incorrect password, [%d]%s delete!!", k, sta_info_read[k].ssid);
+                    sta_info_read[k].ssid[0] = 0; //密码错误就清除保存的SSID
+                    syscfg_write(WIFI_STA_INFO_IDX_START + k, (char *)&sta_info_read[k], sizeof(struct wifi_stored_sta_info));
+                }
+            }
+        }
+    }
+
+    //设置 best ssid flag, 让驱动连接保存的best ssid
+    wifi_set_sta_connect_best_ssid(1);
+#endif
+}
 
 static u8 mem_pool[CONFIG_WIFI_MAX_MEM_SIZE]sec(.wifi_mem_pool);
 u8 *wifi_mem_pool(u32 *size)
@@ -1419,7 +1448,7 @@ const unsigned long wl_rfd_ram_lut [256][2] = {
     /*112 */{ 0x06695555	,	0x91BB01A0 },
     /*113 */{ 0x066CAAAB	,	0x925B01A0 },
     /*114 */{ 0x06700000	,	0x92FB01A0 },
-    /*115 */{ 0x06735555	,	0x939B01A0 },
+    /*115 */{ 0x06780000	,	0x947B01A0 },
     /*116 */{ 0x0676AAAB	,	0x943B01A0 },
     /*117 */{ 0x067A0000	,	0x94DB01A0 },
     /*118 */{ 0x067A0000	,	0x94DB01A0 },

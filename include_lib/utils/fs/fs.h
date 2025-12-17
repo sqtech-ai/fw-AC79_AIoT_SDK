@@ -218,11 +218,10 @@ struct vfs_operations {
     int (*fread)(FILE *, void *buf, u32 len);
     int (*fread_fast)(FILE *, void *buf, u32 len);
     int (*fwrite)(FILE *, void *buf, u32 len);
-    int (*fseek)(FILE *, int offset, int);
-    int (*fseek_fast)(FILE *, int offset, int);
-    int (*flen)(FILE *);
-    int (*fpos)(FILE *);
-    int (*fcopy)(FILE *, FILE *);
+    int (*fseek)(FILE *, u32 offset, int);
+    int (*fseek_fast)(FILE *, u32 offset, int);
+    u32(*flen)(FILE *);
+    u32(*fpos)(FILE *);
     int (*fget_name)(FILE *, u8 *name, int len);
     int (*fget_path)(FILE *, struct vfscan *, u8 *name, int len, u8 is_relative_path);
     int (*frename)(FILE *, const char *path);
@@ -235,6 +234,7 @@ struct vfs_operations {
     int (*fget_attr)(FILE *, int *attr);
     int (*fset_attr)(FILE *, int attr);
     int (*fget_attrs)(FILE *, struct vfs_attr *);
+    int (*ftruncate)(FILE *, u32 size);
     int (*fmove)(FILE *file, const char *path_dst, FILE *, int clr_attr, int path_len);
     int (*ioctl)(void *, int cmd, int arg);
     int (*fget_total_space)(struct imount *mt, u32 *space);
@@ -323,6 +323,7 @@ int f_free_cache(const char *path);
  * @return 指向文件流的文件指针
  * @return NULL: 打开失败
  * @note fopen自动打开、创建文件夹和文件，打开模式只支持"r" "w" "w+"，如需要追加写请使用"w"，文件名长度超过8个字节的需要用长文件名打开
+ * @note  现在fopen 支持，1、外面自己传入Unicode的长文件进来创建，2、utf8或者内码的形式进来创建，3、带* 号的长短文件名创建。注意事项：不允许1、2两点混合形式
  */
 FILE *fopen(const char *path, const char *mode);
 
@@ -371,7 +372,7 @@ int fwrite(void *buf, u32 size, u32 count, FILE *file);
  *
  * @return 成功返回0
  */
-int fseek(FILE *file, int offset, int orig);
+int fseek(FILE *file, u32 offset, int orig);
 
 /**
  * @brief 快速设置文件指针的位置
@@ -382,7 +383,7 @@ int fseek(FILE *file, int offset, int orig);
  * @note 一般手表case使用,去除互斥,设置ram里面跑
  * @return 成功返回0
  */
-int fseek_fast(FILE *file, int offset, int orig);
+int fseek_fast(FILE *file, u32 offset, int orig);
 
 /**
  * @brief 从文件中快速读取数据
@@ -403,7 +404,7 @@ int fread_fast(void *buf, u32 size, u32 count, FILE *file);
  *
  * @return 文件大小(负值表示获取失败)
  */
-int flen(FILE *file);
+u32 flen(FILE *file);
 
 /**
  * @brief 获取文件指针的当前位置
@@ -412,7 +413,7 @@ int flen(FILE *file);
  *
  * @return 文件指针的位置
  */
-int ftell(FILE *file);
+u32 ftell(FILE *file);
 
 /**
  * @brief 获取文件名(不包含目录)
@@ -1077,6 +1078,40 @@ int finsert_file(FILE *file, FILE *i_file, u32 fptr);
  */
 /* ----------------------------------------------------------------------------*/
 int fdicvision_file(FILE *file, char *file_name, u32 fptr);
+
+/* --------------------------------------------------------------------------*/
+/**
+ * @brief 判断当前指针是否为文件结束位置
+ *
+ * @param file : 文件句柄
+ *
+ * @return 0不是文件结束，非0是文件结束位置
+ */
+/* ----------------------------------------------------------------------------*/
+int foef(FILE *file);
+
+/* --------------------------------------------------------------------------*/
+/**
+ * @brief 文件截断功能
+ *
+ * @param file : 文件句柄
+ * @param size : 截断长度
+ *
+ * @return 0 成功，非0 失败（只读不起作用）
+ */
+/* ----------------------------------------------------------------------------*/
+int ftruncate(FILE *file, u32 size);
+
+/* --------------------------------------------------------------------------*/
+/**
+ * @brief 获取字符
+ *
+ * @param file :文件句柄
+ *
+ * @return 字符
+ */
+/* ----------------------------------------------------------------------------*/
+char fgetc(FILE *file);
 
 #endif  /* __FS_H__ */
 

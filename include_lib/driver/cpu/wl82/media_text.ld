@@ -179,3 +179,9 @@
         *(.libaisp.text)
 #endif
 
+#if defined CONFIG_MIDI_CTRL_DEC_ENABLE
+    *(.midi.text.cache.L2.code)
+    *(.midi.text.cache.L2.const)
+    *(.midi.text)
+    *(.midi.text.const)
+#endif

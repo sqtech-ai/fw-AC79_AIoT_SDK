@@ -140,6 +140,8 @@ DEFINES := \
 	-DCONFIG_LMP_CONN_SUSPEND_ENABLE \
 	-DCONFIG_LMP_REFRESH_ENCRYPTION_KEY_ENABLE \
 	-DCONFIG_ITEM_FORMAT_VM \
+	-DJIELI_RTOS \
+	-DJIELI_791N_RTOS \
 	-D_XOPEN_SOURCE=700 \
 	-D_GNU_SOURCE \
 	-D__ELF__ \
@@ -235,6 +237,8 @@ INCLUDES := \
 	-I../../../../apps/common/LLM/duer/intelligent_duer \
 	-I../../../../apps/common/LLM/duer/my_platform \
 	-I../../../../include_lib/net/network_download \
+	-I../../../../apps/common/LLM/tc_iot_twetalk/qcloud_iot_explorer_sdk/inc \
+	-I../../../../apps/common/LLM/tc_iot_twetalk/twetalk_ws \
 
 
 # 需要编译的 .c 文件
@@ -323,6 +327,71 @@ c_SRC_FILES := \
 	../../../../apps/common/LLM/onesdk/src/util/md5.c \
 	../../../../apps/common/LLM/onesdk/src/util/sha256.c \
 	../../../../apps/common/LLM/onesdk/src/util/util.c \
+	../../../../apps/common/LLM/tc_iot_twetalk/qcloud_iot_explorer_sdk/port/HAL_File_free_rtos.c \
+	../../../../apps/common/LLM/tc_iot_twetalk/qcloud_iot_explorer_sdk/port/HAL_OS_free_rtos.c \
+	../../../../apps/common/LLM/tc_iot_twetalk/qcloud_iot_explorer_sdk/port/HAL_SoftAP_ac79.c \
+	../../../../apps/common/LLM/tc_iot_twetalk/qcloud_iot_explorer_sdk/port/HAL_TCP_free_rtos.c \
+	../../../../apps/common/LLM/tc_iot_twetalk/qcloud_iot_explorer_sdk/port/HAL_Timer_free_rtos.c \
+	../../../../apps/common/LLM/tc_iot_twetalk/qcloud_iot_explorer_sdk/port/HAL_UDP_free_rtos.c \
+	../../../../apps/common/LLM/tc_iot_twetalk/qcloud_iot_explorer_sdk/port/HAL_nvs_ac79.c \
+	../../../../apps/common/LLM/tc_iot_twetalk/qcloud_iot_explorer_sdk/port/HAL_ota_ac79.c \
+	../../../../apps/common/LLM/tc_iot_twetalk/qcloud_iot_explorer_sdk/port/HAL_wifi_ac79.c \
+	../../../../apps/common/LLM/tc_iot_twetalk/qcloud_iot_explorer_sdk/port/qcloud_iot_link_ble_ac79.c \
+	../../../../apps/common/LLM/tc_iot_twetalk/qcloud_iot_explorer_sdk/src/ble_llsync_device_info.c \
+	../../../../apps/common/LLM/tc_iot_twetalk/qcloud_iot_explorer_sdk/src/ble_llsync_service.c \
+	../../../../apps/common/LLM/tc_iot_twetalk/qcloud_iot_explorer_sdk/src/cos_download.c \
+	../../../../apps/common/LLM/tc_iot_twetalk/qcloud_iot_explorer_sdk/src/data_template.c \
+	../../../../apps/common/LLM/tc_iot_twetalk/qcloud_iot_explorer_sdk/src/data_template_action.c \
+	../../../../apps/common/LLM/tc_iot_twetalk/qcloud_iot_explorer_sdk/src/data_template_cloud.c \
+	../../../../apps/common/LLM/tc_iot_twetalk/qcloud_iot_explorer_sdk/src/data_template_config.c \
+	../../../../apps/common/LLM/tc_iot_twetalk/qcloud_iot_explorer_sdk/src/data_template_event.c \
+	../../../../apps/common/LLM/tc_iot_twetalk/qcloud_iot_explorer_sdk/src/data_template_mqtt.c \
+	../../../../apps/common/LLM/tc_iot_twetalk/qcloud_iot_explorer_sdk/src/data_template_parse.c \
+	../../../../apps/common/LLM/tc_iot_twetalk/qcloud_iot_explorer_sdk/src/data_template_property.c \
+	../../../../apps/common/LLM/tc_iot_twetalk/qcloud_iot_explorer_sdk/src/dynreg_request.c \
+	../../../../apps/common/LLM/tc_iot_twetalk/qcloud_iot_explorer_sdk/src/dynreg_signature.c \
+	../../../../apps/common/LLM/tc_iot_twetalk/qcloud_iot_explorer_sdk/src/http_ca.c \
+	../../../../apps/common/LLM/tc_iot_twetalk/qcloud_iot_explorer_sdk/src/http_client.c \
+	../../../../apps/common/LLM/tc_iot_twetalk/qcloud_iot_explorer_sdk/src/http_signed.c \
+	../../../../apps/common/LLM/tc_iot_twetalk/qcloud_iot_explorer_sdk/src/mqtt_client.c \
+	../../../../apps/common/LLM/tc_iot_twetalk/qcloud_iot_explorer_sdk/src/mqtt_client_common.c \
+	../../../../apps/common/LLM/tc_iot_twetalk/qcloud_iot_explorer_sdk/src/mqtt_client_connect.c \
+	../../../../apps/common/LLM/tc_iot_twetalk/qcloud_iot_explorer_sdk/src/mqtt_client_publish.c \
+	../../../../apps/common/LLM/tc_iot_twetalk/qcloud_iot_explorer_sdk/src/mqtt_client_subscribe.c \
+	../../../../apps/common/LLM/tc_iot_twetalk/qcloud_iot_explorer_sdk/src/mqtt_client_yield.c \
+	../../../../apps/common/LLM/tc_iot_twetalk/qcloud_iot_explorer_sdk/src/mqtt_packet_deserialize.c \
+	../../../../apps/common/LLM/tc_iot_twetalk/qcloud_iot_explorer_sdk/src/mqtt_packet_serialize.c \
+	../../../../apps/common/LLM/tc_iot_twetalk/qcloud_iot_explorer_sdk/src/network_interface.c \
+	../../../../apps/common/LLM/tc_iot_twetalk/qcloud_iot_explorer_sdk/src/ota_mqtt.c \
+	../../../../apps/common/LLM/tc_iot_twetalk/qcloud_iot_explorer_sdk/src/qcloud_iot_device.c \
+	../../../../apps/common/LLM/tc_iot_twetalk/qcloud_iot_explorer_sdk/src/qcloud_iot_link.c \
+	../../../../apps/common/LLM/tc_iot_twetalk/qcloud_iot_explorer_sdk/src/qcloud_iot_timer.c \
+	../../../../apps/common/LLM/tc_iot_twetalk/qcloud_iot_explorer_sdk/src/qcloud_iot_tls_client.c \
+	../../../../apps/common/LLM/tc_iot_twetalk/qcloud_iot_explorer_sdk/src/sevice_mqtt.c \
+	../../../../apps/common/LLM/tc_iot_twetalk/qcloud_iot_explorer_sdk/src/system_mqtt.c \
+	../../../../apps/common/LLM/tc_iot_twetalk/qcloud_iot_explorer_sdk/src/utils_aes.c \
+	../../../../apps/common/LLM/tc_iot_twetalk/qcloud_iot_explorer_sdk/src/utils_base64.c \
+	../../../../apps/common/LLM/tc_iot_twetalk/qcloud_iot_explorer_sdk/src/utils_crc.c \
+	../../../../apps/common/LLM/tc_iot_twetalk/qcloud_iot_explorer_sdk/src/utils_downloader.c \
+	../../../../apps/common/LLM/tc_iot_twetalk/qcloud_iot_explorer_sdk/src/utils_hmac.c \
+	../../../../apps/common/LLM/tc_iot_twetalk/qcloud_iot_explorer_sdk/src/utils_json.c \
+	../../../../apps/common/LLM/tc_iot_twetalk/qcloud_iot_explorer_sdk/src/utils_list.c \
+	../../../../apps/common/LLM/tc_iot_twetalk/qcloud_iot_explorer_sdk/src/utils_log.c \
+	../../../../apps/common/LLM/tc_iot_twetalk/qcloud_iot_explorer_sdk/src/utils_md5.c \
+	../../../../apps/common/LLM/tc_iot_twetalk/qcloud_iot_explorer_sdk/src/utils_min_heap.c \
+	../../../../apps/common/LLM/tc_iot_twetalk/qcloud_iot_explorer_sdk/src/utils_ringbuffer.c \
+	../../../../apps/common/LLM/tc_iot_twetalk/qcloud_iot_explorer_sdk/src/utils_sha1.c \
+	../../../../apps/common/LLM/tc_iot_twetalk/qcloud_iot_explorer_sdk/src/utils_sha256.c \
+	../../../../apps/common/LLM/tc_iot_twetalk/qcloud_iot_explorer_sdk/src/utils_signature.c \
+	../../../../apps/common/LLM/tc_iot_twetalk/qcloud_iot_explorer_sdk/src/wifi_bind.c \
+	../../../../apps/common/LLM/tc_iot_twetalk/qcloud_iot_explorer_sdk/src/wifi_config.c \
+	../../../../apps/common/LLM/tc_iot_twetalk/qcloud_iot_explorer_sdk/src/wifi_llsync.c \
+	../../../../apps/common/LLM/tc_iot_twetalk/qcloud_iot_explorer_sdk/src/wifi_softap.c \
+	../../../../apps/common/LLM/tc_iot_twetalk/qcloud_iot_explorer_sdk/src/wifi_udp.c \
+	../../../../apps/common/LLM/tc_iot_twetalk/twetalk_ws/data_template_app.c \
+	../../../../apps/common/LLM/tc_iot_twetalk/twetalk_ws/ota_downloader.c \
+	../../../../apps/common/LLM/tc_iot_twetalk/twetalk_ws/test_audio_opus.c \
+	../../../../apps/common/LLM/tc_iot_twetalk/twetalk_ws/twetalk_app.c \
 	../../../../apps/common/LLM/volc/VolcEngineRTCLiteDemo.c \
 	../../../../apps/common/LLM/volc/access_token.c \
 	../../../../apps/common/LLM/volc/net_request.c \
@@ -654,6 +723,8 @@ LFLAGS := \
 	../../../../cpu/wl82/liba/lib_roobo_aec.a \
 	../../../../cpu/wl82/liba/lib_wanson_asr.a \
 	../../../../cpu/wl82/liba/libaec.a \
+	../../../../cpu/wl82/liba/libSMS_TDE_pi32v2_OnChip.a \
+	../../../../cpu/wl82/liba/libFFT_pi32v2_OnChip.a \
 	../../../../cpu/wl82/liba/lib_dvad.a \
 	../../../../cpu/wl82/liba/libdns.a \
 	../../../../cpu/wl82/liba/libjlsp.a \
@@ -735,6 +806,7 @@ LFLAGS := \
 	../../../../cpu/wl82/liba/libifly_aiui_lib.a \
 	../../../../cpu/wl82/liba/websocket.a   \
 	../../../../cpu/wl82/liba/cJSON.a   \
+	../../../../cpu/wl82/liba/lib_twetalk.a \
 	-T../../../../cpu/wl82/sdk.ld \
 	-M=../../../../cpu/wl82/tools/sdk.map \
 	--end-group  \

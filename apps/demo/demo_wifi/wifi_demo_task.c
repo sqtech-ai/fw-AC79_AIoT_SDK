@@ -587,18 +587,27 @@ static void wifi_status(void *p)
     }
 }
 
-char *check_enc_mode(int enc)
+char *get_wifi_auth_mode(WIFI_802_11_AUTH_MODE mode)
 {
-    if (ENC_MODE_BIT_IS_SET(enc, ENC_WPA3)) {
-        return "ENC_WPA3";
-    } else if (ENC_MODE_BIT_IS_SET(enc, ENC_WPA2)) {
-        return "ENC_WPA2";
-    } else if (ENC_MODE_BIT_IS_SET(enc, ENC_WPA)) {
-        return "ENC_WPA";
-    } else if (ENC_MODE_BIT_IS_SET(enc, ENC_WEP)) {
-        return "ENC_WEP";
-    } else {
-        return "ENC_NONE";
+    switch (mode) {
+    case WIFI_AUTH_MODE_OPEN:
+        return "AUTH_MODE_OPEN";
+    case WIFI_AUTH_MODE_WEP:
+        return "AUTH_MODE_WEP";
+    case WIFI_AUTH_MODE_WPA:
+        return "AUTH_MODE_WPA";
+    case WIFI_AUTH_MODE_WPA2PSK:
+        return "AUTH_MODE_WPA2PSK";
+    case WIFI_AUTH_MODE_WPAWPA2PSK:
+        return "AUTH_MODE_WPAWPA2PSK";
+    case WIFI_AUTH_MODE_WPA3SAE:
+        return "AUTH_MODE_WPA3SAE";
+    case WIFI_AUTH_MODE_WPA2PSKWPA3SAE:
+        return "AUTH_MODE_WPA2PSKWPA3SAE";
+    case WIFI_AUTH_MODE_WPA3H2E:
+        return "AUTH_MODE_WPA3H2E";
+    default:
+        return "***Unknown Auth Mode***";
     }
 }
 
@@ -619,7 +628,8 @@ static void wifi_scan_test(void)
         sta_ssid_info = wifi_get_scan_result(&sta_ssid_num);
         printf("wifi_sta_scan_channel_test channel %d, ssid_num =%d \r\n", ch, sta_ssid_num);
         for (int i = 0; i < sta_ssid_num; i++) {
-            printf("wifi_sta_scan_channel_test ssid = [%s],rssi = %d,snr = %d, enc = %s\r\n", sta_ssid_info[i].ssid, sta_ssid_info[i].rssi, sta_ssid_info[i].snr, check_enc_mode(sta_ssid_info[i].enc));
+            printf("wifi_sta_scan_channel_test ssid = [%s],rssi = %d,snr = %d, enc = %s\r\n",
+                   sta_ssid_info[i].ssid, sta_ssid_info[i].rssi, sta_ssid_info[i].snr, get_wifi_auth_mode(sta_ssid_info[i].auth_mode));
         }
         free(sta_ssid_info);
     }
@@ -631,7 +641,8 @@ static void wifi_scan_test(void)
     sta_ssid_info = wifi_get_scan_result(&sta_ssid_num);
     printf("wifi_sta_scan_test ssid_num =%d \r\n", sta_ssid_num);
     for (int i = 0; i < sta_ssid_num; i++) {
-        printf("wifi_sta_scan_test ssid = [%s],rssi = %d,snr = %d, enc = %s\r\n", sta_ssid_info[i].ssid, sta_ssid_info[i].rssi, sta_ssid_info[i].snr, check_enc_mode(sta_ssid_info[i].enc));
+        printf("wifi_sta_scan_test ssid = [%s],rssi = %d,snr = %d, enc = %s\r\n",
+               sta_ssid_info[i].ssid, sta_ssid_info[i].rssi, sta_ssid_info[i].snr, get_wifi_auth_mode(sta_ssid_info[i].auth_mode));
     }
 
     free(sta_ssid_info);
@@ -667,36 +678,63 @@ extern u32 dynamic_data_vma;
 extern u32 dynamic_data_lma;
 extern u32 dynamic_data_size;
 
-int wifi_load_to_sdram(void)
+void wifi_load_to_sdram(void)
 {
-    sdram_init(&sdram_cfg);
+    int size = 0;
     printf("bss_size:%x  bss_addr:%x  data_lma:%x  data_vma:%x  data_size:%d", &dynamic_bss_size, &dynamic_bss_begin, &dynamic_data_lma, &dynamic_data_vma, &dynamic_data_size);
-
-    memset(&dynamic_bss_begin, 0, &dynamic_bss_size);
-    memcpy(&dynamic_data_vma, &dynamic_data_lma, &dynamic_data_size);
+    char *wifi_mem = wifi_mem_pool(&size);
+    sdram_init(&sdram_cfg);
     flush_dcache(&dynamic_data_vma, &dynamic_data_size);
     flush_dcache(&dynamic_bss_begin, &dynamic_bss_size);
+    flush_dcache(wifi_mem, size);
+    memset(&dynamic_bss_begin, 0, &dynamic_bss_size);
+    memcpy(&dynamic_data_vma, &dynamic_data_lma, &dynamic_data_size);
+
+
     wifi_set_store_ssid_cnt(NETWORK_SSID_INFO_CNT);
     wifi_set_event_callback(wifi_event_callback);
 
     wifi_rf_on();
     wifi_on();
 
-
-
+    return;
 }
-int wifi_unload_to_sdram(void)
-{
 
+void wifi_unload_to_sdram(void)
+{
+    int size = 0;
+    char *wifi_mem = wifi_mem_pool(&size);
     wifi_off();
     wifi_rf_off();
-
+    memset(&dynamic_bss_begin, 0, &dynamic_bss_size);
+    memset(&dynamic_data_vma, 0, &dynamic_data_size);
+    __asm_csync();
+    __asm_csync();
+    __asm_csync();
+    __asm_csync();
+    __asm_csync();
+    __asm_csync();
     flushinv_dcache(&dynamic_data_vma, &dynamic_data_size);
     flushinv_dcache(&dynamic_bss_begin, &dynamic_bss_size);
-
+    flushinv_dcache(wifi_mem, size);
+    __asm_csync();
+    __asm_csync();
+    __asm_csync();
+    __asm_csync();
+    __asm_csync();
+    __asm_csync();
     sdram_uninit();
-
+    __asm_csync();
+    __asm_csync();
+    __asm_csync();
+    __asm_csync();
+    __asm_csync();
+    __asm_csync();
+    return;
 }
+
+
+
 
 
 #endif

@@ -78,6 +78,7 @@
 #define CONFIG_OGG_DEC_ENABLE
 #define CONFIG_MIDI_CTRL_DEC_ENABLE
 
+#define CONFIG_REVERB_MODE_ENABLE            //打开混响功能
 #define CONFIG_AUDIO_MIX_ENABLE              //打开叠音功能
 #define CONFIG_AUDIO_PS_ENABLE               //打开变调变速功能
 
@@ -208,6 +209,7 @@
 #define CONFIG_AUDIO_RECORDER_CHANNEL       1                              //录音通道数
 #define CONFIG_AUDIO_RECORDER_DURATION      (30 * 1000)                    //录音时长ms
 #define CONFIG_AUDIO_RECORDER_SAVE_FORMAT   "ogg"                          //录音文件保存格式
+#define CONFIG_AUDIO_RECORDER_PLAY_FORMAT   "pcm"                          //自编自解格式仅支持pcm/mp3/aac/jla/amr/opus/ogg/speex格式
 
 #define CONFIG_ALL_ADC_CHANNEL_OPEN_ENABLE      //四路ADC硬件全开
 
@@ -234,6 +236,8 @@
 #define TCFG_DRC_ENABLE                     TCFG_LIMITER_ENABLE
 #define TCFG_EQ_FILE_ENABLE                 1     	//从bin文件读取eq配置数据
 #define TCFG_EQ_MODE_CHOOSE                 0		//0:多通道共用1个eq, drc功能丰富; 1:多通道独立eq,独立drc, 请替换对应的bin文件
+
+#define TCFG_AEC_UL_EQ_ENABLE               1       //支持编码eq功能
 
 #if (TCFG_EQ_MODE_CHOOSE == 0)
 #define TCFG_AUDIO_MDRC_ENABLE              2		//0:不使能低中DRC 1: 多带分频器使能 2: 多带分频后，再做一次全带处理使能

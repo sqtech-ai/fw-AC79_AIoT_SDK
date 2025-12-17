@@ -2,15 +2,7 @@
 #define _WIFI_CONNECT_H_
 
 #include "generic/typedef.h"
-
-#define ENC_NONE 0x00
-#define ENC_WEP  BIT(0)
-#define ENC_WPA  BIT(1)
-#define ENC_WPA2 BIT(2)
-#define ENC_WPA3 BIT(3)
-#define  ENC_MODE_BIT_SET(val, mode)      ((val) = ((val) | (mode)))
-#define  ENC_MODE_BIT_IS_SET(val, mode)   (((((val) & (mode)) == (mode)) && \
-                                                 	 ((mode) !=  0u))    ? (1) : (0))
+#include "wifi_def.h"
 
 ///  \cond DO_NOT_DOCUMENT
 enum WIFI_MODE {
@@ -51,21 +43,6 @@ struct wifi_stored_sta_info {
     u8 pwd[64];
     u8 ssid[33];
 } __attribute__((packed));
-
-struct wifi_scan_ssid_info {
-    char ssid[32];
-    unsigned int ssid_len;
-    unsigned char mac_addr[6];
-    char rssi;
-    char snr;
-    char rssi_db;
-    char rssi_rsv;
-    unsigned int channel_number;
-    unsigned char	SignalStrength;//(in percentage)
-    unsigned char	SignalQuality;//(in percentage)
-    unsigned char   SupportedRates[16];
-    char enc;
-};
 
 enum wifi_sta_connect_state {
     WIFI_STA_DISCONNECT,

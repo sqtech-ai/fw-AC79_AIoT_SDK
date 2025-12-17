@@ -19,6 +19,7 @@ typedef struct {
 extern const u8 sdp_pnp_service_data[];
 extern const u8 sdp_a2dp_service_data[];
 extern const u8 sdp_avctp_ct_service_data[];
+extern const u8 sdp_avctp_ct_service_data_browsing[];
 extern const u8 sdp_avctp_ta_service_data[];
 extern const u8 sdp_hfp_service_data[];
 extern const u8 sdp_spp_service_data[];
@@ -66,10 +67,18 @@ SDP_RECORD_HANDLER_REGISTER(a2dp_sdp_record_item) = {
 
 #if (USER_SUPPORT_PROFILE_AVCTP==1)
 u8 acp_profile_support = 1;
+#if (defined USER_SUPPORT_PROFILE_BIP && (USER_SUPPORT_PROFILE_BIP==1))
+u8 bip_profile_support = 1;
+SDP_RECORD_HANDLER_REGISTER(arp_ct_sdp_record_item) = {
+    .service_record = (u8 *)sdp_avctp_ct_service_data_browsing,
+    .service_record_handle = 0x00010002,
+};
+#else
 SDP_RECORD_HANDLER_REGISTER(arp_ct_sdp_record_item) = {
     .service_record = (u8 *)sdp_avctp_ct_service_data,
     .service_record_handle = 0x00010002,
 };
+#endif
 #if BT_SUPPORT_MUSIC_VOL_SYNC
 SDP_RECORD_HANDLER_REGISTER(arp_ta_sdp_record_item) = {
     .service_record = (u8 *)sdp_avctp_ta_service_data,
@@ -127,6 +136,25 @@ SDP_RECORD_HANDLER_REGISTER(pbap_sdp_record_item) = {
     .service_record_handle = 0x00010007,
 };
 #endif
+
+#if (USER_SUPPORT_PROFILE_OPP==1)
+extern const u8 sdp_opp_service_data[];
+u8 opp_profile_support = 1;
+SDP_RECORD_HANDLER_REGISTER(opp_sdp_record_item) = {
+    .service_record = (u8 *)sdp_opp_service_data,
+    .service_record_handle = 0x0001000D,
+};
+#endif
+
+#if (USER_SUPPORT_PROFILE_HCRP==1)
+extern const u8 sdp_hcrp_service_data[];
+u8 hcrp_profile_support = 1;
+SDP_RECORD_HANDLER_REGISTER(hcrp_sdp_record_item) = {
+    .service_record = (u8 *)sdp_hcrp_service_data,
+    .service_record_handle = 0x0001000C,
+};
+#endif
+
 /*注意hid_conn_depend_on_dev_company置1之后，安卓手机会默认断开HID连接 */
 /*注意hid_conn_depend_on_dev_company置2之后，默认不断开HID连接 */
 const u8 hid_conn_depend_on_dev_company = 1;

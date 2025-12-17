@@ -93,7 +93,7 @@ extern struct eq_tool muisc_fr_ext_eq[mode_add];
 extern ADC_PGA_TOOL_SET adc_pga;
 
 extern const struct eq_seg_info phone_eq_tab_normal[3];
-extern const struct eq_seg_info ul_eq_tab_normal[3];
+extern const struct eq_seg_info ul_eq_tab_normal[10];
 extern const struct eq_seg_info eq_tab_normal[10];
 extern const u16 eff_mode_seq[8];
 extern const u16 mic_eq_name[5] ;

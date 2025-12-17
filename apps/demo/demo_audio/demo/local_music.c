@@ -576,6 +576,11 @@ static int local_music_mode_init(void)
 
 static void local_music_mode_exit(void)
 {
+#if defined CONFIG_REVERB_MODE_ENABLE && defined CONFIG_AUDIO_MIX_ENABLE
+    if (__this->reverb_enable) {
+        echo_reverb_uninit();
+    }
+#endif
     local_music_switch_local_device(NULL);
     server_close(__this->dec_server);
     __this->dec_server = NULL;
@@ -616,9 +621,26 @@ static int local_music_key_long(struct key_event *key)
         local_music_dec_switch_file(FSEL_NEXT_FILE);
         break;
     case KEY_MODE:
+#if defined CONFIG_REVERB_MODE_ENABLE && defined CONFIG_AUDIO_MIX_ENABLE
+        if (__this->reverb_enable) {
+            //关闭混响
+            echo_reverb_uninit();
+            __this->reverb_enable = 0;
+        } else {
+            //配置混响参数
+            const struct __HOWLING_PARM_ howling_parm = {13, 20, 20, 300, 5, -50000/*-25000*/, 0, 16000, 1};
+#if CONFIG_AUDIO_ENC_SAMPLE_SOURCE != AUDIO_ENC_SAMPLE_SOURCE_MIC
+            echo_reverb_init(48000, 16000, BIT(CONFIG_AUDIO_ENC_SAMPLE_SOURCE + 3), 100, __this->volume, NULL, NULL, (void *)&howling_parm, NULL);
+#else
+            echo_reverb_init(48000, 16000, BIT(CONFIG_REVERB_ADC_CHANNEL), 100, __this->volume, NULL, NULL, (void *)&howling_parm, NULL);
+#endif
+            __this->reverb_enable = 1;
+        }
+#else
         if (storage_device_ready()) {
             local_music_switch_local_device(CONFIG_MUSIC_PATH_SD);
         }
+#endif
         break;
     default:
         break;
