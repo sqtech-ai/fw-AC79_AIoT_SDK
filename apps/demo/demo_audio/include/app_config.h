@@ -78,7 +78,6 @@
 #define CONFIG_OGG_DEC_ENABLE
 #define CONFIG_MIDI_CTRL_DEC_ENABLE
 
-#define CONFIG_REVERB_MODE_ENABLE            //打开混响功能
 #define CONFIG_AUDIO_MIX_ENABLE              //打开叠音功能
 #define CONFIG_AUDIO_PS_ENABLE               //打开变调变速功能
 

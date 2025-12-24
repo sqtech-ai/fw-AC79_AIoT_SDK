@@ -505,6 +505,7 @@
 <Unit filename="../../../../../include_lib/net/lwip_2_2_0/lwip/src/include/lwip/prot/ieee.h" />
 <Unit filename="../../../../../include_lib/net/lwip_2_2_0/lwip/src/include/lwip/sockets.h" />
 <Unit filename="../../../../../include_lib/net/lwip_2_2_0/lwip/src/include/lwip/stats.h" />
+<Unit filename="../../../../../include_lib/net/network_download/net_audio_buf.h" />
 <Unit filename="../../../../../include_lib/net/network_download/net_download.h" />
 <Unit filename="../../../../../include_lib/net/server/net_server.h" />
 <Unit filename="../../../../../include_lib/net/version.z.S" />

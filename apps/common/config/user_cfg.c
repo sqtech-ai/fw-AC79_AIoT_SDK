@@ -86,6 +86,7 @@ int btif_item_rewrite_en(u16 id, u16 len)
 const int vm_max_page_align_size_config   = VM_MAX_PAGE_ALIGN_SIZE_CONFIG; 		//page对齐vm管理空间最大值配置
 const int vm_max_sector_align_size_config = VM_MAX_SECTOR_ALIGN_SIZE_CONFIG; 	//sector对齐vm管理空间最大值配置
 const int VM_DEFRAG_SIZE = 60; //VM 碎片整理。百分比
+const u8 reset_vm_when_read_crc_err = 0; //当读取vm crc错误时复位整个vm
 ////======================================================================================//
 
 extern int bytecmp(unsigned char *p, unsigned char ch, unsigned int num);

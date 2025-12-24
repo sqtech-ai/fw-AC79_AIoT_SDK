@@ -3242,12 +3242,6 @@ static void app_music_net_config(void)
             __this->coexistence_timer = 0;
             switch_rf_coexistence_config_unlock();
         }
-#ifdef CONFIG_REVERB_MODE_ENABLE
-        if (__this->reverb_enable) {
-            echo_reverb_uninit();
-            __this->reverb_enable = 0;
-        }
-#endif
 #if defined CONFIG_BT_ENABLE && !BT_SUPPORT_WIFI_CFG_COEXISTENCE
         if (__this->bt_music_enable) {
             __this->bt_emitter_enable = 0;
@@ -4442,31 +4436,6 @@ static int app_music_key_long(struct key_event *key)
 #endif
         break;
     case KEY_PHOTO:
-#ifdef CONFIG_REVERB_MODE_ENABLE
-        if (__this->reverb_enable) {
-#ifdef CONFIG_BT_ENABLE
-            if (__this->dec_ops == get_bt_music_dec_ops()) {
-                __this->dec_ops->dec_stop(0);	//让变采样过渡平滑
-            }
-#endif
-            echo_reverb_uninit();
-            __this->reverb_enable = 0;
-            app_music_play_voice_prompt("ReverbExit.mp3", __this->dec_ops->dec_breakpoint);
-        } else {
-            const struct __HOWLING_PARM_ howling_parm = {13, 20, 20, 300, 5, -50000/*-25000*/, 0, 16000, 1};
-#if CONFIG_AUDIO_ENC_SAMPLE_SOURCE != AUDIO_ENC_SAMPLE_SOURCE_MIC
-            echo_reverb_init(48000, 16000, BIT(CONFIG_AUDIO_ENC_SAMPLE_SOURCE + 3), 100, __this->volume, NULL, NULL, (void *)&howling_parm, NULL);
-#else
-#ifdef CONFIG_ALL_ADC_CHANNEL_OPEN_ENABLE
-            echo_reverb_init(48000, 16000, BIT(CONFIG_REVERB_ADC_CHANNEL), 100, __this->volume, NULL, NULL, (void *)&howling_parm, NULL);
-#else
-            echo_reverb_init(48000, 16000, 0, 100, __this->volume, NULL, NULL, (void *)&howling_parm, NULL);
-#endif
-#endif
-            app_music_play_voice_prompt("ReverbEnter.mp3", __this->dec_ops->dec_breakpoint);
-            __this->reverb_enable = 1;
-        }
-#endif
         break;
     case KEY_ENC:
 #ifdef CONFIG_BT_ENABLE
@@ -4948,15 +4917,6 @@ static int app_music_bt_event_handler_pretreatment(struct bt_event *event)
 
         if (BT_STATUS_SCO_STATUS_CHANGE == event->event) {
             __this->call_flag = event->value == 0xff ? 0 : 1;
-#ifdef CONFIG_REVERB_MODE_ENABLE
-            if (__this->reverb_enable) {
-                if (__this->call_flag) {
-                    echo_deal_pause();
-                } else {
-                    echo_deal_start();
-                }
-            }
-#endif
 #ifdef CONFIG_ASR_ALGORITHM
             if (__this->wakeup_support) {
                 if (__this->call_flag) {

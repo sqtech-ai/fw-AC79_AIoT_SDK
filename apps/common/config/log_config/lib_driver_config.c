@@ -20,6 +20,8 @@ const int norflash_write_cpu_unhold = 0;//在 跑SFC的情况下 写flash hold c
 const int norflash_write_cpu_unhold = 1;//在跑SDRAM的情况下 写flash 不需要 hold cpu和关闭所有中断 ,程序员自己懂得把相关text段放到sdram/内部ram,保证运行过程中不会访问SFC也可以写1
 #endif
 
+const int norflash_write_readback_check_en = 0;// norflash写完后回读校验使能开关 0-关, 1-开
+
 const int config_spi_code_user_cache = 0;
 
 const int sdx_idle_query_check_keep_poweron = 0;	//如果硬件设计上，当进入低功耗时会导致sd卡电源会掉时，需要使能此变量（如果采用命令检测方式不要使能此变量）
