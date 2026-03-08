@@ -144,11 +144,11 @@ static void websockets_client_main_thread(void *priv)
     u8 buffer[640];
     finish = build_finish_frame();
     duer_rec_start();
-    u8 send_buf[40];
+    u8 send_buf[80];
     while (1) {
-        int rlen = cbuf_read(&rec.cbuf, send_buf, 40);
-        if (rlen != 40) {
-            cbuf_read(&rec.cbuf, send_buf, rlen);
+        int rlen = cbuf_read(&rec.cbuf, send_buf, 80);
+        if (rlen != 80) {
+            cbuf_read(&rec.cbuf, send_buf, 80);
         }
         err = websockets_client_send(websockets_info, send_buf, rlen, WCT_BINDATA);
         if (false == err) {

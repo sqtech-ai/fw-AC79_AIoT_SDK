@@ -426,6 +426,12 @@ static void audio_player_net_init()
     req.dec.channel         = CHANNEL;  /*dac 差分输出 单路*/
     req.dec.sample_rate     = SAMPLE_RATE;
     req.dec.vfs_ops         = &audio_play_net_vfs_ops;
+
+#ifdef CONFIG_VOLC_LLM_ENABLE
+    req.dec.force_sr        = 44100;
+    req.dec.channel         = 2;
+#endif // CONFIG_VOLC_LLM_ENABLE
+
 #ifdef AUDIO_TYPE_G711A
     req.dec.dec_type 		= "pcm";
 #elif defined(AUDIO_TYPE_AACLC)

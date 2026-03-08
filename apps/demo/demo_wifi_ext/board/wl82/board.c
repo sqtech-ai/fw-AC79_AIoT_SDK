@@ -93,12 +93,14 @@ const struct wifi_calibration_param wifi_calibration_param = {
 WIFI_PLATFORM_DATA_BEGIN(wifi_data)
 #ifdef CONFIG_RTL8189E_ENABLE
 	.module = RTL8189E,
-#elif CONFIG_RTL8822ES_10M_ENABLE
+#elif defined(CONFIG_RTL8822ES_10M_ENABLE)
 	.module = RTL8822E,
-#elif CONFIG_RTL8822CS_ENABLE
+#elif defined(CONFIG_RTL8822CS_ENABLE)
 	.module = RTL8822C,
+#elif defined(CONFIG_AIC8800D40_ENABLE)
+	.module = AIC8800M40,
 #endif
-	.sdio_parm = SDIO_GRP_0 | SDIO_PORT_3 | SDIO_4_BIT_DATA | SDIO_DATA1_IRQ | SDIO_CLOCK_2M,
+	.sdio_parm = SDIO_GRP_0 | SDIO_PORT_3 | SDIO_1_BIT_DATA | SDIO_POLLING | SDIO_CLOCK_20M,
 	.wakeup_port = IO_PORTB_11,
 	.cs_port = IO_PORTB_12,
 	.power_port = IO_PORTB_13,

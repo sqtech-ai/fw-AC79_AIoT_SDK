@@ -109,7 +109,7 @@ DEFINES := \
 	-DCONFIG_SFC_ENABLE \
 	-DCONFIG_NET_ENABLE=1 \
 	-DCONFIG_EXT_WIFI_ENABLE \
-	-DCONFIG_RTL8822ES_10M_ENABLE \
+	-DCONFIG_AIC8800D40_ENABLE \
 	-DEVENT_HANDLER_NUM_CONFIG=2 \
 	-DEVENT_TOUCH_ENABLE_CONFIG=0 \
 	-DEVENT_POOL_SIZE_CONFIG=256 \
@@ -190,6 +190,7 @@ c_SRC_FILES := \
 	../../../../../apps/common/rf_fcc_tool/rf_fcc_main.c \
 	../../../../../apps/common/system/device_mount.c \
 	../../../../../apps/common/system/init.c \
+	../../../../../apps/common/system/init_expand.c \
 	../../../../../apps/common/system/system_reset_reason.c \
 	../../../../../apps/common/system/version.c \
 	../../../../../apps/common/update/update.c \
@@ -311,20 +312,16 @@ LFLAGS := \
 	../../../../../cpu/wl82/liba/common_lib.a \
 	../../../../../cpu/wl82/liba/update.a \
 	../../../../../cpu/wl82/liba/lte_module.a \
-	../../../../../cpu/wl82/liba/wl_rf_common.a \
-	../../../../../cpu/wl82/liba/hsm.a \
 	../../../../../cpu/wl82/liba/http_cli.a \
 	../../../../../cpu/wl82/liba/https_cli.a \
 	../../../../../cpu/wl82/liba/json.a \
 	../../../../../cpu/wl82/liba/iperf.a \
 	../../../../../cpu/wl82/liba/libmbedtls_3_4_0.a \
 	../../../../../cpu/wl82/liba/lwip_2_2_0.a \
-	../../../../../cpu/wl82/liba/wl_wifi.a \
 	../../../../../cpu/wl82/liba/hsm_ext.a \
 	../../../../../cpu/wl82/liba/ext_wifi_dev.a \
 	../../../../../cpu/wl82/liba/sdio_card.a \
-	../../../../../cpu/wl82/liba/hostapd_and_wpasupplicant.a \
-	../../../../../cpu/wl82/liba/rtl8822es_10m.a \
+	../../../../../cpu/wl82/liba/libaicwifi.a \
 	--end-group \
 	-T../../../../../cpu/wl82/sdk.ld \
 	-M=../../../../../cpu/wl82/tools/sdk.map \

@@ -17,7 +17,7 @@
 //#define OBJ_URL 	"wss://172.16.23.28:8888"                  //本地服务器测试
 
 
-static void websockets_callback(u8 *buf, u32 len, u8 type)
+static void websockets_callback(u8 *buf, u32 len, u8 type, void *priv)
 {
     printf("wbs recv msg : %s\n", buf);
 }

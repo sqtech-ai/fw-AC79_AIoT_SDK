@@ -6,11 +6,11 @@
 
 ///  \cond DO_NOT_DOCUMENT
 enum WIFI_MODE {
-    STA_MODE = 1,//STA_MODE位置必须为第一个
+    STA_MODE = 1,//STA_MODE位置必须为第一个, 枚举顺序若修改，请务必更新wifi_dev.a库
     AP_MODE,
+    P2P_MODE,
     SMP_CFG_MODE,
     MP_TEST_MODE,
-    P2P_MODE,
     NONE_MODE,
 };
 

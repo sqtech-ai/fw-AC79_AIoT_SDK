@@ -476,7 +476,7 @@ void sys_local_irq_enable(void)
 }
 
 // just fix build&link
-#if !defined CONFIG_NET_ENABLE && !defined CONFIG_BT_ENABLE
+#if (!defined CONFIG_NET_ENABLE && !defined CONFIG_BT_ENABLE) || defined CONFIG_EXT_WIFI_ENABLE
 __attribute__((weak)) void wf_set_phcom_cnt(u32 phcom_cnt)
 {
 }

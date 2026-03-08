@@ -22,6 +22,8 @@ extern "C" {
 
 #define JL_LWIP                         1
 
+#define LWIP_HAVE_LOOPIF                1
+
 /**
  * LWIP_SOCKET==1: Enable Socket API (require to use sockets.c)
  */

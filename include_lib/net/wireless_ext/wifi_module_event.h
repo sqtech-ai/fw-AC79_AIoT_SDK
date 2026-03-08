@@ -23,6 +23,7 @@ enum WIFI_MODULE {
     RTL8192F,
     RTL8821CS,
     HI3881,
+    AIC8800M40,
     NONE_MODULE = -1,
 };
 
@@ -51,8 +52,8 @@ enum WIFI_MODULE {
 struct WIFI_INIT_INFO {
     enum WIFI_MODULE module;
     enum WIFI_MODE mode;
-    u8 pwd[3][64];
-    u8 ssid[3][33];
+    u8 pwd[4][64];
+    u8 ssid[4][33];
     u8 p2p_role;
 } __attribute__((packed));
 

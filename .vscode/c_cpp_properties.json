@@ -542,7 +542,7 @@
                 "CONFIG_SFC_ENABLE",
                 "CONFIG_NET_ENABLE=1",
                 "CONFIG_EXT_WIFI_ENABLE",
-                "CONFIG_RTL8822ES_10M_ENABLE",
+                "CONFIG_AIC8800D40_ENABLE",
                 "EVENT_HANDLER_NUM_CONFIG=2",
                 "EVENT_TOUCH_ENABLE_CONFIG=0",
                 "EVENT_POOL_SIZE_CONFIG=256",

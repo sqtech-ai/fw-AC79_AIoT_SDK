@@ -120,7 +120,9 @@ static int mic_rec_pram_init_(char *format, int CHANNEL, int SAMPLE_RATE)
     req.enc.channel_bit_map = BIT(1);
 
     if (!strcmp(req.enc.format, "opus")) {
-        req.enc.no_header = 1;
+        req.enc.format_mode = 0;
+        req.enc.frame_ms = 20;
+        req.enc.bitrate = 32000;
     }
 
     if (CHANNEL == 1 && !strcmp(req.enc.sample_source, "mic") && (SAMPLE_RATE == 8000 || SAMPLE_RATE == 16000)) {
@@ -128,7 +130,7 @@ static int mic_rec_pram_init_(char *format, int CHANNEL, int SAMPLE_RATE)
         req.enc.vad_auto_refresh = 1;   //VAD自动刷新
     }
     if (req.enc.use_vad == 1) {
-        req.enc.vad_start_threshold = 300;    //ms
+        req.enc.vad_start_threshold = 0;    //ms
         req.enc.vad_stop_threshold  = 0;    //ms
     }
 

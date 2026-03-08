@@ -6,10 +6,12 @@
 #include "wireless_ext/wifi_connect.h"
 #include "lwip.h"
 #include "lwip/sockets.h"
+#include "asm/port_waked_up.h"
 
 #define AP_TEST_MODE	(0)
 #define STA_TEST_MODE	(1)
-#define EXT_WIFI_TEST_MODE	AP_TEST_MODE
+#define P2P_TEST_MODE   (2)
+#define EXT_WIFI_TEST_MODE	P2P_TEST_MODE
 
 #ifdef CONFIG_RTL8822ES_10M_ENABLE
 #define AP_SSID "HF_GPS5G-123456"        //配置 AP模式的SSID前缀
@@ -19,8 +21,8 @@
 #define AP_PWD  "12345678"    			 //配置 AP模式的密码
 #endif
 
-#define STA_SSID  "Aaaaaaaaaaaaaaaaa"    //配置 STA模式的SSID
-#define STA_PWD  "123456789"             //配置 STA模式的密码
+#define STA_SSID  "ZTE-5G"    //配置 STA模式的SSID
+#define STA_PWD  "12345678"             //配置 STA模式的密码
 
 #define WIFI_APP_TASK_NAME "ext_wifi_app_task"
 
@@ -54,7 +56,7 @@ static int network_user_callback(void *network_ctx, enum WIFI_EVENT state, void 
 
     case WIFI_EVENT_MODULE_INIT:
         puts("|ext_network_user_callback->WIFI_EVENT_MODULE_INIT\n");
-
+#ifndef CONFIG_AIC8800D40_ENABLE
 //wifi module port seting
         info.port_status = 0;
         dev_ioctl(wifi_dev, DEV_SET_WIFI_POWER, (u32)&info);
@@ -75,10 +77,12 @@ static int network_user_callback(void *network_ctx, enum WIFI_EVENT state, void 
         info.pwd  = AP_PWD;
         info.force_default_mode = 1;
         dev_ioctl(wifi_dev, DEV_SET_DEFAULT_MODE, (u32)&info);
+#endif
         break;
 
     case WIFI_EVENT_MODULE_START:
         puts("|ext_network_user_callback->WIFI_EVENT_MODULE_START\n");
+#ifndef CONFIG_AIC8800D40_ENABLE
         info.mode = AP_MODE;
         info.ssid = AP_SSID;
         info.pwd  = AP_PWD;
@@ -86,6 +90,7 @@ static int network_user_callback(void *network_ctx, enum WIFI_EVENT state, void 
         dev_ioctl(wifi_dev, DEV_SAVE_DEFAULT_MODE, (u32)&info);
 
         wpa_supplicant_set_connect_timeout(20);
+#endif
         break;
 
     case WIFI_EVENT_MODULE_STOP:
@@ -161,6 +166,9 @@ static int network_user_callback(void *network_ctx, enum WIFI_EVENT state, void 
 
     case WIFI_EVENT_P2P_GC_DISCONNECTED:
         puts("|ext_network_user_callback->WIFI_EVENT_P2P_GC_DISCONNECTED\n");
+#ifdef CONFIG_AIC8800D40_ENABLE
+        wlan_enable_p2p(0);
+#endif
         break;
 
     case WIFI_EVENT_P2P_GC_NETWORK_STACK_DHCP_SUCC:
@@ -283,7 +291,7 @@ static void ext_wifi_app_task(void *priv)
     dev_ioctl(wifi_dev, DEV_SET_WIFI_POWER_SAVE, 0);//打开就启用低功耗模式, 只有STA模式才有用
 #endif
 
-#if 1
+#ifndef CONFIG_AIC8800D40_ENABLE
     printf("\n >>>> DEV_SET_WIFI_TX_PWR_BY_RATE<<<   \n");
 
     info.tx_pwr_lmt_enable = 0;//  解除WIFI发送功率限制
@@ -298,6 +306,13 @@ static void ext_wifi_app_task(void *priv)
     ext_wifi_on();
 #endif
 
+#ifdef CONFIG_IPERF_ENABLE
+    //网络测试工具，使用iperf
+    extern void iperf_test(void);
+    iperf_test();
+#endif
+
+
     sys_timer_add(NULL, wifi_app_timer_func, 1000);
 
 #if (EXT_WIFI_TEST_MODE == AP_TEST_MODE)
@@ -306,12 +321,17 @@ static void ext_wifi_app_task(void *priv)
     info.pwd  = AP_PWD;
     info.force_default_mode = 1;
     dev_ioctl(wifi_dev, DEV_AP_MODE, (u32)&info);
-#else
+#elif (EXT_WIFI_TEST_MODE == STA_TEST_MODE)
     info.mode = STA_MODE;
     info.ssid = STA_SSID;
     info.pwd  = STA_PWD;
     info.force_default_mode = 1;
     dev_ioctl(wifi_dev, DEV_STA_MODE, (u32)&info);
+#elif (EXT_WIFI_TEST_MODE == P2P_TEST_MODE)
+    info.p2p_role = 0;
+    info.ssid = "AP79N-P2P-EXT";
+    info.force_default_mode = 1;
+    dev_ioctl(wifi_dev, DEV_P2P_MODE, (u32)&info);
 #endif
 
     while (1) {
@@ -338,6 +358,103 @@ static void ext_wifi_app_task(void *priv)
     }
 }
 
+
+//sdio驱动底层调用接口
+
+//设置指定IO的强驱
+int get_sdio_hd_value(void)
+{
+    printf("sdio hd level set\n");
+    return 0;
+}
+
+//设置高速卡
+int get_sdio_hs_enable(void)
+{
+    return 0;
+}
+
+//返回Hi3861L用的edge
+int SDIO_DAT_EDGE_GET(void)
+{
+    return 0;
+}
+
+//CTU模式下连续读写报错时回调，用于过滤错误的报错信息
+int sdio_wr_err_cb(int crc_status)
+{
+    if (crc_status == 1) {
+        return 0;
+    }
+    printf("\n >>>crc_status = %d \n", crc_status);
+    return -1;
+}
+
+//AIC8800需要软件判忙
+int get_sdio_tx_ctu_enable(void)
+{
+#ifdef CONFIG_AIC8800D40_ENABLE
+    return 0;
+#else
+    return 1;
+#endif
+}
+
+int get_sdio_rx_ctu_enable(void)
+{
+    return 1;
+}
+
+void port_wakeup_reg_set_gpio_cb(int event, unsigned int gpio, int edge)
+{
+    if (event != 0) {
+        gpio_direction_input(gpio);
+        gpio_set_die(gpio, 1);
+        if (edge == 0) {
+            gpio_set_pull_down(gpio, 1);
+            gpio_set_pull_up(gpio, 0);
+        } else if (edge == 1) {
+            gpio_set_pull_down(gpio, 0);
+            gpio_set_pull_up(gpio, 1);
+        }
+    }
+}
+
+static OS_SEM busy_sem;
+
+static void sdio_wait_busy_isr(void *priv)
+{
+//    printf(">>>>>>>>>>>>>>>>>>>>>>>>>>>1");
+    os_sem_post(&busy_sem);
+}
+
+//软件判忙操作
+void  sdio_wait_busy(int gpio)
+{
+
+    int ret;
+    static void *port_wakeup_hdl = NULL;
+    if (!os_sem_valid(&busy_sem)) {
+        os_sem_create(&busy_sem, 0);
+    }
+
+    port_wakeup_hdl = port_wakeup_reg(EVENT_IO_0, gpio, 1, sdio_wait_busy_isr);//不能动到IO 配置
+
+    if (gpio_read(gpio)) {
+        goto __exit;
+    } else {
+        ret = os_sem_pend(&busy_sem, 10);
+        if (ret) {
+            while (1) {
+                puts("BUSY");
+                msleep(100);
+            }
+        }
+    }
+__exit:
+    port_wakeup_unreg(port_wakeup_hdl);
+    os_sem_set(&busy_sem, 0);
+}
 
 static int ext_wireless_net_init(void)//主要是create wifi 线程的
 {

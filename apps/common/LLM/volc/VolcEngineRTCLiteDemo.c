@@ -99,35 +99,55 @@ bool is_pcma_silence(const uint8_t *data, size_t length)
 static void byte_rtc_on_audio_data(byte_rtc_engine_t engine, const char *channel, const char *user_name, uint16_t sent_ts,
                                    audio_data_type_e codec, const void *data_ptr, size_t data_len)
 {
-    /* printf("\n byte_rtc_on_audio_data, len:%d\n", data_len); */
-// #ifdef AUDIO_TYPE_G711A
-#if 1
-    size_t sample_count = data_len;  // 样本数 = 数据字节数（1字节/样本）
-    short *pcm = malloc(sample_count * sizeof(short));
+    const short *mono_data = NULL;
+    size_t mono_samples = 0;
+    short *pcm = NULL;
 
-    /* received = 1; */
-    if (!pcm) {
-        printf("Memory allocation failed\n");
+    if (codec == AUDIO_DATA_TYPE_PCMA) {
+        size_t sample_count = data_len;  // G711 单字节样本
+        pcm = malloc(sample_count * sizeof(short));
+        if (!pcm) {
+            printf("Memory allocation failed\n");
+            return;
+        }
+        const unsigned char *pcma = (const unsigned char *)data_ptr;
+        for (size_t i = 0; i < sample_count; i++) {
+            pcm[i] = (short)alaw2linear(pcma[i]);
+        }
+        mono_data = pcm;
+        mono_samples = sample_count;
+    } else if (codec == AUDIO_DATA_TYPE_PCM) {
+        mono_data = (const short *)data_ptr;
+        mono_samples = data_len / sizeof(short);
+    } else {
+        // 其他编码保持原样下发，避免播放异常
+        _device_write_voice_data((void *)data_ptr, data_len);
         return;
     }
 
-    if (!is_pcma_silence(data_ptr, data_len)) {
-        unsigned char *pcma = (unsigned char *)data_ptr;
-
-        for (size_t i = 0; i < sample_count; i++) {
-            int pcm_val = alaw2linear(pcma[i]);    // 转换为int（假设结果在short范围内）
-            pcm[i] = (short)pcm_val;               // 安全截断为16位
-        }
-        // 网络音频数据写入播放
-        _device_write_voice_data(pcm, sample_count * sizeof(short));
-    } else {
-
+    if (!mono_data || mono_samples == 0) {
+        free(pcm);
+        return;
     }
+
+    size_t stereo_samples = mono_samples * 2;
+    short *stereo = malloc(stereo_samples * sizeof(short));
+    if (!stereo) {
+        printf("Memory allocation failed\n");
+        free(pcm);
+        return;
+    }
+
+    for (size_t i = 0; i < mono_samples; ++i) {
+        short sample = mono_data[i];
+        stereo[2 * i] = sample;
+        stereo[2 * i + 1] = sample;
+    }
+
+    // 网络音频数据写入播放
+    _device_write_voice_data(stereo, stereo_samples * sizeof(short));
+    free(stereo);
     free(pcm);
-#endif
-// #else
-//     _device_write_voice_data(data_ptr, data_len);
-// #endif
 };
 
 static void byte_rtc_on_video_data(byte_rtc_engine_t engine, const char *channel, const char *user_name, uint16_t sent_ts,

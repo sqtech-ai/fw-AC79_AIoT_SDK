@@ -22,6 +22,8 @@ typedef enum {
 
 #endif
 
+extern bool is_aic_driver;
+
 struct netif_info {
     u32_t ip;
     u32_t gw;

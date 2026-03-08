@@ -105,7 +105,7 @@ enum WIFI_MODE ext_get_cur_wifi_mode(void);
 
 int wifi_network_enter_hostapd(char *ap_ssid, char *ap_pwd);
 int wifi_network_enter_mp_test(void);
-int wifi_network_enter_p2p(char role);
+int wifi_network_enter_p2p(char role, const unsigned char *device_name);
 
 void wpa_supplicant_set_connect_timeout(int sec);
 void wpa_supplicant_set_connect_block(int block);
