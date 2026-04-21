@@ -64,7 +64,7 @@ static int extflash_dev_read(struct device *device, void *buf, u32 len, u32 offs
 
     while (total_len < len) {
         rlen = len - total_len > MAX_READ_SIZE ? MAX_READ_SIZE : len - total_len;
-        rlen += norflash_origin_read(data, addr, rlen);
+        rlen = norflash_origin_read(data, addr, rlen);
         data += rlen;
         addr += rlen;
         total_len += rlen;

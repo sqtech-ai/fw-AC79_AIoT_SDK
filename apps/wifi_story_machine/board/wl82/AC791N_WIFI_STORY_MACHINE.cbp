@@ -795,6 +795,7 @@
 <Unit filename="../../../../apps/common/example/third_party/littlefs/lfs_util.h" />
 <Unit filename="../../../../apps/common/example/third_party/littlefs/port/wl82/port.c"><Option compilerVer="CC"/></Unit>
 <Unit filename="../../../../apps/common/fat_nor/extflash.c"><Option compilerVer="CC"/></Unit>
+<Unit filename="../../../../apps/common/fat_nor/user_norflash.c"><Option compilerVer="CC"/></Unit>
 <Unit filename="../../../../apps/common/fm/fm_manage.c"><Option compilerVer="CC"/></Unit>
 <Unit filename="../../../../apps/common/fm/fm_manage.h" />
 <Unit filename="../../../../apps/common/fm/fm_rw.c"><Option compilerVer="CC"/></Unit>

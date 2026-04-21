@@ -212,6 +212,7 @@ c_SRC_FILES := \
 	../../../../../apps/common/net/testbox/wbcp.c \
 	../../../../../apps/common/net/voiceprint_cfg.c \
 	../../../../../apps/common/net/wifi_conf.c \
+	../../../../../apps/common/product_test_tool/product_speaker_mic.c \
 	../../../../../apps/common/system/device_mount.c \
 	../../../../../apps/common/system/init.c \
 	../../../../../apps/common/system/system_reset_reason.c \

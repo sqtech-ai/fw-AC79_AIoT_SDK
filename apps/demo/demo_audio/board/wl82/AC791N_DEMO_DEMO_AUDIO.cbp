@@ -263,6 +263,7 @@
 <Unit filename="../../../../../apps/common/net/voiceprint_cfg.c"><Option compilerVer="CC"/></Unit>
 <Unit filename="../../../../../apps/common/net/voiceprint_cfg.h" />
 <Unit filename="../../../../../apps/common/net/wifi_conf.c"><Option compilerVer="CC"/></Unit>
+<Unit filename="../../../../../apps/common/product_test_tool/product_speaker_mic.c"><Option compilerVer="CC"/></Unit>
 <Unit filename="../../../../../apps/common/system/device_mount.c"><Option compilerVer="CC"/></Unit>
 <Unit filename="../../../../../apps/common/system/init.c"><Option compilerVer="CC"/></Unit>
 <Unit filename="../../../../../apps/common/system/system_reset_reason.c"><Option compilerVer="CC"/></Unit>
