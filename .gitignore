@@ -1,3 +1,7 @@
+*.layout
+*.map
+*.bc
+*.depend
 # Prerequisites
 *.d
 

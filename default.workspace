@@ -15,5 +15,6 @@
 		<Project filename="apps/demo/demo_video/board/wl82/AC791N_DEMO_DEMO_VIDEO.cbp" />
 		<Project filename="apps/demo/demo_audio/board/wl82/AC791N_DEMO_DEMO_AUDIO.cbp" />
 		<Project filename="apps/demo/demo_wifi/board/wl82/AC791N_DEMO_DEMO_WIFI.cbp" />
+		<Project filename="apps/demo/demo_music/board/wl82/AC791N_DEMO_DEMO_MUSIC.cbp" />
 	</Workspace>
 </CodeBlocks_workspace_file>
