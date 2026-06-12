@@ -20,16 +20,16 @@ static u8 use_static_ipaddr_flag;
 #endif
 
 //选择其中一种开机默认的模式测试
-#define AP_MODE_TEST
-//#define STA_MODE_TEST
+//#define AP_MODE_TEST
+#define STA_MODE_TEST
 //#define MONITOR_MODE_TEST
 
 //#define WIFI_MODE_CYCLE_TEST //从起始测试模式开始(FORCE_DEFAULT_MODE=1)或者最后记忆模式开始((FORCE_DEFAULT_MODE=0)), 循环测试WIFI模式切换: ->AP_MODE ->STA_MODE ->MONITOR_MODE ->AP_MODE ...
 
-#define FORCE_DEFAULT_MODE 0 //配置wifi_on之后的模式,0为使用最后记忆的模式, 1为强制默认模式, 3-200为STA连接超时时间多少秒,如果超时都连接不上就连接最后记忆的或者最优网络
+#define FORCE_DEFAULT_MODE 1 //STA 联网访问外网 HTTP 时需强制默认模式，避免沿用上次的 AP 模式
 
-#define AP_SSID "suqi_xiaomi-2.4G"      //配置 AP模式的SSID前缀
-#define AP_PWD  "Sqxm.83jks2"                //配置 AP模式的密码
+#define AP_SSID "AC79_MUSIC_"      //配置 AP模式的SSID前缀
+#define AP_PWD  ""                //配置 AP模式的密码
 #define STA_SSID  "配置需要连接的路由器SSID"           //配置 STA模式的SSID
 #define STA_PWD  "配置需要连接的路由器密码"      //配置 STA模式的密码
 #define CONNECT_BEST_SSID  0    //配置如果啟動WIFI后在STA模式下, 是否挑选连接记忆过的信号最优WIFI

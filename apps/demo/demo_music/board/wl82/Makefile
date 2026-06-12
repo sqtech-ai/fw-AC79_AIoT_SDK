@@ -66,7 +66,6 @@ OBJ_FILE  := $(OUT_ELF).objs.txt
 BUILD_DIR := objs
 # 工程路径前缀
 ROOT_PREFIX := ../../../../..
-IOTSDK_ROOT := D:/work/sqtech/test/clients/iotsdk
 
 # 编译参数设置
 CFLAGS := \
@@ -168,6 +167,7 @@ INCLUDES := \
 	-I../../../../../apps/demo/demo_music \
 	-I../../../../../apps/demo/demo_music/include \
 	-I../../../../../include_lib/net \
+	-I../../../../../include_lib/net/cJSON_common \
 	-I../../../../../include_lib/net/mbedtls_3_4_0 \
 	-I../../../../../include_lib/net/lwip_2_2_0/lwip/src/include \
 	-I../../../../../include_lib/net/lwip_2_2_0/lwip/src/include/lwip \
@@ -182,7 +182,6 @@ INCLUDES := \
 	-I../../../../../include_lib/driver/device/usb/device \
 	-I../../../../../include_lib/driver/device/usb/host \
 	-I../../../../../apps/common/usb/host \
-	-I$(IOTSDK_ROOT)/src \
 
 # 需要编译的 .c 文件
 c_SRC_FILES := \
@@ -295,7 +294,7 @@ LFLAGS := \
 	--plugin-opt=-movable-region-exclude-func-file-list=../../../../../apps/common/movable/exclude.txt \
 	--plugin-opt=-pi32v2-large-program=true \
 	--start-group \
-	$(IOTSDK_ROOT)/projects/jltech-AC79/lib/migumusic.a \
+	../../lib/migumusic.a \
 	../../../../../include_lib/newlib/pi32v2-lib/libm.a \
 	../../../../../include_lib/newlib/pi32v2-lib/libc.a \
 	../../../../../include_lib/newlib/pi32v2-lib/libcompiler_rt.a \

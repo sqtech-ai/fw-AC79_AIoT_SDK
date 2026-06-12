@@ -6,6 +6,8 @@
 #include "event/device_event.h"
 #include "wifi/wifi_connect.h"
 #include "net/config_network.h"
+#include "ntp/ntp.h"
+#include "cJSON.h"
 #include "IOTSdkBridge.h"
 
 /*中断列表 */
@@ -46,6 +48,54 @@ const struct task_info task_info_table[] = {
 extern void post_msg_play_flash_mp3(char *file_name, u8 dec_volume);
 #endif
 
+static u8 ntp_sync_started = 0;
+
+static void demo_music_ntp_sync_task(void *priv)
+{
+    ntp_client_get_time(NULL);
+}
+
+static void demo_music_start_ntp_sync(void)
+{
+    if (ntp_sync_started) {
+        return;
+    }
+    if (ntp_client_get_time_status()) {
+        puts("[demo_music] NTP already synced\n");
+        return;
+    }
+    ntp_sync_started = 1;
+    if (thread_fork("ntp_sync", 10, 1024, 0, 0, demo_music_ntp_sync_task, NULL) != OS_NO_ERR) {
+        ntp_sync_started = 0;
+        puts("[demo_music] NTP thread_fork fail\n");
+    } else {
+        puts("[demo_music] NTP sync started\n");
+    }
+}
+
+static void demo_iotsdk_init(void)
+{
+    cJSON* root = cJSON_CreateObject();
+    cJSON_AddStringToObject(root, "appLicenseId", "");       // 许可证 ID（必填）
+    cJSON_AddStringToObject(root, "appKey", "");             // App Key（必填）
+    cJSON_AddStringToObject(root, "serverToken", "");        // 服务端 Token（必填）
+    cJSON_AddStringToObject(root, "regionCode", "");         // 区域编码（必填）
+    cJSON_AddStringToObject(root, "servicePackageCode", ""); // 服务套餐码（必填）
+    cJSON_AddStringToObject(root, "env", "test");            // 环境：test（测试）/ prod（生产）
+    char* args = cJSON_PrintUnformatted(root);
+    IOTSdk_Init("./", args);
+    cJSON_free(args);
+    cJSON_Delete(root);
+}
+
+static void demo_iotsdk_search_song(void)
+{
+    char* output = NULL;
+    IOTSdk_SearchSongEx("{\"provider\":\"migu\",\"text\":\"陈奕迅的十年\",\"pageIndex\":1,\"pageSize\":5,\"searchRange\":{\"songName\":[\"十年\"],\"singerName\":[\"陈奕迅\"]}}", &output, 10000);
+    printf("[demo_music] IOTSdk_SearchSongEx: %s\n", output);
+    free(output);
+}
+
 static int main_key_event_handler(struct key_event *key)
 {
     printf(">>>>>>>>>>>>>>main_key_event_handler: key->action=%d, key->value=%d", key->action, key->value);
@@ -53,7 +103,7 @@ static int main_key_event_handler(struct key_event *key)
     case KEY_EVENT_CLICK:
         switch (key->value) {
         case KEY_K1:
-            IOTSdk_Init("./", NULL);
+            demo_iotsdk_init();
             break;
         case KEY_K2:
             printf("[demo_music] K2 click (KEY_MODE=%d)\n", KEY_K2);
@@ -62,7 +112,7 @@ static int main_key_event_handler(struct key_event *key)
             printf("[demo_music] K3 click (KEY_VOLUME_DEC=%d)\n", KEY_K3);
             break;
         case KEY_K4:
-            printf("[demo_music] K4 click (KEY_VOLUME_INC=%d)\n", KEY_K4);
+            demo_iotsdk_search_song();
             break;
         case KEY_K5:
             printf("[demo_music] K5 click (KEY_OK=%d), play prompt\n", KEY_K5);
@@ -119,10 +169,15 @@ static int app_demo_event_handler(struct application *app, struct sys_event *sys
         if (!ASCII_StrCmp(net_event->arg, "net", 4)) {
             switch (net_event->event) {
             case NET_EVENT_CONNECTED:
-                puts("[demo_music] WiFi AP started / network ready\n");
+                puts("[demo_music] WiFi STA DHCP ok, network ready\n");
+                demo_music_start_ntp_sync();
                 break;
             case NET_EVENT_DISCONNECTED:
+                ntp_sync_started = 0;
                 puts("[demo_music] network disconnected\n");
+                break;
+            case NET_NTP_GET_TIME_SUCC:
+                puts("[demo_music] NTP sync success\n");
                 break;
             case NET_CONNECT_TIMEOUT_NOT_FOUND_SSID:
             case NET_CONNECT_ASSOCIAT_FAIL:
