@@ -75,24 +75,14 @@ static void demo_music_start_ntp_sync(void)
 
 static void demo_iotsdk_init(void)
 {
-    cJSON* root = cJSON_CreateObject();
-    cJSON_AddStringToObject(root, "appLicenseId", "");       // 许可证 ID（必填）
-    cJSON_AddStringToObject(root, "appKey", "");             // App Key（必填）
-    cJSON_AddStringToObject(root, "serverToken", "");        // 服务端 Token（必填）
-    cJSON_AddStringToObject(root, "regionCode", "");         // 区域编码（必填）
-    cJSON_AddStringToObject(root, "servicePackageCode", ""); // 服务套餐码（必填）
-    cJSON_AddStringToObject(root, "env", "test");            // 环境：test（测试）/ prod（生产）
-    char* args = cJSON_PrintUnformatted(root);
-    IOTSdk_Init("./", args);
-    cJSON_free(args);
-    cJSON_Delete(root);
+    IOTSdk_Init("./", "{\"appLicenseId\":\"\",\"appKey\":\"\",\"serverToken\":\"\",\"regionCode\":\"\",\"servicePackageCode\":\"\",\"env\":\"\"}");
 }
 
 static void demo_iotsdk_search_song(void)
 {
     char* output = NULL;
-    IOTSdk_SearchSongEx("{\"provider\":\"migu\",\"text\":\"陈奕迅的十年\",\"pageIndex\":1,\"pageSize\":5,\"searchRange\":{\"songName\":[\"十年\"],\"singerName\":[\"陈奕迅\"]}}", &output, 10000);
-    printf("[demo_music] IOTSdk_SearchSongEx: %s\n", output);
+    IOTSdk_Search("{\"provider\":\"migu\",\"text\":\"陈奕迅的十年\",\"pageIndex\":1,\"pageSize\":5,\"searchRange\":{\"songName\":[\"十年\"],\"singerName\":[\"陈奕迅\"]}}", &output, 10000);
+    printf("[demo_music] IOTSdk_Search: %s\n", output);
     free(output);
 }
 
