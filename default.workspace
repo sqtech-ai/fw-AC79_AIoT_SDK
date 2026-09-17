@@ -24,5 +24,6 @@
 		<Project filename="apps/wifi_ipc/board/wl82/AC791N_WIFI_IPC.cbp" />
 		<Project filename="apps/scan_box/board/wl80/AC790N_SCAN_BOX.cbp" />
 		<Project filename="apps/scan_box/board/wl82/AC791N_SCAN_BOX.cbp" />
+		<Project filename="apps/demo/demo_music/board/wl82/AC791N_DEMO_DEMO_MUSIC.cbp" />
 	</Workspace>
 </CodeBlocks_workspace_file>
