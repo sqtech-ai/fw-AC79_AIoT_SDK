@@ -75,7 +75,7 @@ static void demo_music_start_ntp_sync(void)
 
 static void demo_iotsdk_init(void)
 {
-    IOTSdk_Init("./", "{\"appLicenseId\":\"2076627509786729577\",\"appKey\":\"c76c0167ce8f406e93bb1c66d2bdb171\",\"serverToken\":\"d825bc4dd33d4a38907f8ff585d4c5cc\",\"regionCode\":\"cn-hangzhou\",\"servicePackageCode\":\"YQY\",\"env\":\"test\"}");
+    IOTSdk_Init("./", "{\"appLicenseId\":\"\",\"appKey\":\"\",\"serverToken\":\"\",\"regionCode\":\"\",\"servicePackageCode\":\"\",\"env\":\"\"}");
 }
 
 static void demo_iotsdk_search_song(void)

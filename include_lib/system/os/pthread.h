@@ -1,5 +1,10 @@
 #ifndef _PTHREAD_H
 #define _PTHREAD_H
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "os/os_api.h"
 #include <time.h>
 
@@ -790,5 +795,9 @@ int sem_trywait(sem_t *sem);
  * @note Deadlock detection is not implemented.
  */
 int sem_wait(sem_t *sem);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif	/** _PTHREAD_H*/

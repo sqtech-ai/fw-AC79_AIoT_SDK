@@ -20,7 +20,6 @@
 <Add option="-flto" />
 <Add option="-fallow-pointer-null" />
 <Add option="-fprefer-gnu-section" />
-<Add option="-femulated-tls" />
 <Add option="-Wno-shift-negative-value" />
 <Add option="-Wframe-larger-than=2560" />
 <Add option="-mllvm -pi32v2-large-program=true" />
@@ -60,8 +59,6 @@
 <Add option="-DCONFIG_ITEM_FORMAT_VM" />
 <Add directory="../../../../../include_lib/c++" />
 <Add directory="../../../../../include_lib/c++/include" />
-<Add directory="../../../../../include_lib/newlib/include" />
-<Add directory="../../../../../include_lib/c++/simple_pthread" />
 <Add directory="../../../../../include_lib" />
 <Add directory="../../../../../include_lib/driver" />
 <Add directory="../../../../../include_lib/driver/device" />
@@ -86,12 +83,13 @@
 <Add directory="../../../../../apps/demo/demo_music" />
 <Add directory="../../../../../include_lib/net" />
 <Add directory="../../../../../include_lib/net/cJSON_common" />
-<Add directory="../../../../../include_lib/net/mbedtls_3_4_0" />
-<Add directory="../../../../../include_lib/net/lwip_2_2_0/lwip/src/include" />
-<Add directory="../../../../../include_lib/net/lwip_2_2_0/lwip/src/include/lwip" />
-<Add directory="../../../../../include_lib/net/lwip_2_2_0/lwip/port" />
-<Add directory="../../../../../include_lib/net/lwip_2_2_0/lwip/app" />
+<Add directory="../../../../../include_lib/net/mbedtls_2_2_1" />
+<Add directory="../../../../../include_lib/net/lwip_2_1_3/lwip/src/include" />
+<Add directory="../../../../../include_lib/net/lwip_2_1_3/lwip/src/include/lwip" />
+<Add directory="../../../../../include_lib/net/lwip_2_1_3/lwip/port" />
+<Add directory="../../../../../include_lib/net/lwip_2_1_3/lwip/app" />
 <Add directory="../../../../../apps/common/rf_fcc_tool/include" />
+<Add directory="C:/JL/pi32/pi32v2-include" />
 </Compiler>
 <Linker>
 <Add option="--plugin-opt=-pi32v2-always-use-itblock=false" />
@@ -106,7 +104,6 @@
 <Add option="--plugin-opt=-dont-used-symbol-list=malloc,free,sprintf,printf,puts,putchar" />
 <Add option="--plugin-opt=save-temps" />
 <Add option="--plugin-opt=-pi32v2-enable-rep-memop" />
-<Add option="--plugin-opt=-emulated-tls" />
 <Add option="--sort-common" />
 <Add option="--plugin-opt=-used-symbol-file=../../../../../cpu/wl82/sdk_used_list.used" />
 <Add option="--plugin-opt=-enable-movable-region=true" />
@@ -120,10 +117,7 @@
 <Add option="--plugin-opt=-movable-region-exclude-func-file-list=../../../../../apps/common/movable/exclude.txt" />
 <Add option="--plugin-opt=-pi32v2-large-program=true" />
 <Add option="--start-group" />
-<Add option="../../../../../include_lib/newlib/pi32v2-lib/libm.a" />
-<Add option="../../../../../include_lib/newlib/pi32v2-lib/libc.a" />
-<Add option="../../../../../include_lib/newlib/pi32v2-lib/libcompiler_rt.a" />
-<Add option="--start-group " />
+<Add option="../../lib/migumusic.a" />
 <Add option="../../../../../cpu/wl82/liba/cpu.a" />
 <Add option="../../../../../cpu/wl82/liba/fs.a" />
 <Add option="../../../../../cpu/wl82/liba/event.a" />
@@ -135,20 +129,22 @@
 <Add option="../../../../../cpu/wl82/liba/hsm.a" />
 <Add option="../../../../../cpu/wl82/liba/wpasupplicant.a" />
 <Add option="../../../../../cpu/wl82/liba/http_cli.a" />
-<Add option="../../../../../cpu/wl82/liba/https_cli.a" />
 <Add option="../../../../../cpu/wl82/liba/json.a" />
 <Add option="../../../../../cpu/wl82/liba/cJSON.a" />
 <Add option="../../../../../cpu/wl82/liba/iperf.a" />
-<Add option="../../../../../cpu/wl82/liba/libmbedtls_3_4_0.a" />
-<Add option="../../../../../cpu/wl82/liba/lwip_2_2_0_sfc.a" />
+<Add option="../../../../../cpu/wl82/liba/libmbedtls_2_2_1.a" />
+<Add option="../../../../../cpu/wl82/liba/lwip_2_1_3_sfc.a" />
 <Add option="../../../../../cpu/wl82/liba/wl_wifi_sfc.a" />
+<Add option="../../../../../cpu/wl82/liba/audio_server.a" />
+<Add option="../../../../../cpu/wl82/liba/lib_mp3_dec.a" />
+<Add option="../../../../../cpu/wl82/liba/media_app.a" />
+<Add option="../../../../../cpu/wl82/liba/lib_usb_syn.a" />
 <Add option="--end-group" />
-<Add option="../../../../../include_lib/c++/libstdc++/libemutls.a" />
-<Add option="../../../../../include_lib/c++/libstdc++/libc++.a" />
-<Add option="../../../../../include_lib/c++/libstdc++/libc++abi.a" />
+<Add option="../../../../../include_lib/c++/libstdc++/libcxx.a" />
+<Add option="../../../../../include_lib/c++/libstdc++/libcxxabi.a" />
 <Add option="-T../../../../../cpu/wl82/sdk.ld" />
 <Add option="-M=../../../../../cpu/wl82/tools/sdk.map" />
-<Add option="--end-group " />
+<Add library="C:\JL\pi32\pi32v2-lib\r3\libm.a" />
 </Linker>
 <ExtraCommands>
 <Add before="$compiler $options $includes -D__LD__ -E -P ..\..\..\..\..\cpu\wl82\sdk_used_list.c -o ..\..\..\..\..\cpu\wl82\sdk_used_list.used" />
@@ -157,7 +153,6 @@
 <Add before="$compiler $options $includes -D__LD__ -E -P ..\..\..\..\..\cpu\wl82\tools\download.c -o ..\..\..\..\..\cpu\wl82\tools\download.bat" />
 <Add before="..\..\..\..\..\tools\utils\fixbat.exe ..\..\..\..\..\cpu\wl82\tools\download.bat" />
 <Add before="$compiler $options $includes -D__LD__ -E -P ..\..\..\..\..\cpu\wl82\tools\isd_config_rule.c -o ..\..\..\..\..\cpu\wl82\tools\isd_config.ini" />
-<Add before="$compiler $options $includes -D__LD__ -E -P ..\..\..\..\..\cpu\wl82\tools\isd_config_rule_loader.c -o ..\..\..\..\..\cpu\wl82\tools\isd_config_loader.ini" />
 <Mode before="always" />
 <Add after="..\..\..\..\..\cpu\wl82\tools\download.bat sdk" />
 <Mode after="always" />
@@ -179,7 +174,6 @@
 <Unit filename="../../../../../apps/common/net/platform_cfg.c"><Option compilerVer="CC"/></Unit>
 <Unit filename="../../../../../apps/common/net/voiceprint_cfg.h" />
 <Unit filename="../../../../../apps/common/net/wifi_conf.c"><Option compilerVer="CC"/></Unit>
-<Unit filename="../../../../../apps/common/rf_fcc_tool/bt.c"><Option compilerVer="CC"/></Unit>
 <Unit filename="../../../../../apps/common/rf_fcc_tool/include/rf_fcc_main.h" />
 <Unit filename="../../../../../apps/common/rf_fcc_tool/rf_fcc_main.c"><Option compilerVer="CC"/></Unit>
 <Unit filename="../../../../../apps/common/system/device_mount.c"><Option compilerVer="CC"/></Unit>
@@ -268,7 +262,6 @@
 <Unit filename="../../../../../include_lib/driver/cpu/wl82/asm/rdec.h" />
 <Unit filename="../../../../../include_lib/driver/cpu/wl82/asm/rtc.h" />
 <Unit filename="../../../../../include_lib/driver/cpu/wl82/asm/sdmmc.h" />
-<Unit filename="../../../../../include_lib/driver/cpu/wl82/asm/sdram.h" />
 <Unit filename="../../../../../include_lib/driver/cpu/wl82/asm/sfc_norflash_api.h" />
 <Unit filename="../../../../../include_lib/driver/cpu/wl82/asm/spdif.h" />
 <Unit filename="../../../../../include_lib/driver/cpu/wl82/asm/spi.h" />
@@ -317,50 +310,38 @@
 <Unit filename="../../../../../include_lib/net/json_c/json_util.h" />
 <Unit filename="../../../../../include_lib/net/json_c/linkhash.h" />
 <Unit filename="../../../../../include_lib/net/json_c/printbuf.h" />
-<Unit filename="../../../../../include_lib/net/lwip_2_2_0/lwip/app/dhcp_srv/dhcp_srv.h" />
-<Unit filename="../../../../../include_lib/net/lwip_2_2_0/lwip/port/arch/cc.h" />
-<Unit filename="../../../../../include_lib/net/lwip_2_2_0/lwip/port/arch/cpu.h" />
-<Unit filename="../../../../../include_lib/net/lwip_2_2_0/lwip/port/lwip.h" />
-<Unit filename="../../../../../include_lib/net/lwip_2_2_0/lwip/port/lwipopts.h" />
-<Unit filename="../../../../../include_lib/net/lwip_2_2_0/lwip/src/include/lwip/arch.h" />
-<Unit filename="../../../../../include_lib/net/lwip_2_2_0/lwip/src/include/lwip/debug.h" />
-<Unit filename="../../../../../include_lib/net/lwip_2_2_0/lwip/src/include/lwip/def.h" />
-<Unit filename="../../../../../include_lib/net/lwip_2_2_0/lwip/src/include/lwip/err.h" />
-<Unit filename="../../../../../include_lib/net/lwip_2_2_0/lwip/src/include/lwip/errno.h" />
-<Unit filename="../../../../../include_lib/net/lwip_2_2_0/lwip/src/include/lwip/inet.h" />
-<Unit filename="../../../../../include_lib/net/lwip_2_2_0/lwip/src/include/lwip/ip4_addr.h" />
-<Unit filename="../../../../../include_lib/net/lwip_2_2_0/lwip/src/include/lwip/ip6_addr.h" />
-<Unit filename="../../../../../include_lib/net/lwip_2_2_0/lwip/src/include/lwip/ip6_zone.h" />
-<Unit filename="../../../../../include_lib/net/lwip_2_2_0/lwip/src/include/lwip/ip_addr.h" />
-<Unit filename="../../../../../include_lib/net/lwip_2_2_0/lwip/src/include/lwip/mem.h" />
-<Unit filename="../../../../../include_lib/net/lwip_2_2_0/lwip/src/include/lwip/memp.h" />
-<Unit filename="../../../../../include_lib/net/lwip_2_2_0/lwip/src/include/lwip/netdb.h" />
-<Unit filename="../../../../../include_lib/net/lwip_2_2_0/lwip/src/include/lwip/netif.h" />
-<Unit filename="../../../../../include_lib/net/lwip_2_2_0/lwip/src/include/lwip/opt.h" />
-<Unit filename="../../../../../include_lib/net/lwip_2_2_0/lwip/src/include/lwip/pbuf.h" />
-<Unit filename="../../../../../include_lib/net/lwip_2_2_0/lwip/src/include/lwip/priv/mem_priv.h" />
-<Unit filename="../../../../../include_lib/net/lwip_2_2_0/lwip/src/include/lwip/priv/memp_priv.h" />
-<Unit filename="../../../../../include_lib/net/lwip_2_2_0/lwip/src/include/lwip/priv/memp_std.h" />
-<Unit filename="../../../../../include_lib/net/lwip_2_2_0/lwip/src/include/lwip/prot/ethernet.h" />
-<Unit filename="../../../../../include_lib/net/lwip_2_2_0/lwip/src/include/lwip/prot/ieee.h" />
-<Unit filename="../../../../../include_lib/net/lwip_2_2_0/lwip/src/include/lwip/sockets.h" />
-<Unit filename="../../../../../include_lib/net/lwip_2_2_0/lwip/src/include/lwip/stats.h" />
+<Unit filename="../../../../../include_lib/net/lwip_2_1_3/lwip/app/dhcp_srv/dhcp_srv.h" />
+<Unit filename="../../../../../include_lib/net/lwip_2_1_3/lwip/port/arch/cc.h" />
+<Unit filename="../../../../../include_lib/net/lwip_2_1_3/lwip/port/arch/cpu.h" />
+<Unit filename="../../../../../include_lib/net/lwip_2_1_3/lwip/port/lwip.h" />
+<Unit filename="../../../../../include_lib/net/lwip_2_1_3/lwip/port/lwipopts.h" />
+<Unit filename="../../../../../include_lib/net/lwip_2_1_3/lwip/src/include/lwip/arch.h" />
+<Unit filename="../../../../../include_lib/net/lwip_2_1_3/lwip/src/include/lwip/debug.h" />
+<Unit filename="../../../../../include_lib/net/lwip_2_1_3/lwip/src/include/lwip/def.h" />
+<Unit filename="../../../../../include_lib/net/lwip_2_1_3/lwip/src/include/lwip/err.h" />
+<Unit filename="../../../../../include_lib/net/lwip_2_1_3/lwip/src/include/lwip/_errno.h" />
+<Unit filename="../../../../../include_lib/net/lwip_2_1_3/lwip/src/include/lwip/inet.h" />
+<Unit filename="../../../../../include_lib/net/lwip_2_1_3/lwip/src/include/lwip/ip4_addr.h" />
+<Unit filename="../../../../../include_lib/net/lwip_2_1_3/lwip/src/include/lwip/ip6_addr.h" />
+<Unit filename="../../../../../include_lib/net/lwip_2_1_3/lwip/src/include/lwip/ip6_zone.h" />
+<Unit filename="../../../../../include_lib/net/lwip_2_1_3/lwip/src/include/lwip/ip_addr.h" />
+<Unit filename="../../../../../include_lib/net/lwip_2_1_3/lwip/src/include/lwip/mem.h" />
+<Unit filename="../../../../../include_lib/net/lwip_2_1_3/lwip/src/include/lwip/memp.h" />
+<Unit filename="../../../../../include_lib/net/lwip_2_1_3/lwip/src/include/lwip/netdb.h" />
+<Unit filename="../../../../../include_lib/net/lwip_2_1_3/lwip/src/include/lwip/netif.h" />
+<Unit filename="../../../../../include_lib/net/lwip_2_1_3/lwip/src/include/lwip/opt.h" />
+<Unit filename="../../../../../include_lib/net/lwip_2_1_3/lwip/src/include/lwip/pbuf.h" />
+<Unit filename="../../../../../include_lib/net/lwip_2_1_3/lwip/src/include/lwip/priv/mem_priv.h" />
+<Unit filename="../../../../../include_lib/net/lwip_2_1_3/lwip/src/include/lwip/priv/memp_priv.h" />
+<Unit filename="../../../../../include_lib/net/lwip_2_1_3/lwip/src/include/lwip/priv/memp_std.h" />
+<Unit filename="../../../../../include_lib/net/lwip_2_1_3/lwip/src/include/lwip/prot/ethernet.h" />
+<Unit filename="../../../../../include_lib/net/lwip_2_1_3/lwip/src/include/lwip/prot/ieee.h" />
+<Unit filename="../../../../../include_lib/net/lwip_2_1_3/lwip/src/include/lwip/sockets.h" />
+<Unit filename="../../../../../include_lib/net/lwip_2_1_3/lwip/src/include/lwip/stats.h" />
 <Unit filename="../../../../../include_lib/net/server/net_server.h" />
 <Unit filename="../../../../../include_lib/net/version.z.S" />
 <Unit filename="../../../../../include_lib/net/wifi/wifi_connect.h" />
 <Unit filename="../../../../../include_lib/net/wifi/wifi_def.h" />
-<Unit filename="../../../../../include_lib/newlib/include/machine/time.h" />
-<Unit filename="../../../../../include_lib/newlib/include/machine/types.h" />
-<Unit filename="../../../../../include_lib/newlib/include/strings.h" />
-<Unit filename="../../../../../include_lib/newlib/include/sys/_stdint.h" />
-<Unit filename="../../../../../include_lib/newlib/include/sys/_timespec.h" />
-<Unit filename="../../../../../include_lib/newlib/include/sys/_timeval.h" />
-<Unit filename="../../../../../include_lib/newlib/include/sys/time.h" />
-<Unit filename="../../../../../include_lib/newlib/include/sys/timespec.h" />
-<Unit filename="../../../../../include_lib/newlib/include/sys/types.h" />
-<Unit filename="../../../../../include_lib/newlib/include/sys/unistd.h" />
-<Unit filename="../../../../../include_lib/newlib/include/time.h" />
-<Unit filename="../../../../../include_lib/newlib/include/unistd.h" />
 <Unit filename="../../../../../include_lib/server/audio_dev.h" />
 <Unit filename="../../../../../include_lib/server/version.z.S" />
 <Unit filename="../../../../../include_lib/system/app_core.h" />

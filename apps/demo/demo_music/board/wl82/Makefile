@@ -22,13 +22,13 @@ AR    := llvm-ar.exe
 MKDIR := mkdir_win -p
 RM    := rm -rf
 
-SYS_LIB_DIR := 
-SYS_INC_DIR := 
+SYS_LIB_DIR := C:/JL/pi32/pi32v2-lib/r3
+SYS_INC_DIR := C:/JL/pi32/pi32v2-include
 EXT_CFLAGS  := # Windows 下不需要 -D__SHELL__
 export PATH:=$(TOOL_DIR);$(PATH)
 
 ## 后处理脚本
-FIXBAT          := ../../../../../tools/utils/fixbat.exe # 用于处理 utf8->gbk 编码问题
+FIXBAT          := ..\..\..\..\..\tools\utils\fixbat.exe # 用于处理 utf8->gbk 编码问题
 POST_SCRIPT     := ../../../../../cpu/wl82/tools/download.bat
 RUN_POST_SCRIPT := ..\..\..\..\..\cpu\wl82\tools\download.bat
 else
@@ -70,9 +70,9 @@ ROOT_PREFIX := ../../../../..
 # 编译参数设置
 CFLAGS := \
 	-target pi32v2 \
-	-integrated-as \
 	-mcpu=r3 \
-	-mfprev1 \
+	-integrated-as \
+	-flto \
 	-Wuninitialized \
 	-Wno-invalid-noreturn \
 	-fno-common \
@@ -82,7 +82,6 @@ CFLAGS := \
 	-flto \
 	-fallow-pointer-null \
 	-fprefer-gnu-section \
-	-femulated-tls \
 	-Wno-shift-negative-value \
 	-Wframe-larger-than=2560 \
 	-mllvm -pi32v2-large-program=true \
@@ -96,7 +95,7 @@ CFLAGS := \
 
 # C++额外的编译参数
 CXXFLAGS := \
-	-std=gnu++14 \
+	-std=c++11 \
 	-fno-exceptions \
 	-fno-rtti \
 
@@ -143,8 +142,6 @@ DEFINES += $(EXT_CFLAGS) # 额外的一些定义
 INCLUDES := \
 	-I../../../../../include_lib/c++ \
 	-I../../../../../include_lib/c++/include \
-	-I../../../../../include_lib/newlib/include \
-	-I../../../../../include_lib/c++/simple_pthread \
 	-I../../../../../include_lib \
 	-I../../../../../include_lib/driver \
 	-I../../../../../include_lib/driver/device \
@@ -168,11 +165,11 @@ INCLUDES := \
 	-I../../../../../apps/demo/demo_music/include \
 	-I../../../../../include_lib/net \
 	-I../../../../../include_lib/net/cJSON_common \
-	-I../../../../../include_lib/net/mbedtls_3_4_0 \
-	-I../../../../../include_lib/net/lwip_2_2_0/lwip/src/include \
-	-I../../../../../include_lib/net/lwip_2_2_0/lwip/src/include/lwip \
-	-I../../../../../include_lib/net/lwip_2_2_0/lwip/port \
-	-I../../../../../include_lib/net/lwip_2_2_0/lwip/app \
+	-I../../../../../include_lib/net/mbedtls_2_2_1 \
+	-I../../../../../include_lib/net/lwip_2_1_3/lwip/src/include \
+	-I../../../../../include_lib/net/lwip_2_1_3/lwip/src/include/lwip \
+	-I../../../../../include_lib/net/lwip_2_1_3/lwip/port \
+	-I../../../../../include_lib/net/lwip_2_1_3/lwip/app \
 	-I../../../../../apps/common/rf_fcc_tool/include \
 	-I../../../../../apps/common/usb \
 	-I../../../../../apps/common/usb/device \
@@ -182,6 +179,7 @@ INCLUDES := \
 	-I../../../../../include_lib/driver/device/usb/device \
 	-I../../../../../include_lib/driver/device/usb/host \
 	-I../../../../../apps/common/usb/host \
+	-I$(SYS_INC_DIR) \
 
 # 需要编译的 .c 文件
 c_SRC_FILES := \
@@ -196,7 +194,6 @@ c_SRC_FILES := \
 	../../../../../apps/common/net/iperf_test.c \
 	../../../../../apps/common/net/platform_cfg.c \
 	../../../../../apps/common/net/wifi_conf.c \
-	../../../../../apps/common/rf_fcc_tool/bt.c \
 	../../../../../apps/common/rf_fcc_tool/rf_fcc_main.c \
 	../../../../../apps/common/system/device_mount.c \
 	../../../../../apps/common/system/init.c \
@@ -280,7 +277,6 @@ LFLAGS := \
 	--plugin-opt=-dont-used-symbol-list=malloc,free,sprintf,printf,puts,putchar \
 	--plugin-opt=save-temps \
 	--plugin-opt=-pi32v2-enable-rep-memop \
-	--plugin-opt=-emulated-tls \
 	--sort-common \
 	--plugin-opt=-used-symbol-file=../../../../../cpu/wl82/sdk_used_list.used \
 	--plugin-opt=-enable-movable-region=true \
@@ -295,10 +291,6 @@ LFLAGS := \
 	--plugin-opt=-pi32v2-large-program=true \
 	--start-group \
 	../../lib/migumusic.a \
-	../../../../../include_lib/newlib/pi32v2-lib/libm.a \
-	../../../../../include_lib/newlib/pi32v2-lib/libc.a \
-	../../../../../include_lib/newlib/pi32v2-lib/libcompiler_rt.a \
-	--start-group  \
 	../../../../../cpu/wl82/liba/fs.a \
 	../../../../../cpu/wl82/liba/event.a \
 	../../../../../cpu/wl82/liba/system.a \
@@ -311,27 +303,33 @@ LFLAGS := \
 	../../../../../cpu/wl82/liba/hsm.a \
 	../../../../../cpu/wl82/liba/wpasupplicant.a \
 	../../../../../cpu/wl82/liba/http_cli.a \
-	../../../../../cpu/wl82/liba/https_cli.a \
 	../../../../../cpu/wl82/liba/json.a \
 	../../../../../cpu/wl82/liba/iperf.a \
-	../../../../../cpu/wl82/liba/libmbedtls_3_4_0.a \
-	../../../../../cpu/wl82/liba/lwip_2_2_0_sfc.a \
+	../../../../../cpu/wl82/liba/libmbedtls_2_2_1.a \
+	../../../../../cpu/wl82/liba/lwip_2_1_3_sfc.a \
 	../../../../../cpu/wl82/liba/wl_wifi_sfc.a \
 	../../../../../cpu/wl82/liba/audio_server.a \
 	../../../../../cpu/wl82/liba/lib_mp3_dec.a \
 	../../../../../cpu/wl82/liba/media_app.a \
 	../../../../../cpu/wl82/liba/lib_usb_syn.a \
 	--end-group \
-	../../../../../include_lib/c++/libstdc++/libemutls.a \
-	../../../../../include_lib/c++/libstdc++/libc++.a \
-	../../../../../include_lib/c++/libstdc++/libc++abi.a \
+	../../../../../include_lib/c++/libstdc++/libcxx.a \
+	../../../../../include_lib/c++/libstdc++/libcxxabi.a \
 	-T../../../../../cpu/wl82/sdk.ld \
 	-M=../../../../../cpu/wl82/tools/sdk.map \
-	--end-group  \
 	--plugin-opt=mcpu=r3 \
 	--plugin-opt=-mattr=+fprev1 \
 
 
+LIBPATHS := \
+	-L$(SYS_LIB_DIR) \
+
+
+LIBS := \
+	$(SYS_LIB_DIR)/libm.a \
+	$(SYS_LIB_DIR)/libc.a \
+	$(SYS_LIB_DIR)/libm.a \
+	$(SYS_LIB_DIR)/libcompiler-rt.a \
 
 c_OBJS    := $(c_SRC_FILES:%.c=%.c.o)
 S_OBJS    := $(S_SRC_FILES:%.S=%.S.o)
@@ -379,7 +377,6 @@ pre_build:
 	$(QUITE) $(CC) $(CFLAGS) $(DEFINES) $(INCLUDES) -D__LD__ -E -P ../../../../../cpu/wl82/tools/download.c -o $(POST_SCRIPT)
 	$(QUITE) $(FIXBAT) $(POST_SCRIPT)
 	$(QUITE) $(CC) $(CFLAGS) $(DEFINES) $(INCLUDES) -D__LD__ -E -P ../../../../../cpu/wl82/tools/isd_config_rule.c -o ../../../../../cpu/wl82/tools/isd_config.ini
-	$(QUITE) $(CC) $(CFLAGS) $(DEFINES) $(INCLUDES) -D__LD__ -E -P ../../../../../cpu/wl82/tools/isd_config_rule_loader.c -o ../../../../../cpu/wl82/tools/isd_config_loader.ini
 
 clean:
 	$(QUITE) $(RM) $(OUT_ELF)
