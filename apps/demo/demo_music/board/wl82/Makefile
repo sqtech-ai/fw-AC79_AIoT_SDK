@@ -115,7 +115,7 @@ DEFINES := \
 	-DCONFIG_CXX_SUPPORT \
 	-DCONFIG_SFC_ENABLE \
 	-DCONFIG_USB_ENABLE=1 \
-	-DCONFIG_NO_SDRAM_ENABLE \
+	-DCONFIG_RTOS_AND_MM_LIB_CODE_SECTION_IN_SDRAM \
 	-DCONFIG_AUDIO_ENABLE \
 	-DCONFIG_NET_ENABLE=1 \
 	-DEVENT_HANDLER_NUM_CONFIG=2 \
@@ -165,7 +165,7 @@ INCLUDES := \
 	-I../../../../../apps/demo/demo_music/include \
 	-I../../../../../include_lib/net \
 	-I../../../../../include_lib/net/cJSON_common \
-	-I../../../../../include_lib/net/mbedtls_2_2_1 \
+	-I../../../../../include_lib/net/mbedtls_3_4_0 \
 	-I../../../../../include_lib/net/lwip_2_1_3/lwip/src/include \
 	-I../../../../../include_lib/net/lwip_2_1_3/lwip/src/include/lwip \
 	-I../../../../../include_lib/net/lwip_2_1_3/lwip/port \
@@ -303,9 +303,10 @@ LFLAGS := \
 	../../../../../cpu/wl82/liba/hsm.a \
 	../../../../../cpu/wl82/liba/wpasupplicant.a \
 	../../../../../cpu/wl82/liba/http_cli.a \
+	../../../../../cpu/wl82/liba/https_cli.a \
 	../../../../../cpu/wl82/liba/json.a \
 	../../../../../cpu/wl82/liba/iperf.a \
-	../../../../../cpu/wl82/liba/libmbedtls_2_2_1.a \
+	../../../../../cpu/wl82/liba/libmbedtls_3_4_0.a \
 	../../../../../cpu/wl82/liba/lwip_2_1_3_sfc.a \
 	../../../../../cpu/wl82/liba/wl_wifi_sfc.a \
 	../../../../../cpu/wl82/liba/audio_server.a \
@@ -319,6 +320,15 @@ LFLAGS := \
 	-M=../../../../../cpu/wl82/tools/sdk.map \
 	--plugin-opt=mcpu=r3 \
 	--plugin-opt=-mattr=+fprev1 \
+
+
+# Static libs used at link time (make must re-link when these change)
+LINK_LIBS := \
+	../../lib/migumusic.a \
+	../../../../../cpu/wl82/liba/libmbedtls_3_4_0.a \
+	../../../../../cpu/wl82/liba/http_cli.a \
+	../../../../../cpu/wl82/liba/https_cli.a \
+	../../../../../cpu/wl82/liba/lwip_2_1_3_sfc.a \
 
 
 LIBPATHS := \
@@ -385,13 +395,13 @@ clean:
 
 
 ifeq ($(LINK_AT), 1)
-$(OUT_ELF): $(OBJS)
+$(OUT_ELF): $(OBJS) $(LINK_LIBS)
 	$(info +LINK $@)
 	$(shell $(MKDIR) $(@D))
 	$(file >$(OBJ_FILE), $(OBJS))
 	$(QUITE) $(LD) -o $(OUT_ELF) @$(OBJ_FILE) $(LFLAGS) $(LIBPATHS) $(LIBS)
 else
-$(OUT_ELF): $(OBJS)
+$(OUT_ELF): $(OBJS) $(LINK_LIBS)
 	$(info +LINK $@)
 	$(shell $(MKDIR) $(@D))
 	$(QUITE) $(LD) -o $(OUT_ELF) $(OBJS) $(LFLAGS) $(LIBPATHS) $(LIBS)

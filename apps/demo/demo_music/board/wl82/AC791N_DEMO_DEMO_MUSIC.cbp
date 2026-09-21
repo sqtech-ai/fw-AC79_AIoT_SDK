@@ -38,7 +38,7 @@
 <Add option="-DCONFIG_CXX_SUPPORT" />
 <Add option="-DCONFIG_SFC_ENABLE" />
 <Add option="-DCONFIG_USB_ENABLE=1" />
-<Add option="-DCONFIG_NO_SDRAM_ENABLE" />
+<Add option="-DCONFIG_RTOS_AND_MM_LIB_CODE_SECTION_IN_SDRAM" />
 <Add option="-DCONFIG_AUDIO_ENABLE" />
 <Add option="-DCONFIG_NET_ENABLE=1" />
 <Add option="-DEVENT_HANDLER_NUM_CONFIG=2" />
@@ -83,7 +83,7 @@
 <Add directory="../../../../../apps/demo/demo_music" />
 <Add directory="../../../../../include_lib/net" />
 <Add directory="../../../../../include_lib/net/cJSON_common" />
-<Add directory="../../../../../include_lib/net/mbedtls_2_2_1" />
+<Add directory="../../../../../include_lib/net/mbedtls_3_4_0" />
 <Add directory="../../../../../include_lib/net/lwip_2_1_3/lwip/src/include" />
 <Add directory="../../../../../include_lib/net/lwip_2_1_3/lwip/src/include/lwip" />
 <Add directory="../../../../../include_lib/net/lwip_2_1_3/lwip/port" />
@@ -129,10 +129,11 @@
 <Add option="../../../../../cpu/wl82/liba/hsm.a" />
 <Add option="../../../../../cpu/wl82/liba/wpasupplicant.a" />
 <Add option="../../../../../cpu/wl82/liba/http_cli.a" />
+<Add option="../../../../../cpu/wl82/liba/https_cli.a" />
 <Add option="../../../../../cpu/wl82/liba/json.a" />
 <Add option="../../../../../cpu/wl82/liba/cJSON.a" />
 <Add option="../../../../../cpu/wl82/liba/iperf.a" />
-<Add option="../../../../../cpu/wl82/liba/libmbedtls_2_2_1.a" />
+<Add option="../../../../../cpu/wl82/liba/libmbedtls_3_4_0.a" />
 <Add option="../../../../../cpu/wl82/liba/lwip_2_1_3_sfc.a" />
 <Add option="../../../../../cpu/wl82/liba/wl_wifi_sfc.a" />
 <Add option="../../../../../cpu/wl82/liba/audio_server.a" />
