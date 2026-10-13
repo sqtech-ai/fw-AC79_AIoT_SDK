@@ -252,6 +252,22 @@ public:
      * @return 0 成功，其他失败
      */
     virtual int QueryMusicSheetMusic(const std::string& input, std::string& output, int timeout = 10000) = 0;
+    /**
+     * 查询歌曲精简信息（硬件低音质/brief，咪咕 OpenAPI）
+     * 对应 OpenAPI：/openapi/iot/migu/music/brief/get；MQTT 当前无协议，调用返回错误（留桩）
+     * @param input 输入参数(json字符串)
+     * songId: 歌曲ID(与 musicId 至少其一；优先 songId；支持11位版权ID或18位内容ID)
+     * musicId: 兼容字段；当 songId 无效时映射为请求体 songId
+     * quality: 最高音质档位(可选；"0"-40K、"1"-标清、"2"-高清、"3"-无损；未传或空时 SDK 默认补 "0")
+     * @param output 返回结果(json字符串)
+     * code / message / traceId: 平台统一字段（HTTP 成功多为 code "1"）
+     * data: 歌曲精简对象（失败时多为 null；空 listenUrl/urlList 仍可能成功）
+     *      musicId / musicName / singerName / listenUrl / lrcUrl / picUrl / length / vip
+     *      urlList / qualityList（一一对应，音质从低到高；无地址时为 []）
+     * @param timeout 超时时长，单位ms
+     * @return 0 成功，其他失败
+     */
+    virtual int GetMusicBrief(const std::string& input, std::string& output, int timeout = 10000) = 0;
 };
 
 #endif//_IOT_SDK_H_

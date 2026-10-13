@@ -29,6 +29,10 @@ int IOTSdk_QueryMusicSheet(const char* input, char** output, int timeout);
  * @param output 必须调用free()释放
  */
 int IOTSdk_QueryMusicSheetMusic(const char* input, char** output, int timeout);
+/**
+ * @param output 必须调用free()释放
+ */
+int IOTSdk_GetMusicBrief(const char* input, char** output, int timeout);
 
 #ifdef __cplusplus
 }
