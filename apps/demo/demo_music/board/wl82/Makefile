@@ -315,6 +315,7 @@ LFLAGS := \
 	../../../../../cpu/wl82/liba/json.a \
 	../../../../../cpu/wl82/liba/iperf.a \
 	../../../../../cpu/wl82/liba/libmbedtls_3_4_0.a \
+	../../../../../cpu/wl82/liba/lib_mqtt.a \
 	../../../../../cpu/wl82/liba/lwip_2_2_0_sfc.a \
 	../../../../../cpu/wl82/liba/wl_wifi_sfc.a \
 	../../../../../cpu/wl82/liba/audio_server.a \

@@ -2,8 +2,8 @@
 
 本文档依据源码头文件 [`IOTSdk.h`](../IOTSdk.h) 整理，供第三方在集成 **IOTSdk** 时对照使用。入参、出参均为 **JSON 字符串**。
 
-> **sdk-3.2：** HTTP 模式新增传输层失败码 `IOTSDK_RET_HTTP_ERROR`（-9）及可配置重试（`retryCount`，默认 3 次，含首次调用）；`Init` / `Search` / `Report` / `GetMusicInfo` / `QueryMusicSheet` / `QueryMusicSheetMusic` 在 HTTP 模式下均适用。  
-> **sdk-3.0：** 对外保留 `Init` / `SetOnGetBoardMqtt` / `SetOnGetBoardHttp` / `Search` / `Report` / `GetMusicInfo` / `QueryMusicSheet` / `QueryMusicSheetMusic`。已移除的 `SearchPlay` / `SearchByKey` / `SearchSongEx` 等接口不再提供。
+> **sdk-3.2：** HTTP 模式新增传输层失败码 `IOTSDK_RET_HTTP_ERROR`（-9）及可配置重试（`retryCount`，默认 3 次，含首次调用）；`Init` / `Search` / `Report` / `GetMusicInfo` / `QueryMusicSheet` / `QueryMusicSheetMusic` / `GetMusicBrief` 在 HTTP 模式下均适用。  
+> **sdk-3.0：** 对外保留 `Init` / `SetOnGetBoardMqtt` / `SetOnGetBoardHttp` / `Search` / `Report` / `GetMusicInfo` / `QueryMusicSheet` / `QueryMusicSheetMusic` / `GetMusicBrief`。已移除的 `SearchPlay` / `SearchByKey` / `SearchSongEx` 等接口不再提供。
 
 ---
 
@@ -113,12 +113,12 @@ virtual int Init(const std::string& workspace, const std::string& args) = 0;
 
 | 条件 | 模式 | 说明 |
 |------|------|------|
-| `username` 与 `password` 均非空 | MQTT | `InitMqtt`；业务 `Search` / `Report` / `GetMusicInfo` / `QueryMusicSheet` / `QueryMusicSheetMusic` 走 MQTT 路径 |
+| `username` 与 `password` 均非空 | MQTT | `InitMqtt`；业务 `Search` / `Report` / `GetMusicInfo` / `QueryMusicSheet` / `QueryMusicSheetMusic` 走 MQTT 路径；`GetMusicBrief` 当前为 MQTT 留桩（返回错误） |
 | 否则 | HTTP | `InitHttp`；业务走 OpenAPI / 咪咕 HTTP |
 
 **HTTP 模式重试（`retryCount`）：**
 
-- 适用接口：`Init`（`InitHttp`）、`Search`、`Report`、`GetMusicInfo`、`QueryMusicSheet`、`QueryMusicSheetMusic`。
+- 适用接口：`Init`（`InitHttp`）、`Search`、`Report`、`GetMusicInfo`、`QueryMusicSheet`、`QueryMusicSheetMusic`、`GetMusicBrief`。
 - 仅当底层 HTTP 返回 **`IOTSDK_RET_HTTP_ERROR`** 时重试；参数错误、资源未就绪、业务异常（`IOTSDK_RET_REQUEST_EXCEPTION`）**不重试**。
 - 每次重试前清空 `output`（`Init` 无 output，仅重调 `InitHttp`）。
 - 最坏耗时约为 **`retryCount × timeout`**（`Init` 固定单次超时 10s）；调用方总超时需留足余量。
@@ -454,6 +454,43 @@ virtual int QueryMusicSheetMusic(const std::string& input, std::string& output, 
 
 ---
 
+### 4.9 `GetMusicBrief`
+
+查询歌曲精简信息（硬件低音质 / brief）。对应 OpenAPI：`/openapi/iot/migu/music/brief/get`。MQTT 当前无协议，调用返回 `IOTSDK_RET_ERROR`（留桩）。
+
+```cpp
+virtual int GetMusicBrief(const std::string& input, std::string& output, int timeout = 10000) = 0;
+```
+
+| 参数 | 类型 | 说明 |
+|------|------|------|
+| `input` | `std::string` | **JSON 字符串** |
+| `output` | `std::string&` | **JSON 字符串** |
+| `timeout` | `int` | 超时（毫秒），默认 `10000` |
+
+**`input` JSON 字段：**
+
+| 字段 | 必填 | 说明 |
+|------|------|------|
+| `songId` | 条件 | 歌曲 ID（11 位版权 ID 或 18 位内容 ID）；与 `musicId` 至少其一 |
+| `musicId` | 条件 | 兼容字段；当 `songId` 无效时映射为请求体 `songId` |
+| `quality` | 否 | 最高音质：`0` 40K、`1` 标清、`2` 高清、`3` 无损；未传或空时 SDK 默认补 `"0"` |
+
+**`output` JSON 字段：**
+
+| 字段 | 说明 |
+|------|------|
+| `code` / `message` / `traceId` | 平台统一字段（HTTP 成功多为 `code` `"1"`） |
+| `data` | 歌曲精简对象；失败多为 `null`。空 `listenUrl` / `urlList` 时仍可能成功 |
+
+**`data` 常见字段：** `musicId`、`musicName`、`singerName`、`listenUrl`、`lrcUrl`、`picUrl`、`length`、`vip`、`urlList`、`qualityList`（与 `urlList` 一一对应）。对接时以 `listenUrl` 是否为空判断能否播放；勿本地拼装地址。
+
+**C 桥接：** `IOTSdk_GetMusicBrief`（成功时 `*output` 需 `free`）。
+
+**返回值：** `0` 成功，其他失败。HTTP 模式下传输失败返回 `IOTSDK_RET_HTTP_ERROR`（可重试）。MQTT 模式当前为留桩，返回 `IOTSDK_RET_ERROR`。
+
+---
+
 ## 5. 集成注意点（摘要）
 
 1. **注册顺序（4G）：** `SetOnGetBoardMqtt`（若用 MQTT）→ `SetOnGetBoardHttp` → `Init`。WiFi 通常只 `Init`，不必注册板载 HTTP/MQTT。
@@ -464,6 +501,7 @@ virtual int QueryMusicSheetMusic(const std::string& input, std::string& output, 
 6. **`Search`：** 喜马+咪咕合并搜索；未传 `providerOrder` 时 SDK 默认仅搜咪咕。`IMusicPlayer::Search` 侧也会强制写入 `providerOrder: ["migu"]`。
 7. **`GetMusicInfo`：** `provider` 仅支持 **`migu`**；入参歌曲 ID 字段为 **`musicId`**。`Report` 头文件同时描述咪咕/喜马字段；HTTP 路径当前按咪咕 `contentId` 上报。
 8. **歌单接口：** `QueryMusicSheet` 未传 `typeId` 时默认 `"2"`；`QueryMusicSheetMusic` 必填 `musicSheetId`，未传 `picSize` 时 SDK 默认 `"S"`。成功时 `data` 均为列表（HTTP 会把内层 `musicSheetInfos` / `musicInfos` 提升为 `data`）。
+9. **`GetMusicBrief`：** 优先 `songId`，否则 `musicId`→`songId`；`quality` 默认 `"0"`。成功时 `data` 已是歌曲对象（不做字段提升）。MQTT 留桩待补全。
 
 ---
 
@@ -472,3 +510,4 @@ virtual int QueryMusicSheetMusic(const std::string& input, std::string& output, 
 - 规范来源：[`IOTSdk.h`](../IOTSdk.h)、[`IOTBoard.h`](../IOTBoard.h)。
 - 板载参考：[`EspBoard.cpp`](../esp32/EspBoard.cpp)。
 - 若头文件中的宏、接口签名或 JSON 字段有变更，请同步更新本文档。
+- 硬件 brief 对接说明：[`硬件低音质歌曲信息查询接口对接说明.md`](./硬件低音质歌曲信息查询接口对接说明.md)。

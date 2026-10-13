@@ -140,6 +140,7 @@
 <Add option="../../../../../cpu/wl82/liba/cJSON.a" />
 <Add option="../../../../../cpu/wl82/liba/iperf.a" />
 <Add option="../../../../../cpu/wl82/liba/libmbedtls_3_4_0.a" />
+<Add option="../../../../../cpu/wl82/liba/lib_mqtt.a" />
 <Add option="../../../../../cpu/wl82/liba/lwip_2_2_0_sfc.a" />
 <Add option="../../../../../cpu/wl82/liba/wl_wifi_sfc.a" />
 <Add option="--end-group" />
